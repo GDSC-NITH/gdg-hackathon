@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Vertical Minecraft Rail: 3 horizontal wood ties and 2 vertical iron rails -->
+  <!-- Ties -->
+  <rect x="2" y="2" width="12" height="2" fill="#784c28"/>
+  <rect x="2" y="2" width="12" height="1" fill="#9c663b"/>
+  <rect x="2" y="7" width="12" height="2" fill="#784c28"/>
+  <rect x="2" y="7" width="12" height="1" fill="#9c663b"/>
+  <rect x="2" y="12" width="12" height="2" fill="#784c28"/>
+  <rect x="2" y="12" width="12" height="1" fill="#9c663b"/>
+  <!-- Left rail -->
+  <rect x="4" y="0" width="2" height="16" fill="#9ca3af"/>
+  <rect x="4" y="0" width="1" height="16" fill="#e5e7eb"/>
+  <rect x="5" y="0" width="1" height="16" fill="#4b5563"/>
+  <!-- Right rail -->
+  <rect x="10" y="0" width="2" height="16" fill="#9ca3af"/>
+  <rect x="10" y="0" width="1" height="16" fill="#e5e7eb"/>
+  <rect x="11" y="0" width="1" height="16" fill="#4b5563"/>
+  <!-- Iron Spikes -->
+  <rect x="4" y="3" width="1" height="1" fill="#1f2937"/>
+  <rect x="11" y="3" width="1" height="1" fill="#1f2937"/>
+  <rect x="4" y="8" width="1" height="1" fill="#1f2937"/>
+  <rect x="11" y="8" width="1" height="1" fill="#1f2937"/>
+  <rect x="4" y="13" width="1" height="1" fill="#1f2937"/>
+  <rect x="11" y="13" width="1" height="1" fill="#1f2937"/>
+</svg>

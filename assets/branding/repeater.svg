@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Minecraft Redstone Repeater: 16x16 pixel art -->
+  <!-- Stone slab base -->
+  <rect x="1" y="2" width="14" height="12" fill="#6b7280"/>
+  <rect x="1" y="2" width="14" height="1" fill="#9ca3af"/>
+  <rect x="1" y="13" width="14" height="1" fill="#374151"/>
+  <rect x="1" y="2" width="1" height="12" fill="#9ca3af"/>
+  <rect x="14" y="2" width="1" height="12" fill="#374151"/>
+  <!-- Redstone arrow / line on base -->
+  <rect x="7" y="3" width="2" height="10" fill="#dc2626"/>
+  <!-- Two mini redstone torches -->
+  <!-- Torch 1 (fixed) -->
+  <rect x="7" y="4" width="2" height="3" fill="#ef4444"/>
+  <rect x="7" y="4" width="1" height="1" fill="#fef08a"/>
+  <!-- Torch 2 (adjustable delay) -->
+  <rect x="7" y="9" width="2" height="3" fill="#ef4444"/>
+  <rect x="7" y="9" width="1" height="1" fill="#fef08a"/>
+</svg>

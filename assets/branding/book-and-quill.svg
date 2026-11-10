@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" shape-rendering="crispEdges">
+  <!-- Feather Quill -->
+  <rect x="17" y="1" width="2" height="2" fill="#302d38"/>
+  <rect x="16" y="2" width="2" height="2" fill="#585466"/>
+  <rect x="18" y="2" width="1" height="2" fill="#25232c"/>
+  <rect x="15" y="3" width="2" height="2" fill="#938fa6"/>
+  <rect x="17" y="3" width="1" height="3" fill="#302d38"/>
+  <rect x="14" y="4" width="2" height="2" fill="#585466"/>
+  <rect x="16" y="4" width="1" height="2" fill="#938fa6"/>
+  <rect x="13" y="5" width="2" height="2" fill="#302d38"/>
+  <rect x="15" y="5" width="1" height="2" fill="#585466"/>
+  <rect x="12" y="6" width="2" height="2" fill="#25232c"/>
+  <rect x="14" y="6" width="1" height="3" fill="#302d38"/>
+  <rect x="11" y="7" width="2" height="2" fill="#18161c"/>
+  <rect x="13" y="7" width="1" height="2" fill="#302d38"/>
+  <rect x="10" y="8" width="2" height="2" fill="#18161c"/>
+
+  <!-- Open Book Base/Shadow -->
+  <rect x="2" y="19" width="19" height="2" fill="#1b1713"/>
+  <rect x="1" y="11" width="21" height="8" fill="#1b1713"/>
+
+  <!-- Leather Cover Back -->
+  <rect x="2" y="12" width="9" height="8" fill="#5a3417"/>
+  <rect x="12" y="12" width="9" height="8" fill="#5a3417"/>
+  <rect x="3" y="18" width="8" height="1" fill="#38200d"/>
+  <rect x="12" y="18" width="8" height="1" fill="#38200d"/>
+
+  <!-- Parchment Pages Left -->
+  <rect x="3" y="10" width="8" height="8" fill="#ede5d2"/>
+  <rect x="3" y="10" width="8" height="1" fill="#ffffff"/>
+  <rect x="3" y="10" width="1" height="8" fill="#d9ceb6"/>
+  <rect x="3" y="17" width="8" height="1" fill="#c4b89e"/>
+  <!-- Writing lines left page -->
+  <rect x="5" y="12" width="4" height="1" fill="#4d4436"/>
+  <rect x="5" y="14" width="5" height="1" fill="#4d4436"/>
+  <rect x="5" y="16" width="3" height="1" fill="#4d4436"/>
+
+  <!-- Parchment Pages Right -->
+  <rect x="12" y="10" width="8" height="8" fill="#ede5d2"/>
+  <rect x="12" y="10" width="8" height="1" fill="#ffffff"/>
+  <rect x="19" y="10" width="1" height="8" fill="#d9ceb6"/>
+  <rect x="12" y="17" width="8" height="1" fill="#c4b89e"/>
+  <!-- Writing lines right page -->
+  <rect x="14" y="12" width="4" height="1" fill="#4d4436"/>
+  <rect x="14" y="14" width="5" height="1" fill="#4d4436"/>
+  <rect x="14" y="16" width="3" height="1" fill="#4d4436"/>
+
+  <!-- Book Spine Center Fold -->
+  <rect x="10" y="10" width="2" height="9" fill="#2b1a0d"/>
+  <rect x="11" y="9" width="1" height="1" fill="#87532a"/>
+  <!-- Red Bookmark ribbon hanging down -->
+  <rect x="10" y="16" width="2" height="4" fill="#a82b2b"/>
+  <rect x="10" y="20" width="1" height="1" fill="#751b1b"/>
+</svg>

@@ -84,24 +84,111 @@ function decorate() {
   const items = schedule ? $$('.schedule-item', schedule) : [];
   if (items.length) {
     const days = Object.assign(document.createElement('div'), { className: 'pv-days' });
-    let column = null, n = 0;
+    
+    // Top horizontal railway track spanning Day 1 and Day 2
+    const topBar = Object.assign(document.createElement('div'), { className: 'pv-timeline-top' });
+    topBar.setAttribute('aria-hidden', 'true');
+    topBar.innerHTML = `
+      <div class="pv-top-track-inner">
+        <i class="pv-prop-torch" title="Redstone Torch"></i>
+        <div class="pv-top-badge d1">DAY 1 - JAN 17</div>
+        <div class="pv-rail-h"><i class="pv-minecart" title="Minecart"></i></div>
+        <div class="pv-top-badge d2">DAY 2 - JAN 18</div>
+        <div class="pv-rail-h-end"><i class="pv-redstone-dot"></i></div>
+      </div>
+    `;
+    days.append(topBar);
+
+    const bodyGrid = Object.assign(document.createElement('div'), { className: 'pv-timeline-body' });
+    
+    // Left redstone wiring gutter
+    const gutterLeft = Object.assign(document.createElement('div'), { className: 'pv-redstone-gutter left' });
+    gutterLeft.setAttribute('aria-hidden', 'true');
+    gutterLeft.innerHTML = `
+      <i class="rs-torch top"></i>
+      <i class="rs-lever"></i>
+      <div class="rs-wire-v"></div>
+      <i class="rs-torch mid"></i>
+      <div class="rs-wire-v"></div>
+      <i class="rs-dot bot"></i>
+    `;
+    bodyGrid.append(gutterLeft);
+
+    let column = null, n = 0, dayItemIndex = 0;
     for (const item of items) {
       const time = $('.schedule-time', item), br = time?.querySelector('br');
       if (br || !column) {
+        dayItemIndex = 0;
         let date = '';
         if (br) {
           date = time.firstChild.textContent.trim();
           while (time.firstChild !== br) time.firstChild.remove();
           br.remove();
         }
-        column = Object.assign(document.createElement('section'), { className: 'pv-day' });
+        column = Object.assign(document.createElement('section'), { className: `pv-day pv-day-${++n}` });
         const head = document.createElement('h3');
-        head.textContent = `Day ${++n}${date ? ` · ${date}` : ''}`;
+        head.className = 'sr';
+        head.textContent = `Day ${n}${date ? ` · ${date}` : ''}`;
         column.append(head);
-        days.append(column);
+        bodyGrid.append(column);
       }
+
+      // Assign theme and props
+      const isDay1 = (n === 1);
+      const idx = dayItemIndex++;
+      item.classList.add(isDay1 ? 'item-d1' : 'item-d2');
+      item.classList.add(`row-${idx}`);
+
+      const theme = isDay1
+        ? ['theme-stone', 'theme-wood', 'theme-stone', 'theme-stone-wood', 'theme-wood'][idx] || 'theme-stone'
+        : ['theme-wood', 'theme-stone', 'theme-wood', 'theme-stone', 'theme-wood'][idx] || 'theme-wood';
+      item.classList.add(theme);
+
+      // Prepend vertical rail track graphic behind/along time slot
+      if (!item.querySelector('.rail-track')) {
+        const rail = document.createElement('div');
+        rail.className = 'rail-track';
+        rail.setAttribute('aria-hidden', 'true');
+        item.prepend(rail);
+      }
+
+      // Append decorative Minecraft props matching the reference image
+      if (!item.querySelector('.mc-props')) {
+        const props = document.createElement('div');
+        props.className = 'mc-props';
+        props.setAttribute('aria-hidden', 'true');
+
+        if (isDay1) {
+          if (idx === 0) props.innerHTML = '<i class="prop-furnace"></i>';
+          else if (idx === 2) props.innerHTML = '<i class="prop-lamp-lit"></i><i class="prop-chest"></i>';
+          else if (idx === 3) props.innerHTML = '<i class="prop-lamp-lit"></i>';
+          else if (idx === 4) props.innerHTML = '<i class="prop-lamp-lit"></i>';
+        } else {
+          if (idx === 0) props.innerHTML = '<i class="prop-furnace"></i><i class="prop-hopper"></i>';
+          else if (idx === 1) props.innerHTML = '<i class="prop-lamp-lit"></i>';
+          else if (idx === 2) props.innerHTML = '<i class="prop-chest"></i><i class="prop-hopper"></i><i class="prop-lamp-lit"></i>';
+          else if (idx === 3) props.innerHTML = '<i class="prop-repeater"></i>';
+          else if (idx === 4) props.innerHTML = '<i class="prop-dispenser"></i>';
+        }
+        item.append(props);
+      }
+
       column.append(item);
     }
+
+    // Right redstone wiring gutter
+    const gutterRight = Object.assign(document.createElement('div'), { className: 'pv-redstone-gutter right' });
+    gutterRight.setAttribute('aria-hidden', 'true');
+    gutterRight.innerHTML = `
+      <i class="rs-repeater top"></i>
+      <div class="rs-wire-v"></div>
+      <i class="rs-repeater mid"></i>
+      <div class="rs-wire-v"></div>
+      <i class="rs-torch bot"></i>
+    `;
+    bodyGrid.append(gutterRight);
+
+    days.append(bodyGrid);
     schedule.append(days);
   }
 }
