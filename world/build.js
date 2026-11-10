@@ -7,6 +7,7 @@ import { ISLAND, PLAN, TREES } from './layout.js';
 import { placeStation } from './kit.js';
 import { BUILDS } from './stations/index.js';
 import { surfaceAt, buildDecor } from './grounds.js';
+import { buildMountains } from './mountains.js';
 
 // Keeps visitors on the island: a wall around its edge and a ceiling 50 m up.
 const CEILING = 50;
@@ -20,7 +21,7 @@ const edge = {
   spots: () => [],
 };
 
-export function build({ grid, layer, materials }) {
+export function build({ grid, layer, materials, scene }) {
   buildIsland(grid, ISLAND, { surfaceAt, corner: 10, wobble: 0 });
   const forest = buildForest(grid, layer, TREES);
 
@@ -31,6 +32,11 @@ export function build({ grid, layer, materials }) {
     else console.warn(`No build for station "${station.id}" in world/stations/index.js`);
   }
   buildDecor({ ...out, layer, materials });
+
+  // Outside the wall: mountains on three sides, the sea open on the fourth.
+  // Pure backdrop — no sites, so none of it is ever reachable.
+  const mountains = buildMountains(layer, materials);
+  scene.add(mountains.group);
 
   return {
     batches: { static: out.B },
