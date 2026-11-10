@@ -70,17 +70,20 @@ function pine(B, x, z, groundY, s, seed) {
   }
 }
 
-// A round-crowned deciduous tree: a trunk and two overlapping canopy boxes.
+// A blooming sakura deciduous tree on the hills: a trunk and two overlapping pink canopy boxes.
 function broadleaf(B, x, z, groundY, s, seed) {
-  const r = rng(seed), tone = 0x4d7a3a + ((r() * 4) | 0) * 0x040302;
+  const r = rng(seed);
+  const tones = [0xffb7c5, 0xff94b8, 0xfc8bad, 0xffc2d1, 0xf472b6];
+  const tone = tones[Math.floor(r() * tones.length)];
   B.box(x, groundY, z, 0.32 * s, 1.3 * s, 0.32 * s, { tex: 'log', top: 'log_top' }, { shadow: false });
   const topY = groundY + 1.05 * s, jx = (r() - 0.5) * 0.5 * s, jz = (r() - 0.5) * 0.5 * s;
   B.box(x, topY, z, 1.6 * s, 1.1 * s, 1.6 * s, { tex: 'foliage', tint: tone }, { shadow: false });
-  B.box(x + jx, topY + 0.65 * s, z + jz, 1.1 * s, 0.85 * s, 1.1 * s, { tex: 'foliage', tint: tone + 0x060604 }, { shadow: false });
+  B.box(x + jx, topY + 0.65 * s, z + jz, 1.1 * s, 0.85 * s, 1.1 * s, { tex: 'foliage', tint: tone }, { shadow: false });
 }
 
 function shrub(B, x, z, groundY, s, seed) {
-  const r = rng(seed), tone = 0x3f6e3c + ((r() * 4) | 0) * 0x030502;
+  const r = rng(seed);
+  const tone = r() < 0.6 ? 0xffb7c5 : 0xfc8bad;
   B.box(x, groundY, z, 0.85 * s, 0.5 * s, 0.85 * s, { tex: 'foliage', tint: tone }, { shadow: false });
 }
 
@@ -179,8 +182,8 @@ function fillCoastGaps(B, grid) {
   }
 }
 
-export function buildMountains(layer, materials, grid) {
-  const B = new BoxBatch(layer), r = rng(20260501), tufts = [];
+export function buildMountains(layer, materials, grid, targetBatch = null) {
+  const B = targetBatch || new BoxBatch(layer), r = rng(20260501), tufts = [];
   fillCoastGaps(B, grid);
   const belts = [
     // West (the left side, facing the spawn's north heading): rocky,
@@ -198,7 +201,9 @@ export function buildMountains(layer, materials, grid) {
   for (const belt of belts) paintBelt(B, r, tufts, belt);
 
   const group = new THREE.Group(); group.name = 'mountains';
-  for (const m of B.build(materials)) group.add(m);
+  if (!targetBatch) {
+    for (const m of B.build(materials)) group.add(m);
+  }
   if (tufts.length) group.add(buildTufts(layer, materials, tufts, 'mountain-undergrowth'));
   return { group };
 }
