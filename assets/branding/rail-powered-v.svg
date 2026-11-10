@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Powered Rail: golden vertical rails, redstone power strip in center, wood ties -->
+  <!-- Ties -->
+  <rect x="2" y="2" width="12" height="2" fill="#633e20"/>
+  <rect x="2" y="7" width="12" height="2" fill="#633e20"/>
+  <rect x="2" y="12" width="12" height="2" fill="#633e20"/>
+  <!-- Glowing Redstone line in center -->
+  <rect x="7" y="0" width="2" height="16" fill="#e11d48"/>
+  <rect x="7" y="0" width="1" height="16" fill="#ff4d4d"/>
+  <rect x="8" y="0" width="1" height="16" fill="#be123c"/>
+  <!-- Left gold rail -->
+  <rect x="4" y="0" width="2" height="16" fill="#f59e0b"/>
+  <rect x="4" y="0" width="1" height="16" fill="#fef08a"/>
+  <rect x="5" y="0" width="1" height="16" fill="#b45309"/>
+  <!-- Right gold rail -->
+  <rect x="10" y="0" width="2" height="16" fill="#f59e0b"/>
+  <rect x="10" y="0" width="1" height="16" fill="#fef08a"/>
+  <rect x="11" y="0" width="1" height="16" fill="#b45309"/>
+  <!-- Gold Spikes -->
+  <rect x="4" y="3" width="1" height="1" fill="#78350f"/>
+  <rect x="11" y="3" width="1" height="1" fill="#78350f"/>
+  <rect x="4" y="8" width="1" height="1" fill="#78350f"/>
+  <rect x="11" y="8" width="1" height="1" fill="#78350f"/>
+  <rect x="4" y="13" width="1" height="1" fill="#78350f"/>
+  <rect x="11" y="13" width="1" height="1" fill="#78350f"/>
+</svg>

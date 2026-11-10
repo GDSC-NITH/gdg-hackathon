@@ -16,6 +16,9 @@
 <meta property="og:image" content="assets/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="engine/style.css">
 <style>
 /* Minecraft GUI Panel Card Background */
@@ -97,24 +100,120 @@ body.night .schedule-time { color: #4cd137; }
 }
 body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); }
 
+#panel :is(.page-card-header, .faq-card-header) {
+  display: none !important;
+}
 .faq-box {
-  margin-bottom: 12px;
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
-  border-radius: 4px;
-  padding: 4px 12px;
-
+  margin: 0;
+  position: relative;
+}
+.faq-box details {
+  display: block;
 }
 .faq-box summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 50px;
+  padding: 6px 8px 6px 16px;
+  cursor: pointer;
+  user-select: none;
   list-style: none;
   outline: none;
-  
+  background: linear-gradient(180deg, #dfdcd5 0%, #cbc6bc 100%);
+  border: 2px solid #25221d;
+  box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
+  transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .faq-box summary::-webkit-details-marker {
   display: none;
 }
-.faq-box h3 { margin: 8px 0 4px; font-size: 16px;cursor: pointer; }
-.faq-box p { margin: 4px 0 10px; color: var(--ink); }
+.faq-box summary:hover {
+  background: linear-gradient(180deg, #e8e5de 0%, #d4cfc5 100%);
+}
+.faq-box summary:active {
+  transform: translateY(1px);
+}
+.faq-q-text {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+  color: #27231e;
+  padding-right: 12px;
+}
+.faq-toggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(180deg, #59554e 0%, #46423b 100%);
+  border: 2px solid #211e19;
+  box-shadow: inset 1px 1px 0 #807c73, inset -1px -1px 0 #282520;
+  color: #f1ede4;
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #1b1814;
+  transition: background 0.15s ease;
+}
+.faq-toggle::before {
+  content: "+";
+  display: block;
+  margin-top: -2px;
+}
+.faq-box details[open] .faq-toggle::before {
+  content: "−";
+}
+.faq-box details[open] .faq-toggle {
+  background: linear-gradient(180deg, #4d5c48 0%, #364432 100%);
+}
+/* Golden Highlight State (Featured & Active/Hover) */
+.faq-box.is-featured summary,
+.faq-box summary:focus-visible {
+  background: linear-gradient(180deg, #eedfb9 0%, #dac89d 100%);
+  border-color: #b58d24;
+  box-shadow: inset 2px 2px 0 #fbeeaf, inset -2px -2px 0 #8c6913;
+}
+.faq-box.is-featured summary .faq-toggle,
+.faq-box summary:focus-visible .faq-toggle {
+  border-color: #8c6913;
+  background: linear-gradient(180deg, #6c5a32 0%, #544422 100%);
+  box-shadow: inset 1px 1px 0 #9e854e, inset -1px -1px 0 #332711;
+  color: #fff2c4;
+}
+/* Corner selection brackets for Minecraft UI */
+.faq-box.is-featured summary::after,
+.faq-box summary:hover::after,
+.faq-box summary:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  pointer-events: none;
+  background:
+    linear-gradient(#d4af37, #d4af37) top left / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) top right / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom left / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom right / 4px 4px no-repeat;
+}
+/* Answer well */
+.faq-answer {
+  background: #bebaa0;
+  background: color-mix(in srgb, var(--gui, #c4c2bc) 88%, #000);
+  border: 2px solid #25221d;
+  border-top: none;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.28), inset -2px -2px 0 rgba(255, 255, 255, 0.25);
+  padding: 14px 16px;
+  animation: pv-rise 0.22s ease-out;
+}
+.faq-answer p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #27231e;
+}
 
 /* Team roles and travel notes */
 .crew, .travel { display: grid; gap: 10px; margin-top: 14px; }
@@ -131,19 +230,6 @@ body.night .page .crew-label { color: #4cd137; }
 .page .travel-item p { margin: 0; }
 .venue-address { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .page .venue-address p { margin: 0; }
-
-/* The registration form: the mailbox's look, without being wired as the mailbox. */
-.signup {
-  position: relative; display: grid; gap: 12px; padding: 14px;
-  border: 8px solid transparent; border-image: var(--mc-frame) 4 fill / 8px;
-}
-.signup textarea, .signup input {
-  width: 100%; padding: 10px 12px; border: 0; border-radius: 0;
-  font: 400 16px/1.5 var(--text); color: var(--ink); background: var(--field); box-shadow: 0 0 0 2px var(--field-edge);
-}
-.signup textarea { min-height: 120px; resize: none; }
-.signup textarea::placeholder, .signup input::placeholder { color: var(--field-hint); }
-.signup textarea:focus, .signup input:focus { outline: none; box-shadow: 0 0 0 2px var(--ink); }
 
 /* Hide external portals, language switch, BetterMapIt, and Homecraft map badges */
 #portalButton, #portalReturn, .hc-controls, .hc-control, .lang-switch, button.lang-switch, #panel .lang-switch { display: none !important; }
@@ -218,7 +304,13 @@ body.night .page .crew-label { color: #4cd137; }
 
   <!-- 1. Welcome Station -->
   <article class="page" id="welcome" data-station="welcome" data-icon="scroll">
-    <h2>Welcome to Labyrinth</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Welcome to Labyrinth</h2>
+        <span class="card-badge">WELCOME</span>
+      </div>
+    </div>
     <p><strong>Labyrinth hackathon Organised by GDG NIT Hamirpur.</strong></p>
     <p>Join 300+ builders, creators, and hackers for 36 hours of high-energy creation and innovation. Lead Organisers: Harsh Bhushan Pathak, Daksh and Divyansh.</p>
 
@@ -239,7 +331,13 @@ body.night .page .crew-label { color: #4cd137; }
 
   <!-- 2. Tracks Station -->
   <article class="page" id="tracks" data-station="tracks" data-icon="works">
-    <h2>Challenge Tracks</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Challenge Tracks</h2>
+        <span class="card-badge">TRACKS</span>
+      </div>
+    </div>
     <p>Choose one of the 4 challenge tracks to forge your project during the hackathon:</p>
 
     <div class="track-card">
@@ -269,7 +367,13 @@ body.night .page .crew-label { color: #4cd137; }
 
   <!-- 3. Schedule Station -->
   <article class="page" id="schedule" data-station="schedule" data-icon="camera">
-    <h2>36-Hour Timeline</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>36-Hour Timeline</h2>
+        <span class="card-badge">SCHEDULE</span>
+      </div>
+    </div>
     <p>All times in Indian Standard Time (IST):</p>
 
     <div class="schedule-item">
@@ -306,13 +410,23 @@ body.night .page .crew-label { color: #4cd137; }
     </div>
     <div class="schedule-item">
       <div class="schedule-time">17:00</div>
-      <div><strong>Closing Ceremony & Awards</strong><br><span class="aside">Main Stage — Trophy presentations & wrap-up</span></div>
+      <div><strong>Closing Ceremony &amp; Awards</strong><br><span class="aside">Main Stage — Trophy presentations &amp; wrap-up</span></div>
+    </div>
+    <div class="schedule-item">
+      <div class="schedule-time">18:00</div>
+      <div><strong>Dinner &amp; Hacker Farewell</strong><br><span class="aside">Dining Hall — Hot dinner, networking &amp; departure</span></div>
     </div>
   </article>
 
   <!-- 4. Prizes Station -->
   <article class="page" id="prizes" data-station="prizes" data-icon="honors">
-    <h2>Prizes & Swag</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Prizes &amp; Swag</h2>
+        <span class="card-badge">PRIZES</span>
+      </div>
+    </div>
     <p>A total prize pool of <strong>₹1,50,000</strong> plus sponsor bounty perks and developer swag:</p>
 
     <div class="prize-tier gold">
@@ -341,17 +455,25 @@ body.night .page .crew-label { color: #4cd137; }
 
     <div class="prize-tier">
       <span class="prize-amount">₹15,000</span>
-      <h3>🎨 Excellence in UI/UX & Craft</h3>
+      <h3>🎨 Excellence in UI/UX &amp; Craft</h3>
       <p>Recognizing the most intuitive, polished, and delightful user experience.</p>
     </div>
 
-    <h3 style="margin-top:16px;">Swag for All Hackers</h3>
-    <p>Every attendee receives a limited-edition Embroidered Labyrinth Hoodie, Holographic Sticker Pack, Stainless Steel Bottle, and NFC Participant Passport.</p>
+    <div class="swag-box">
+      <h3 style="margin:0 0 6px;">Swag for All Hackers</h3>
+      <p style="margin:0;">Every attendee receives a limited-edition Embroidered Labyrinth Hoodie, Holographic Sticker Pack, Stainless Steel Bottle, and NFC Participant Passport.</p>
+    </div>
   </article>
 
   <!-- 5. Sponsors Station -->
   <article class="page" id="sponsors" data-station="sponsors" data-icon="cap">
-    <h2>Partners & Sponsors</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Partners &amp; Sponsors</h2>
+        <span class="card-badge">SPONSORS</span>
+      </div>
+    </div>
     <p>Labyrinth is powered by industry leaders across developer tooling and AI:</p>
 
     <ul class="store">
@@ -400,7 +522,13 @@ body.night .page .crew-label { color: #4cd137; }
 
   <!-- 6. Team Station -->
   <article class="page" id="team" data-station="team" data-icon="heart">
-    <h2>Organizing Crew</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Organizing Crew</h2>
+        <span class="card-badge">TEAM</span>
+      </div>
+    </div>
     <p>Labyrinth is organised by Google Developer Groups on Campus, NIT Hamirpur.</p>
 
     <div class="crew">
@@ -425,65 +553,122 @@ body.night .page .crew-label { color: #4cd137; }
 
   <!-- 7. FAQ Station -->
   <article class="page" id="faq" data-station="faq" data-icon="writing">
-    <h2>FAQ & Rules</h2>
+    <div class="page-card-header faq-card-header">
+      <div class="header-left faq-header-left">
+        <i class="page-card-icon faq-book-icon" aria-hidden="true"></i>
+        <h2>FAQ &amp; Rules</h2>
+        <span class="card-badge faq-badge">FAQ</span>
+      </div>
+    </div>
 
-    <div class="faq-box">
-      <details>
-        <summary><h3>Is there a registration fee?</h3></summary>
-         <p>No. Labyrinth is completely free. Meals, snacks and swag during the event are covered.</p>
-      </details>
-      
-    </div>
-    <div class="faq-box">
-      <details>
-        <summary><h3>What is the team size?</h3></summary>
-        <p>Teams of 2 to 4 members. Each team names one team leader when registering.</p>
-      </details>
-    </div>
-    <div class="faq-box">
-      <details>
-        <summary><h3>Who can participate?</h3></summary>
-        <p>Any college student with a valid student ID. Students from all branches and years are welcome, including first-time hackers.</p>
-      </details>
-    </div>
-    <div class="faq-box">
-      <details>
-        <summary><h3>I don’t have a team. Can I still join?</h3></summary>
-         <p>Yes. Register on your own and we will help you find teammates before hacking starts.</p>
-      </details>
-      
-     
-    </div>
-    <div class="faq-box">
+    <div class="faq-grid">
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">Is there a registration fee?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>No. Labyrinth is completely free. Meals, snacks and swag during the event are covered.</p>
+          </div>
+        </details>
+      </div>
 
-      <details>
-        <summary><h3>Can we work on an existing project?</h3></summary>
-        <p>No. All code and designs must be made during the 36 hours. Open-source libraries, public APIs and starter templates are allowed.</p>
-      </details>
-    </div>
-    <div class="faq-box">
-      <details>
-        <summary><h3>What should I bring?</h3></summary>
-        <p>Your laptop, charger, student ID, any hardware you plan to use, and a water bottle. Bring a blanket if you plan to rest overnight.</p>
-      </details>
-    </div>
-    <div class="faq-box">
-      <details>
-        <summary><h3>Will food and accommodation be provided?</h3></summary>
-        <p>Meals and snacks are provided throughout the hackathon. The venue stays open overnight for hacking.</p>
-      </details>
-    </div>
-    <div class="faq-box">
-      <details>
-        <summary><h3>How are projects judged?</h3></summary>
-        <p>On innovation, technical complexity, design and usability, and impact. Teams demo to the judging panel at the end.</p>
-      </details>
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">What is the team size?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>Teams of 2 to 4 members. Each team names one team leader when registering.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">Who can participate?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>Any college student with a valid student ID. Students from all branches and years are welcome, including first-time hackers.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">I don’t have a team. Can I still join?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>Yes. Register on your own and we will help you find teammates before hacking starts.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">Can we work on an existing project?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>No. All code and designs must be made during the 36 hours. Open-source libraries, public APIs and starter templates are allowed.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">What should I bring?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>Your laptop, charger, student ID, any hardware you plan to use, and a water bottle. Bring a blanket if you plan to rest overnight.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">Will food and accommodation be provided?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>Meals and snacks are provided throughout the hackathon. The venue stays open overnight for hacking.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-box">
+        <details>
+          <summary>
+            <span class="faq-q-text">How are projects judged?</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>On innovation, technical complexity, design and usability, and impact. Teams demo to the judging panel at the end.</p>
+          </div>
+        </details>
+      </div>
     </div>
   </article>
 
   <!-- 8. Venue Station -->
   <article class="page" id="venue" data-station="venue" data-icon="map">
-    <h2>Venue & Travel Guide</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Venue &amp; Travel Guide</h2>
+        <span class="card-badge">VENUE</span>
+      </div>
+    </div>
     <div class="venue-address">
       <p><strong>New Lecture Hall</strong><br>National Institute of Technology Hamirpur, Hamirpur, Himachal Pradesh 177005</p>
       <a class="mc-button" href="https://maps.app.goo.gl/J43i28goaCsLP1qV8" target="_blank" rel="noopener">NIT Hamirpur on Google Maps ↗</a>
@@ -511,14 +696,26 @@ body.night .page .crew-label { color: #4cd137; }
 
   <!-- 9. Register Station -->
   <article class="page" id="register" data-station="register" data-icon="seal">
-    <h2>Register for Labyrinth</h2>
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Register for Labyrinth</h2>
+        <span class="card-badge">REGISTER</span>
+      </div>
+    </div>
     <p>Register your team for the Labyrinth hackathon! Fill out your details below:</p>
 
     <form class="signup" onsubmit="event.preventDefault(); alert('Registration submitted! You are confirmed for Labyrinth.');">
       <input name="teamName" maxlength="80" required placeholder="Team Name" aria-label="Team Name (required)">
       <input name="leaderEmail" type="email" maxlength="120" required placeholder="Team Leader Email" aria-label="Leader Email">
       <input name="teamSize" type="number" min="2" max="4" value="4" required placeholder="Team Size (2 - 4)" aria-label="Team Size">
-      <input name="trackChoice" maxlength="80" required placeholder="Preferred Track (AI / Web3 / 3D / Open)" aria-label="Track Choice">
+      <select name="Track" id="Track" required aria-label="Select Track">
+        <option value="" disabled selected hidden>Select a track</option>
+        <option value="us">Autonomous AI & Agents</option>
+        <option value="ca">Decentralized Systems</option>
+        <option value="uk">Interactive 3D & Spatial Web</option>
+        <option value="in"> Open Innovation</option>
+      </select>
       <textarea name="projectNotes" rows="4" maxlength="500" placeholder="Brief project idea or technology stack..." aria-label="Project Notes"></textarea>
       <div class="mailbox-foot">
         <button class="mc-button" type="submit">Submit Registration</button>
@@ -527,8 +724,14 @@ body.night .page .crew-label { color: #4cd137; }
   </article>
 
   <!-- 10. Mailbox Station -->
-  <article class="page" id="mailbox" data-station="mailbox">
-    <h2>Contact & Inquiries</h2>
+  <article class="page" id="mailbox" data-station="mailbox" data-icon="mail">
+    <div class="page-card-header">
+      <div class="header-left">
+        <i class="page-card-icon" aria-hidden="true"></i>
+        <h2>Contact &amp; Inquiries</h2>
+        <span class="card-badge">CONTACT</span>
+      </div>
+    </div>
     <form class="mailbox" method="post" enctype="text/plain">
       <input name="subject" maxlength="80" required placeholder="Subject" aria-label="Subject (required)">
       <textarea name="message" rows="6" maxlength="1000" required placeholder="Write something to the organisers..." aria-label="Write something"></textarea>

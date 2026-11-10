@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Minecraft Chest: 16x16 pixel art -->
+  <!-- Dark outline -->
+  <rect x="1" y="2" width="14" height="12" fill="#3b2311"/>
+  <!-- Lid -->
+  <rect x="2" y="3" width="12" height="4" fill="#a4683a"/>
+  <rect x="2" y="3" width="12" height="1" fill="#c98a58"/>
+  <rect x="2" y="6" width="12" height="1" fill="#784c28"/>
+  <!-- Body -->
+  <rect x="2" y="7" width="12" height="6" fill="#a4683a"/>
+  <rect x="2" y="7" width="12" height="1" fill="#5c381c"/>
+  <rect x="2" y="12" width="12" height="1" fill="#784c28"/>
+  <!-- Iron lock latch in center -->
+  <rect x="7" y="5" width="2" height="4" fill="#1f2937"/>
+  <rect x="7" y="5" width="2" height="3" fill="#e5e7eb"/>
+  <rect x="7" y="5" width="2" height="1" fill="#ffffff"/>
+  <rect x="7" y="7" width="2" height="1" fill="#9ca3af"/>
+</svg>
