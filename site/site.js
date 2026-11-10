@@ -2,7 +2,7 @@
 // played a game. It talks to the engine only through window.__home (the API
 // listed in AGENTS.md), so engine updates don't touch it.
 import { PLAN } from '@world/layout.js';
-import { isHeroOn, showHero, hideHero, drawLogo, initHero, enableHeroExplore, updateHeroProgress } from './hero.js';
+import { showHero, hideHero, initHero, enableHeroExplore, updateHeroProgress } from './hero.js';
 import { initHint, showHint } from './hint.js';
 import { initNav, syncModeLinks, setupNavLinks } from './nav.js';
 import { initTags } from './tags.js';
@@ -54,7 +54,6 @@ document.addEventListener('click', e => {
   if (isPlain()) {
     body.classList.remove('hero-on');
     syncModeLinks();
-    drawLogo(true);
     if (new URLSearchParams(location.search).has('plain')) {
       $('#startupNotice')?.setAttribute('hidden', '');
     }
@@ -63,7 +62,8 @@ document.addEventListener('click', e => {
       go.disabled = false;
       go.textContent = '▶ Open the 3D island';
     }
-    if (deepLink) document.getElementById(deepLink)?.scrollIntoView();
+    // Tabs, ground and motion for page view; it opens the tab named in the URL.
+    import('./page.js').then(m => m.initPageView()).catch(err => console.error('Page view:', err));
     return;
   }
 

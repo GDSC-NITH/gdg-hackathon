@@ -18,11 +18,6 @@
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="engine/style.css">
 <style>
-/* Hide spiderweb / zip-line button from HUD corner switches */
-#webButton {
-  display: none !important;
-}
-
 /* Minecraft GUI Panel Card Background */
 dialog#panel {
   width: min(780px, calc(100vw - 40px));
@@ -121,6 +116,35 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
 .faq-box h3 { margin: 8px 0 4px; font-size: 16px;cursor: pointer; }
 .faq-box p { margin: 4px 0 10px; color: var(--ink); }
 
+/* Team roles and travel notes */
+.crew, .travel { display: grid; gap: 10px; margin-top: 14px; }
+.crew-role, .travel-item {
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 4px;
+}
+.page .crew-label { margin: 0 0 4px; font: 700 12px/1.3 var(--text); letter-spacing: .6px; text-transform: uppercase; color: #2e7d32; }
+body.night .page .crew-label { color: #4cd137; }
+.crew-role h3, .travel-item h3 { margin: 0; }
+.travel-item h3 { margin-bottom: 4px; }
+.page .travel-item p { margin: 0; }
+.venue-address { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.page .venue-address p { margin: 0; }
+
+/* The registration form: the mailbox's look, without being wired as the mailbox. */
+.signup {
+  position: relative; display: grid; gap: 12px; padding: 14px;
+  border: 8px solid transparent; border-image: var(--mc-frame) 4 fill / 8px;
+}
+.signup textarea, .signup input {
+  width: 100%; padding: 10px 12px; border: 0; border-radius: 0;
+  font: 400 16px/1.5 var(--text); color: var(--ink); background: var(--field); box-shadow: 0 0 0 2px var(--field-edge);
+}
+.signup textarea { min-height: 120px; resize: none; }
+.signup textarea::placeholder, .signup input::placeholder { color: var(--field-hint); }
+.signup textarea:focus, .signup input:focus { outline: none; box-shadow: 0 0 0 2px var(--ink); }
+
 /* Hide external portals, language switch, BetterMapIt, and Homecraft map badges */
 #portalButton, #portalReturn, .hc-controls, .hc-control, .lang-switch, button.lang-switch, #panel .lang-switch { display: none !important; }
 #minimap .badge, #minimap .badge.credit, #minimap .badge.made, .badge.credit, .badge.made, a.badge {
@@ -138,6 +162,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
   "@config":"./home.config.js"
 }}</script>
 <link rel="stylesheet" href="site/site.css">
+<link rel="stylesheet" href="site/page.css">
 </head>
 <body>
 <!-- Website layer (site/site.js): top bar, hero, name tags, first-visit hint. -->
@@ -367,22 +392,22 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
     <h2>Organizing Crew</h2>
     <p>Labyrinth is organised by Google Developer Groups on Campus, NIT Hamirpur.</p>
 
-    <div class="items">
-      <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <p class="aside" style="margin:0 0 4px;"><strong>Lead Organisers</strong></p>
-        <h3 style="margin:0;">Harsh Bhushan Pathak · Daksh · Divyansh</h3>
+    <div class="crew">
+      <div class="crew-role">
+        <p class="crew-label">Lead Organisers</p>
+        <h3>Harsh Bhushan Pathak · Daksh · Divyansh</h3>
       </div>
-      <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <p class="aside" style="margin:0 0 4px;"><strong>Technical Leads</strong></p>
-        <h3 style="margin:0;">Saurabh Chauhan · Prashant Bahuguna</h3>
+      <div class="crew-role">
+        <p class="crew-label">Technical Leads</p>
+        <h3>Saurabh Chauhan · Prashant Bahuguna</h3>
       </div>
-      <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <p class="aside" style="margin:0 0 4px;"><strong>Operations Lead</strong></p>
-        <h3 style="margin:0;">Parthivi Pradhan</h3>
+      <div class="crew-role">
+        <p class="crew-label">Operations Lead</p>
+        <h3>Parthivi Pradhan</h3>
       </div>
-      <div style="margin-bottom:12px; padding:10px 0;">
-        <p class="aside" style="margin:0 0 4px;"><strong>Design Lead</strong></p>
-        <h3 style="margin:0;">Kshitij Chauhan</h3>
+      <div class="crew-role">
+        <p class="crew-label">Design Lead</p>
+        <h3>Kshitij Chauhan</h3>
       </div>
     </div>
   </article>
@@ -448,20 +473,28 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
   <!-- 8. Venue Station -->
   <article class="page" id="venue" data-station="venue" data-icon="map">
     <h2>Venue & Travel Guide</h2>
-    <p><strong>New Lecture Hall</strong><br>National Institute of Technology Hamirpur, Hamirpur, Himachal Pradesh 177005</p>
+    <div class="venue-address">
+      <p><strong>New Lecture Hall</strong><br>National Institute of Technology Hamirpur, Hamirpur, Himachal Pradesh 177005</p>
+      <a class="mc-button" href="https://maps.app.goo.gl/J43i28goaCsLP1qV8" target="_blank" rel="noopener">NIT Hamirpur on Google Maps ↗</a>
+    </div>
 
-    <div style="margin:14px 0; padding:14px; background:rgba(0,0,0,0.04); border-radius:8px;">
-      <h3 style="margin-top:0;">🚌 By road</h3>
-      <p>Hamirpur is connected by HRTC and private buses from Chandigarh, Delhi, Shimla and Dharamshala. The campus is a short auto ride from Hamirpur bus stand.</p>
-
-      <h3>🚆 By train</h3>
-      <p>The nearest railway station is Una Himachal, about 80 km away. Buses and taxis run from Una to Hamirpur.</p>
-
-      <h3>✈️ By air</h3>
-      <p>The nearest airport is Gaggal (Kangra), about 90 km away. Chandigarh airport is the nearest major airport.</p>
-
-      <h3>📍 On campus</h3>
-      <p>Check in at the New Lecture Hall on Jan 17 from 09:00. Volunteers will guide you from the main gate.</p>
+    <div class="travel">
+      <div class="travel-item">
+        <h3>🚌 By road</h3>
+        <p>Hamirpur is connected by HRTC and private buses from Chandigarh, Delhi, Shimla and Dharamshala. The campus is a short auto ride from Hamirpur bus stand.</p>
+      </div>
+      <div class="travel-item">
+        <h3>🚆 By train</h3>
+        <p>The nearest railway station is Una Himachal, about 80 km away. Buses and taxis run from Una to Hamirpur.</p>
+      </div>
+      <div class="travel-item">
+        <h3>✈️ By air</h3>
+        <p>The nearest airport is Gaggal (Kangra), about 90 km away. Chandigarh airport is the nearest major airport.</p>
+      </div>
+      <div class="travel-item">
+        <h3>📍 On campus</h3>
+        <p>Check in at the New Lecture Hall on Jan 17 from 09:00. Volunteers will guide you from the main gate.</p>
+      </div>
     </div>
   </article>
 
@@ -470,7 +503,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
     <h2>Register for Labyrinth</h2>
     <p>Register your team for the Labyrinth hackathon! Fill out your details below:</p>
 
-    <form class="mailbox" onsubmit="event.preventDefault(); alert('Registration submitted! You are confirmed for Labyrinth.');">
+    <form class="signup" onsubmit="event.preventDefault(); alert('Registration submitted! You are confirmed for Labyrinth.');">
       <input name="teamName" maxlength="80" required placeholder="Team Name" aria-label="Team Name (required)">
       <input name="leaderEmail" type="email" maxlength="120" required placeholder="Team Leader Email" aria-label="Leader Email">
       <input name="teamSize" type="number" min="2" max="4" value="4" required placeholder="Team Size (2 - 4)" aria-label="Team Size">
@@ -495,6 +528,10 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
     </form>
   </article>
 
+  <footer class="pv-foot">
+    <p><strong>Labyrinth</strong> · Organised by Google Developer Groups on Campus, NIT Hamirpur</p>
+    <p><a href="?" data-mode data-keep-text>Open the 3D island</a><a href="#register">Register</a><a href="#mailbox">Contact</a></p>
+  </footer>
 </section>
 
 <!-- file:// cannot load the world modules. -->
