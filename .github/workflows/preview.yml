@@ -215,14 +215,16 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH_REF: ${{ github.event.pull_request.head.ref }}
         with:
           script: |
             const token = process.env.VERCEL_TOKEN;
             const teamId = process.env.VERCEL_ORG_ID;
             const projectId = process.env.VERCEL_PROJECT_ID;
             const prNumber = String(process.env.PR_NUMBER);
+            const branchRef = process.env.BRANCH_REF;
 
-            console.log(`Cleaning up Vercel preview resources for PR #${prNumber}...`);
+            console.log(`Cleaning up Vercel preview resources for PR #${prNumber} (branch: ${branchRef})...`);
 
             // 1. Delete matching aliases
             try {
@@ -242,7 +244,7 @@ jobs:
               console.warn('Error deleting aliases:', err.message);
             }
 
-            // 2. Delete deployments tagged with this PR
+            // 2. Delete deployments tagged with this PR or branch
             try {
               const depRes = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&teamId=${teamId}&limit=100`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -250,7 +252,9 @@ jobs:
               const depData = await depRes.json();
               const prDeployments = (depData.deployments || []).filter(d => {
                 const metaPr = d.meta?.prId || d.meta?.githubPrId;
-                return metaPr === prNumber;
+                const matchesPr = metaPr === prNumber;
+                const matchesBranch = branchRef && d.meta?.githubCommitRef === branchRef;
+                return matchesPr || matchesBranch;
               });
 
               console.log(`Found ${prDeployments.length} deployments for PR #${prNumber}`);
