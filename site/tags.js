@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { PLAN } from '@world/layout.js';
 import { icon } from '@engine/ui/icons.js';
+import { GEM_LIFT } from '@world/markers.js';
 import { isHeroOn, hideHero } from './hero.js';
 
 const $ = s => document.querySelector(s);
@@ -25,7 +26,8 @@ export function initTags({ h, onVisit, onUserInteract }) {
     b.addEventListener('click', () => onVisit(p.id));
     layer.append(b);
     const c = hs.box.getCenter(new THREE.Vector3());
-    return { id: p.id, el: b, at: new THREE.Vector3(c.x, hs.box.max.y + 0.45, c.z), shown: true, w: 0, h: 0 };
+    // Above the station's floating gem (world/markers.js).
+    return { id: p.id, el: b, at: new THREE.Vector3(c.x, hs.box.max.y + GEM_LIFT + 1.05, c.z), shown: true, w: 0, h: 0 };
   }).filter(Boolean);
 
   const v = new THREE.Vector3();

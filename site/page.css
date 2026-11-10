@@ -1,0 +1,261 @@
+/* Page view (?plain, or when the 3D world can't start). The island's cards
+   as a website: the hero over a picture of the island, a grass edge, then
+   tabs and cards on Minecraft dirt. site/page.js builds the tabs and paints
+   --pv-dirt and --pv-grass; without it the cards stack and the colours stay
+   flat. Motion only runs with body.pv-motion, which page.js leaves off when
+   the visitor prefers reduced motion. Nothing here applies to the 3D view. */
+
+body.plain { --pv-wide: 1080px; --pv-dirt-c: #3b2a1e; background: var(--pv-dirt-c); }
+body.plain::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--pv-dirt-c) var(--pv-dirt, none) 0 0 / 64px 64px; image-rendering: pixelated;
+}
+
+/* ---------- Top bar: the tabs are the section list here ---------- */
+body.plain .site-nav, body.plain .site-menu { display: none; }
+body.plain .site-mode { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; color: #fff; background: rgba(255, 255, 255, .1); }
+body.plain .site-mode:hover { background: rgba(255, 255, 255, .2); text-decoration: none; }
+
+/* ---------- Hero over the island ---------- */
+body.plain #hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; align-items: center; max-width: none; margin: 0;
+  min-height: min(640px, calc(100svh - var(--bar-h) - 40px));
+  padding: 64px max(24px, calc(50vw - var(--pv-wide) / 2)) 72px;
+  background: #182016;
+}
+body.plain #hero::before {
+  content: ""; position: absolute; inset: -4%; z-index: -2;
+  background: url("../assets/branding/island-wide.webp") 62% 45% / cover no-repeat;
+}
+body.plain #hero::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(10, 12, 10, .9) 0, rgba(10, 12, 10, .72) 38%, rgba(10, 12, 10, .1) 70%),
+    linear-gradient(0deg, rgba(10, 12, 10, .55) 0, rgba(10, 12, 10, 0) 28%);
+}
+body.plain .hero-card { width: min(560px, 100%); color: #fff; }
+body.plain .hero-eyebrow { color: #cfe8c4; text-shadow: 1px 1px 0 #000; }
+body.plain .hero-tag { text-shadow: 1px 1px 0 #000; }
+body.plain .hero-facts li { background: rgba(0, 0, 0, .45); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .12); transition: transform .18s, background-color .18s; }
+body.plain .hero-facts li:hover { transform: translateY(-2px); background: rgba(0, 0, 0, .6); }
+body.plain .hero-facts b { color: var(--gold); text-shadow: 1px 1px 0 #000; font-variant-numeric: tabular-nums; }
+
+/* ---------- Grass edge and tabs ---------- */
+/* Tall enough that even a short tab can scroll its bar up under the top bar. */
+body.plain #pages { max-width: none; min-height: 100svh; margin: 0; padding: 0 0 24px; }
+.pv-grass {
+  height: 40px;
+  background: #6fa544 var(--pv-grass, linear-gradient(#6fa544 0 12px, var(--pv-dirt-c) 12px)) 0 0 / 64px 64px repeat-x;
+  image-rendering: pixelated;
+}
+.pv-tabbar {
+  position: sticky; top: calc(var(--bar-h) + env(safe-area-inset-top)); z-index: 30;
+  background: linear-gradient(rgba(22, 16, 11, .94), rgba(22, 16, 11, .88));
+  box-shadow: 0 2px 0 #000;
+}
+.pv-tabs {
+  display: flex; gap: 8px; max-width: var(--pv-wide); margin: 0 auto; padding: 10px 16px 12px;
+  overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+}
+.pv-tabs::-webkit-scrollbar { display: none; }
+.pv-tab {
+  flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  min-width: 82px; padding: 9px 10px 8px; border: 0;
+  font: 600 13px/1 var(--text); color: #ecebe6; text-shadow: 1px 1px 0 #000; white-space: nowrap;
+  background: #5c5953;
+  box-shadow: 0 0 0 2px #000, inset 2px 2px 0 rgba(255, 255, 255, .2), inset -2px -3px 0 rgba(0, 0, 0, .38);
+  transition: transform .15s ease, background-color .15s ease;
+}
+.pv-tab i { width: 28px; height: 28px; background: var(--icon) center / contain no-repeat; image-rendering: pixelated; transition: transform .2s ease; }
+.pv-tab:hover { background: #76736c; transform: translateY(-2px); }
+.pv-tab:hover i { transform: translateY(-2px) scale(1.08); }
+.pv-tab:active { transform: translateY(1px); }
+.pv-tab:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.pv-tab.cta { background: var(--cta); }
+.pv-tab.cta:hover { background: var(--cta-hover); }
+.pv-tab[aria-selected="true"] {
+  color: var(--ink); text-shadow: none; background: var(--gui);
+  box-shadow: 0 0 0 2px #000, inset 2px 2px 0 var(--gui-light), inset -2px -3px 0 var(--gui-shade), inset 0 -5px 0 var(--accent);
+}
+.pv-tab.cta[aria-selected="true"] { box-shadow: 0 0 0 2px #000, inset 2px 2px 0 var(--gui-light), inset -2px -3px 0 var(--gui-shade), inset 0 -5px 0 var(--cta); }
+
+/* ---------- Cards ---------- */
+body.plain #pages > .page {
+  width: min(var(--pv-wide), calc(100% - 32px)); max-width: none; margin: 24px auto 0; padding: 30px 34px 34px;
+}
+body.plain #pages > .page:focus { outline: none; }
+body.plain #pages > .page[hidden] { display: none !important; }
+body.plain #pages > .page > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 30px; }
+body.plain #pages > .page > h2::before {
+  content: ""; flex: none; width: 40px; height: 40px; padding: 4px;
+  background: var(--slot) var(--icon, none) center / 32px no-repeat; image-rendering: pixelated;
+  box-shadow: inset 2px 2px 0 var(--slot-shade), inset -2px -2px 0 var(--gui-light);
+}
+body.plain .page p { max-width: 72ch; }
+body.plain #pages > .page > h2 + p { font-size: 17px; }
+body.plain .page h3 { font-size: 18px; }
+
+/* Lift on hover: a hard pixel shadow, the way Minecraft draws depth. */
+body.plain :is(.hack-stat, .track-card, .prize-tier, .store > li, .crew-role, .travel-item, .faq-box, .schedule-item) {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+}
+body.plain :is(.hack-stat, .track-card, .prize-tier, .store > li, .crew-role, .travel-item, .faq-box):hover {
+  transform: translateY(-3px); box-shadow: 0 5px 0 rgba(0, 0, 0, .18);
+}
+
+/* Buttons press in. */
+body.plain .mc-button { transition: transform .1s ease, background-color .15s ease; }
+body.plain .mc-button:hover { transform: translateY(-1px); }
+body.plain .mc-button:active { transform: translateY(2px); box-shadow: 0 0 0 2px var(--line), inset 2px 3px 0 rgba(0, 0, 0, .3); }
+
+/* Welcome */
+body.plain .hack-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 20px 0; }
+body.plain .hack-stat { padding: 18px 12px; }
+body.plain .hack-stat .val { font-size: 30px; font-variant-numeric: tabular-nums; }
+body.plain .hack-stat .lbl { display: block; margin-top: 4px; font-size: 13px; }
+
+/* Tracks: two by two, each in its sponsor's colour. */
+body.plain #tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+body.plain #tracks > :not(.track-card) { grid-column: 1 / -1; }
+body.plain #tracks > h2 + p { margin-bottom: 0; }
+body.plain .track-card { margin: 0; padding: 18px; border-top: 5px solid var(--tc, var(--accent)); }
+body.plain .track-card:hover { border-color: var(--tc, var(--accent)); }
+body.plain .track-card p { margin: 0; }
+
+/* Schedule: one column per day, a rail with a block on every slot. */
+.pv-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px; }
+body.plain .pv-day > h3 {
+  display: inline-block; margin: 0 0 10px; padding: 6px 12px; font-size: 15px; color: #fff; text-shadow: 1px 1px 0 #000;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--line);
+}
+body.plain .schedule-item { position: relative; grid-template-columns: 58px 1fr; column-gap: 34px; padding: 10px 10px 10px 0; border: 0; }
+body.plain .schedule-item::before { content: ""; position: absolute; left: 74px; top: 0; bottom: 0; width: 2px; background: color-mix(in srgb, var(--ink) 22%, transparent); }
+body.plain .schedule-item::after {
+  content: ""; position: absolute; left: 69px; top: 15px; width: 12px; height: 12px;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--gui); transition: transform .18s ease, background-color .18s ease;
+}
+body.plain .pv-day > h3 + .schedule-item::before { top: 18px; }
+body.plain .schedule-item:last-child::before { bottom: auto; height: 18px; }
+body.plain .schedule-item:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+body.plain .schedule-item:hover::after { transform: scale(1.35) rotate(45deg); background: var(--gold); }
+body.plain .schedule-time { padding-top: 2px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Prizes: the podium three across, the special awards two across. */
+body.plain #prizes { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0 16px; }
+body.plain #prizes > * { grid-column: 1 / -1; }
+body.plain #prizes > .prize-tier { grid-column: span 3; display: flex; flex-direction: column; margin: 0 0 16px; padding: 18px; border-left: 0; border-top: 5px solid #8a877f; border-radius: 4px; }
+body.plain #prizes > :is(.gold, .silver, .bronze) { grid-column: span 2; }
+body.plain #prizes > .gold { border-top-color: #f1c40f; background: color-mix(in srgb, #f1c40f 16%, transparent); }
+body.plain #prizes > .silver { border-top-color: #95a5a6; }
+body.plain #prizes > .bronze { border-top-color: #e67e22; }
+body.plain .prize-amount { order: -1; float: none; margin-bottom: 6px; font-size: 28px; font-variant-numeric: tabular-nums; }
+body.plain .prize-tier p { margin: 4px 0 0; }
+body.plain #prizes > h3 { margin-top: 4px; }
+
+/* Sponsors: two across. */
+body.plain #sponsors .store { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+body.plain #sponsors .store > li {
+  padding: 18px; border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+body.plain #sponsors .store > li + li { border-top: 2px solid color-mix(in srgb, var(--ink) 12%, transparent); }
+
+/* Team */
+body.plain .crew { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+body.plain .crew-role { padding: 18px; border-left: 5px solid var(--accent); }
+
+/* FAQ: two columns of questions; the + turns to × as one opens. */
+body.plain #faq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+body.plain #faq > :not(.faq-box) { grid-column: 1 / -1; }
+body.plain .faq-box { margin: 0; padding: 6px 14px; }
+body.plain .faq-box summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; }
+body.plain .faq-box summary h3 { margin: 0; }
+body.plain .faq-box summary::after {
+  content: "+"; flex: none; display: grid; place-items: center; width: 28px; height: 28px;
+  font: 700 20px/1 var(--text); color: #fff; text-shadow: 1px 1px 0 rgba(0, 0, 0, .4); background: var(--btn);
+  box-shadow: 0 0 0 2px var(--line), inset 2px 2px 0 rgba(255, 255, 255, .3), inset -2px -2px 0 rgba(0, 0, 0, .35);
+  transition: background-color .2s ease;
+}
+body.plain .faq-box summary:hover::after { background: var(--btn-hover); }
+body.plain .faq-box details[open] summary::after { content: "−"; background: var(--cta); }
+body.plain .faq-box details > p { margin: 6px 0 10px; }
+
+/* Venue */
+body.plain .venue-address { padding: 18px; background: color-mix(in srgb, var(--accent) 12%, transparent); border: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px; }
+body.plain .travel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+body.plain .travel-item { padding: 18px; }
+
+/* Register and Contact: the form in two columns. */
+body.plain :is(.signup, .mailbox) { margin: 20px 0 0; }
+body.plain .signup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.plain .signup > :is(textarea, .mailbox-foot) { grid-column: 1 / -1; }
+
+/* Footer */
+.pv-foot { display: none; }
+body.plain .pv-foot {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px;
+  width: min(var(--pv-wide), calc(100% - 32px)); margin: 32px auto 0; padding: 18px 0 0;
+  border-top: 2px solid rgba(255, 255, 255, .12); color: #d8d2c6; font: 500 14px/1.5 var(--text); text-shadow: 1px 1px 0 #000;
+}
+body.plain .pv-foot p { margin: 0; }
+body.plain .pv-foot a { color: #fff; margin-left: 18px; text-decoration: none; }
+body.plain .pv-foot a:first-child { margin-left: 0; }
+body.plain .pv-foot a:hover { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Motion ---------- */
+@keyframes pv-rise { from { opacity: 0; transform: translateY(16px); } }
+@keyframes pv-drift { from { transform: scale(1) translate(-1%, 0); } to { transform: scale(1.06) translate(1.5%, -1%); } }
+@keyframes pv-pop { 40% { transform: translateY(-4px) scale(1.25) rotate(-8deg); } }
+
+body.plain #hero::before { animation: pv-drift 40s ease-in-out infinite alternate; }
+body.plain .hero-card > * { animation: pv-rise .6s cubic-bezier(.2, .7, .2, 1) backwards; }
+body.plain .hero-card > :nth-child(2) { animation-delay: .08s; }
+body.plain .hero-card > :nth-child(3) { animation-delay: .16s; }
+body.plain .hero-card > :nth-child(4) { animation-delay: .24s; }
+body.plain .hero-card > :nth-child(5) { animation-delay: .32s; }
+body.plain .hero-card > :nth-child(6) { animation-delay: .4s; }
+
+/* A tab's card rises in; its pieces follow as they come into view. */
+body.pv-motion #pages > .page.pv-enter { animation: pv-rise .32s cubic-bezier(.2, .7, .2, 1); }
+body.pv-motion .pv-tab.pv-enter i { animation: pv-pop .35s ease; }
+body.pv-motion [data-reveal]:not(.is-in) { opacity: 0; }
+body.pv-motion [data-reveal].is-in { animation: pv-rise .5s cubic-bezier(.2, .7, .2, 1) backwards; animation-delay: calc(var(--i, 0) * 60ms); }
+body.pv-motion .faq-box details[open] > p { animation: pv-rise .28s ease; }
+body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s ease; }
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 900px) {
+  body.plain .hack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.plain #prizes > :is(.gold, .silver, .bronze) { grid-column: span 3; }
+  body.plain #prizes > .gold { grid-column: 1 / -1; }
+  .pv-days { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  body.plain #hero { align-items: flex-end; min-height: 0; padding: 34vh 18px 64px; }
+  body.plain #hero::before { inset: 0 0 auto; height: 62vh; background-image: url("../assets/branding/island-small.webp"); background-position: 58% 0; }
+  body.plain #hero::after {
+    background: linear-gradient(0deg, #182016 0, #182016 38%, rgba(24, 32, 22, .72) 58%, rgba(24, 32, 22, .08) 100%);
+  }
+  .pv-grass { height: 30px; background-size: 48px 48px; }
+  body.plain::before { background-size: 48px 48px; }
+  .pv-tabs {
+    gap: 6px; padding: 8px 12px 10px;
+    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent);
+  }
+  .pv-tab { flex: none; min-width: 70px; padding: 7px 8px 6px; gap: 5px; font-size: 12px; }
+  .pv-tab i { width: 24px; height: 24px; }
+  body.plain #pages > .page { width: calc(100% - 24px); margin-top: 16px; padding: 20px 16px 22px; }
+  body.plain #pages > .page > h2 { gap: 10px; font-size: 22px; }
+  body.plain #pages > .page > h2::before { width: 32px; height: 32px; padding: 3px; background-size: 24px; }
+  body.plain #pages > .page > h2 + p { font-size: 16px; }
+  body.plain .hack-grid { gap: 10px; }
+  body.plain .hack-stat .val { font-size: 24px; }
+  body.plain :is(#tracks, #faq, #sponsors .store, .crew, .travel, .signup) { grid-template-columns: minmax(0, 1fr); }
+  body.plain #prizes > .prize-tier { grid-column: 1 / -1; }
+  body.plain .prize-amount { font-size: 24px; }
+  body.plain #sponsors .listing { grid-template-columns: 44px minmax(0, 1fr); }
+  body.plain #sponsors .listing > :first-child { width: 44px !important; }
+  body.plain #sponsors .listing > .mc-button { grid-column: 1 / -1; justify-self: start; }
+  body.plain .pv-foot { width: calc(100% - 24px); flex-direction: column; align-items: flex-start; }
+}

@@ -4,28 +4,35 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
+// Shared uniform controlling nighttime self-illumination (0.0 = day, 1.0 = night).
+// At day, emissive radiance is strictly 0.0 so natural diffuse colors and shadows show cleanly.
+// At night, signs, lanterns, windows and architectural accents glow warmly.
+export const venueUniforms = {
+  uNight: { value: 0.0 },
+};
+
 // Color palette mapping to ensure clean, high-contrast, premium architectural visuals
-// that look stunning from top-down aerial and eye-level, and never turn into a black shadow.
-// Returns { diff: [r, g, b], emis: [r, g, b] } for daytime diffuse and nighttime self-illumination.
+// that look rich and authentic in daylight and illuminate gracefully at night.
+// Returns { diff: [r, g, b], emis: [r, g, b] }.
 function getElementColor(name, origColor, origMat) {
   const n = name.toLowerCase();
 
   // Official Google GDG Brand Colors
   if (n.includes('gdg_red') || (n.includes('banner_logo') && (n.endsWith('1') || n.endsWith('5')))) {
     const col = [0.92, 0.26, 0.21]; // Red (#ea4335)
-    return { diff: col, emis: [col[0] * 0.95, col[1] * 0.95, col[2] * 0.95] };
+    return { diff: col, emis: [col[0], col[1], col[2]] };
   }
   if (n.includes('gdg_blue') || (n.includes('banner_logo') && (n.endsWith('0') || n.endsWith('4')))) {
     const col = [0.26, 0.52, 0.96]; // Blue (#4285f4)
-    return { diff: col, emis: [col[0] * 0.95, col[1] * 0.95, col[2] * 0.95] };
+    return { diff: col, emis: [col[0], col[1], col[2]] };
   }
   if (n.includes('gdg_green') || (n.includes('banner_logo') && (n.endsWith('2') || n.endsWith('6')))) {
     const col = [0.20, 0.66, 0.33]; // Green (#34a853)
-    return { diff: col, emis: [col[0] * 0.95, col[1] * 0.95, col[2] * 0.95] };
+    return { diff: col, emis: [col[0], col[1], col[2]] };
   }
   if (n.includes('gdg_yellow') || (n.includes('banner_logo') && (n.endsWith('3') || n.endsWith('7')))) {
     const col = [0.98, 0.74, 0.02]; // Yellow (#fbbc05)
-    return { diff: col, emis: [col[0] * 0.95, col[1] * 0.95, col[2] * 0.95] };
+    return { diff: col, emis: [col[0], col[1], col[2]] };
   }
 
   // Illuminated Sign Letters ("VENUE") - Brilliant Glowing White
@@ -35,76 +42,82 @@ function getElementColor(name, origColor, origMat) {
 
   // Lanterns & Glow elements - Warm Golden Radiance
   if (n.includes('lantern') && !n.includes('mount') || n.includes('lamp_glow') || n.includes('ceiling_light')) {
-    return { diff: [1.0, 0.92, 0.50], emis: [1.0, 0.90, 0.45] };
+    return { diff: [1.0, 0.88, 0.45], emis: [1.2, 1.0, 0.50] };
   }
 
-  // Facade Window Glass - Interior Lit Sky Blue Glass
+  // Facade Window Glass - Crystal sky blue day / glowing interior cyan night
   if (n.includes('window_glass')) {
-    return { diff: [0.45, 0.75, 1.0], emis: [0.38, 0.68, 0.92] };
+    return { diff: [0.30, 0.55, 0.78], emis: [0.40, 0.70, 0.95] };
   }
 
-  // Gold Trims, Eaves, Pillar Caps, and Stair Edges
+  // Gold Trims, Eaves, Pillar Caps, and Stair Edges - Polished Brass
   if (n.includes('eave') || n.includes('pillar_cap') || n.includes('stair_gold') || n.includes('banner_gold') || n.includes('counter_top') || n.includes('marker')) {
-    const col = [0.95, 0.76, 0.22];
-    return { diff: col, emis: [col[0] * 0.55, col[1] * 0.55, col[2] * 0.55] };
+    const col = [0.92, 0.72, 0.18];
+    return { diff: col, emis: [col[0] * 0.35, col[1] * 0.35, col[2] * 0.35] };
   }
 
-  // Roof Structure - Warm Vibrant Terracotta Cedar Tile
+  // Roof Structure - Deep Warm Terracotta Cedar Tile (rich color, not washed out peach)
   if (n.includes('roof_main_slab') || n.includes('roof_beam')) {
-    const col = [0.78, 0.48, 0.32];
-    return { diff: col, emis: [col[0] * 0.48, col[1] * 0.48, col[2] * 0.48] };
+    const col = [0.65, 0.35, 0.18];
+    return { diff: col, emis: [col[0] * 0.08, col[1] * 0.08, col[2] * 0.08] };
   }
 
-  // Facade Pillars - Lit Ivory Cream Limestone
+  // Facade Pillars - Chiseled Ivory Cream Limestone
   if (n.includes('facade_pillar') || n.includes('entrance_header')) {
-    const col = [0.92, 0.90, 0.85];
-    return { diff: col, emis: [col[0] * 0.50, col[1] * 0.50, col[2] * 0.50] };
+    const col = [0.82, 0.80, 0.75];
+    return { diff: col, emis: [col[0] * 0.15, col[1] * 0.15, col[2] * 0.15] };
   }
 
   // Exterior & Interior Walls - Warm Sandstone
   if (n.includes('wall') || n.includes('gallery')) {
-    const col = [0.84, 0.80, 0.74];
-    return { diff: col, emis: [col[0] * 0.45, col[1] * 0.45, col[2] * 0.45] };
+    const col = [0.72, 0.68, 0.62];
+    return { diff: col, emis: [col[0] * 0.12, col[1] * 0.12, col[2] * 0.12] };
   }
 
-  // Interior Floor & Reception Desk
-  if (n.includes('interior_floor') || n.includes('reception_desk')) {
-    const col = [0.75, 0.62, 0.48];
-    return { diff: col, emis: [col[0] * 0.45, col[1] * 0.45, col[2] * 0.45] };
+  // Interior Floor - Warm Parquet Cedar Planking
+  if (n.includes('interior_floor')) {
+    const col = [0.55, 0.42, 0.30];
+    return { diff: col, emis: [col[0] * 0.10, col[1] * 0.10, col[2] * 0.10] };
   }
 
-  // Window & Door Frames - Warm Walnut Trim
+  // Reception Desk - Rich Walnut Wood
+  if (n.includes('reception_desk')) {
+    const col = [0.52, 0.36, 0.22];
+    return { diff: col, emis: [col[0] * 0.10, col[1] * 0.10, col[2] * 0.10] };
+  }
+
+  // Window & Door Frames - Dark Espresso Trim
   if (n.includes('window_frame') || n.includes('door_frame')) {
-    const col = [0.52, 0.35, 0.20];
-    return { diff: col, emis: [col[0] * 0.40, col[1] * 0.40, col[2] * 0.40] };
+    const col = [0.38, 0.24, 0.14];
+    return { diff: col, emis: [col[0] * 0.05, col[1] * 0.05, col[2] * 0.05] };
   }
 
-  // Plinth, Steps & Path - Chiseled Basalt / Granite
+  // Plinth, Steps & Path - Chiseled Basalt / Granite Slate
   if (n.includes('plinth') || n.includes('approach') || n.includes('stair') || n.includes('pillar_base')) {
-    const col = [0.55, 0.58, 0.62];
-    return { diff: col, emis: [col[0] * 0.35, col[1] * 0.35, col[2] * 0.35] };
+    const col = [0.45, 0.48, 0.52];
+    return { diff: col, emis: [col[0] * 0.05, col[1] * 0.05, col[2] * 0.05] };
   }
 
   // Shrubbery / Planters
   if (n.includes('shrub')) {
-    const col = [0.25, 0.65, 0.32];
-    return { diff: col, emis: [col[0] * 0.30, col[1] * 0.30, col[2] * 0.30] };
+    const col = [0.22, 0.58, 0.28];
+    return { diff: col, emis: [0.0, 0.0, 0.0] };
   }
   if (n.includes('planter')) {
-    const col = [0.35, 0.37, 0.40];
-    return { diff: col, emis: [col[0] * 0.25, col[1] * 0.25, col[2] * 0.25] };
+    const col = [0.32, 0.34, 0.36];
+    return { diff: col, emis: [0.0, 0.0, 0.0] };
   }
 
   // Sign & Banner Backboards - Sleek Dark Slate (high contrast for bright letters)
   if (n.includes('backboard') || n.includes('crown_plaque') || n.includes('gdg_banner') || n.includes('reception_front_panel')) {
-    const col = [0.15, 0.18, 0.22];
-    return { diff: col, emis: [col[0] * 0.18, col[1] * 0.18, col[2] * 0.18] };
+    const col = [0.12, 0.14, 0.18];
+    return { diff: col, emis: [0.0, 0.0, 0.0] };
   }
 
-  // Fallback to original material color with safe minimum brightness and night glow
+  // Fallback to original material color
   const c = origColor || new THREE.Color(0xffffff);
   const r = Math.max(0.2, c.r), g = Math.max(0.2, c.g), b = Math.max(0.2, c.b);
-  return { diff: [r, g, b], emis: [r * 0.35, g * 0.35, b * 0.35] };
+  return { diff: [r, g, b], emis: [r * 0.08, g * 0.08, b * 0.08] };
 }
 
 // Merges all GLTF meshes into a single vertex-colored, self-illuminated mesh
@@ -150,8 +163,11 @@ function mergeVenueModel(root) {
     side: THREE.DoubleSide,
   });
 
-  // Inject custom vertex-based emissive self-illumination into MeshLambertMaterial
+  // Inject custom vertex-based emissive self-illumination into MeshLambertMaterial.
+  // Modulated by uNight so that at day (uNight = 0), self-illumination is completely disabled
+  // and the building displays its rich, true diffuse materials without blowout.
   material.onBeforeCompile = (shader) => {
+    shader.uniforms.uNight = venueUniforms.uNight;
     shader.vertexShader = `
       attribute vec3 aEmissive;
       varying vec3 vEmissive;
@@ -164,14 +180,16 @@ function mergeVenueModel(root) {
     );
 
     shader.fragmentShader = `
+      uniform float uNight;
       varying vec3 vEmissive;
     ` + shader.fragmentShader.replace(
       'vec3 totalEmissiveRadiance = emissive;',
       `
-      vec3 totalEmissiveRadiance = emissive + vEmissive;
+      vec3 totalEmissiveRadiance = emissive + vEmissive * uNight;
       `
     );
   };
+  material.customProgramCacheKey = () => 'gdg-venue-shader-v3';
 
   const mesh = new THREE.Mesh(merged, material);
   mesh.castShadow = true;

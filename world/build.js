@@ -9,6 +9,8 @@ import { BUILDS } from './stations/index.js';
 import { surfaceAt, buildDecor } from './grounds.js';
 import { buildMountains } from './mountains.js';
 import { buildCampus } from './campus.js';
+import { defineStage, buildMarkers, markerPulse } from './markers.js';
+import { venueUniforms } from './stations/venue.js';
 
 let activePetals = null;
 
@@ -25,6 +27,7 @@ const edge = {
 };
 
 export function build({ grid, layer, materials, scene }) {
+  defineStage(grid);
   buildIsland(grid, ISLAND, { surfaceAt, corner: 10, wobble: 0 });
   const out = { B: new BoxBatch(layer), obstacles: [], hotspots: [], bakes: [], planes: [], grid };
   const forest = buildSakuraForest(grid, layer, TREES, out.B);
@@ -36,6 +39,8 @@ export function build({ grid, layer, materials, scene }) {
     else console.warn(`No build for station "${station.id}" in world/stations/index.js`);
   }
   buildDecor({ ...out, layer, materials });
+  // A stage, a gold outline and a beacon beam for every station.
+  buildMarkers(out.B);
 
   // Outside the wall: the NIT Hamirpur campus round the venue ground, then
   // mountains and hills beyond it. Pure backdrop — no sites, so none of it
@@ -55,13 +60,18 @@ export function build({ grid, layer, materials, scene }) {
   };
 }
 
-export function setup({ player, sound }) {
+export function setup({ stage, player, sound, world }) {
+  const pulse = markerPulse(world);
   const minX = ISLAND.x0 + 0.5, maxX = ISLAND.x1 - 0.5, minZ = ISLAND.z0 + 0.5, maxZ = ISLAND.z1 - 0.5;
   let stepClock = 0;
   let lastX = player.pos.x, lastZ = player.pos.z;
   return {
     update(dt) {
       if (activePetals) activePetals.update(dt);
+      pulse(dt);
+      if (venueUniforms) {
+        venueUniforms.uNight.value = stage ? stage.night : (world?.isNight?.() ? 1.0 : 0.0);
+      }
 
       // A last guard in case flight or a zip slips past the edge.
       const p = player.pos;
