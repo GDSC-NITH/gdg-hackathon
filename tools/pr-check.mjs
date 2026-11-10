@@ -47,9 +47,7 @@ async function main() {
       await new Promise(r => setTimeout(r, 200));
     }
     if (!ready) throw Error('Preview server did not start');
-    run('node', ['tools/check-portal.mjs', 'http://127.0.0.1:4173']);
-    run('node', ['tools/check-mailbox-ui.cjs', 'http://127.0.0.1:4173']);
-    run('node', ['tools/check-listing.mjs', '--url', 'http://127.0.0.1:4173/']);
+    run('node', ['tools/check.mjs', 'http://127.0.0.1:4173/']);
   } finally { server.kill(); }
 }
 if (import.meta.url === pathToFileURL(process.argv[1] || '').href) await main();

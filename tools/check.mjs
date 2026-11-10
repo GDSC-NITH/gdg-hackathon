@@ -59,11 +59,12 @@ for (const view of VIEWS) {
   for (const id of pages) {
     // As the Dock does: go to the page's place in the world (if it has one) and open it.
     await page.evaluate(id => __home.go(id), id);
-    await page.waitForTimeout(400);
+    await page.waitForFunction(() => document.querySelector('#panel')?.open, null, { timeout: 4000 }).catch(() => {});
     const open = await page.evaluate(() => document.querySelector('#panel')?.open);
     if (!open) errors.push(`page "${id}" did not open`);
     await page.screenshot({ path: `${out}${view.name}-${id}.png` });
     await page.evaluate(() => document.querySelector('#panel .close')?.click());
+    await page.waitForTimeout(100);
   }
   // The showcase house must finish a roof-ladder round trip without flying.
   // Keep this here so a vertical waypoint cannot be silently skipped again.

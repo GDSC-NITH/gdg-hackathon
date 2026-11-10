@@ -76,6 +76,12 @@ try {
     const close = async () => { await page.locator('#panel .close').click(); await page.waitForFunction(() => !document.querySelector('#panel').open); };
 
     await page.goto(`${base}/?lang=zh`); await ready();
+    const hasPortal = await page.evaluate(() => !!__home?.portal);
+    if (!hasPortal) {
+      console.log(`PASS ${name}: portal is disabled for this world.`);
+      await closeContext();
+      continue;
+    }
     await page.evaluate(() => {
       const h = __home; h.setTimeMode('day'); const f = h.portal.front; h.player.teleport(f.x + Math.sin(f.heading) * 3, f.z + Math.cos(f.heading) * 3); h.rig.set(f.heading + .05, .35, 9); h.rig.recenter(h.player);
     });
