@@ -12,7 +12,15 @@ body.plain::before {
 }
 
 /* ---------- Top bar: the tabs are the section list here ---------- */
-body.plain .site-nav, body.plain .site-menu { display: none; }
+body.plain .site-nav { display: none; }
+body.plain .site-actions { margin-left: auto; }
+@media (min-width: 1041px) {
+  body.plain .site-menu { display: none; }
+}
+@media (max-width: 1040px) {
+  body.plain .site-menu { display: block; }
+  body.plain .site-nav.open { display: flex; z-index: 60; }
+}
 body.plain .site-mode { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; color: #fff; background: rgba(255, 255, 255, .1); }
 body.plain .site-mode:hover { background: rgba(255, 255, 255, .2); text-decoration: none; }
 
@@ -82,115 +90,817 @@ body.plain #pages { max-width: none; min-height: 100svh; margin: 0; padding: 0 0
 
 /* ---------- Cards ---------- */
 body.plain #pages > .page {
-  width: min(var(--pv-wide), calc(100% - 32px)); max-width: none; margin: 24px auto 0; padding: 30px 34px 34px;
+  position: relative;
+  width: min(840px, calc(100% - 32px));
+  max-width: 840px;
+  margin: 32px auto 40px;
+  padding: 28px 32px 34px;
+  background: #c8c5bc;
+  border: 24px solid transparent;
+  border-image: url("../assets/branding/stone-brick-frame.svg") 24 / 24px round;
+  box-shadow: 0 0 0 2px #181512, 0 16px 40px rgba(0, 0, 0, 0.45);
 }
 body.plain #pages > .page:focus { outline: none; }
 body.plain #pages > .page[hidden] { display: none !important; }
-body.plain #pages > .page > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 30px; }
-body.plain #pages > .page > h2::before {
-  content: ""; flex: none; width: 40px; height: 40px; padding: 4px;
-  background: var(--slot) var(--icon, none) center / 32px no-repeat; image-rendering: pixelated;
-  box-shadow: inset 2px 2px 0 var(--slot-shade), inset -2px -2px 0 var(--gui-light);
-}
-body.plain .page p { max-width: 72ch; }
-body.plain #pages > .page > h2 + p { font-size: 17px; }
-body.plain .page h3 { font-size: 18px; }
 
-/* Lift on hover: a hard pixel shadow, the way Minecraft draws depth. */
-body.plain :is(.hack-stat, .track-card, .prize-tier, .store > li, .crew-role, .travel-item, .faq-box, .schedule-item) {
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+/* Universal Card Headers across all tabs */
+body.plain .page-card-header,
+body.plain .faq-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
 }
-body.plain :is(.hack-stat, .track-card, .prize-tier, .store > li, .crew-role, .travel-item, .faq-box):hover {
-  transform: translateY(-3px); box-shadow: 0 5px 0 rgba(0, 0, 0, .18);
+body.plain :is(.page-card-header, .faq-card-header) .header-left,
+body.plain :is(.page-card-header, .faq-card-header) .faq-header-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+}
+body.plain .page-card-icon,
+body.plain .faq-book-icon {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  background: var(--icon) center / contain no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.25));
+}
+body.plain #faq .page-card-icon,
+body.plain #faq .faq-book-icon {
+  background-image: url("../assets/branding/book-and-quill.svg");
+}
+body.plain :is(.page-card-header, .faq-card-header) h2 {
+  display: inline-block;
+  margin: 0;
+  font-family: 'Minecraft', 'Silkscreen', 'Press Start 2P', monospace, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #27221c;
+  letter-spacing: 0.5px;
+  text-shadow: 2px 2px 0 #aba69a;
+}
+body.plain :is(.page-card-header, .faq-card-header) h2::before {
+  display: none !important;
+}
+body.plain .card-badge,
+body.plain .faq-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 9px;
+  margin-left: 2px;
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ede7dc;
+  background: #473e36;
+  border: 2px solid #201b16;
+  border-radius: 4px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.45);
+  text-shadow: 1px 1px 0 #15110d;
+}
+
+body.plain .page p {
+  max-width: 72ch;
+  color: #27231e;
+  font-size: 15px;
+  line-height: 1.55;
+}
+body.plain .page strong {
+  color: #171410;
+}
+body.plain .page h3 {
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #27221c;
+}
+
+/* Universal Minecraft Stone Beveled Surfaces */
+body.plain :is(.hack-stat, .track-card, .schedule-item, .prize-tier, .store > li, .crew-role, .venue-address, .travel-item, .faq-box summary) {
+  background: linear-gradient(180deg, #dedbd4 0%, #cac5ba 100%);
+  border: 2px solid #25221d;
+  box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
+  transition: transform 0.14s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.plain :is(.hack-stat, .track-card, .schedule-item, .prize-tier, .store > li, .crew-role, .travel-item):hover {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, #eae7e0 0%, #d6d1c7 100%);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
+}
+
+/* Inset Wells (Parchment wells for answer drawers, asides, and notes) */
+body.plain :is(.faq-answer, #welcome .aside, .swag-box) {
+  background: color-mix(in srgb, var(--gui, #c4c2bc) 88%, #000);
+  border: 2px solid #25221d;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.28), inset -2px -2px 0 rgba(255, 255, 255, 0.25);
+  padding: 14px 18px;
+  margin-top: 14px;
 }
 
 /* Buttons press in. */
-body.plain .mc-button { transition: transform .1s ease, background-color .15s ease; }
-body.plain .mc-button:hover { transform: translateY(-1px); }
-body.plain .mc-button:active { transform: translateY(2px); box-shadow: 0 0 0 2px var(--line), inset 2px 3px 0 rgba(0, 0, 0, .3); }
-
-/* Welcome */
-body.plain .hack-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 20px 0; }
-body.plain .hack-stat { padding: 18px 12px; }
-body.plain .hack-stat .val { font-size: 30px; font-variant-numeric: tabular-nums; }
-body.plain .hack-stat .lbl { display: block; margin-top: 4px; font-size: 13px; }
-
-/* Tracks: two by two, each in its sponsor's colour. */
-body.plain #tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-body.plain #tracks > :not(.track-card) { grid-column: 1 / -1; }
-body.plain #tracks > h2 + p { margin-bottom: 0; }
-body.plain .track-card { margin: 0; padding: 18px; border-top: 5px solid var(--tc, var(--accent)); }
-body.plain .track-card:hover { border-color: var(--tc, var(--accent)); }
-body.plain .track-card p { margin: 0; }
-
-/* Schedule: one column per day, a rail with a block on every slot. */
-.pv-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px; }
-body.plain .pv-day > h3 {
-  display: inline-block; margin: 0 0 10px; padding: 6px 12px; font-size: 15px; color: #fff; text-shadow: 1px 1px 0 #000;
-  background: var(--accent); box-shadow: 0 0 0 2px var(--line);
+body.plain .mc-button {
+  transition: transform 0.1s ease, background-color 0.15s ease;
 }
-body.plain .schedule-item { position: relative; grid-template-columns: 58px 1fr; column-gap: 34px; padding: 10px 10px 10px 0; border: 0; }
-body.plain .schedule-item::before { content: ""; position: absolute; left: 74px; top: 0; bottom: 0; width: 2px; background: color-mix(in srgb, var(--ink) 22%, transparent); }
-body.plain .schedule-item::after {
-  content: ""; position: absolute; left: 69px; top: 15px; width: 12px; height: 12px;
-  background: var(--accent); box-shadow: 0 0 0 2px var(--gui); transition: transform .18s ease, background-color .18s ease;
+body.plain .mc-button:hover {
+  transform: translateY(-1px);
 }
-body.plain .pv-day > h3 + .schedule-item::before { top: 18px; }
-body.plain .schedule-item:last-child::before { bottom: auto; height: 18px; }
-body.plain .schedule-item:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
-body.plain .schedule-item:hover::after { transform: scale(1.35) rotate(45deg); background: var(--gold); }
-body.plain .schedule-time { padding-top: 2px; text-align: right; font-variant-numeric: tabular-nums; }
+body.plain .mc-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 2px var(--line), inset 2px 3px 0 rgba(0, 0, 0, 0.3);
+}
 
-/* Prizes: the podium three across, the special awards two across. */
-body.plain #prizes { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0 16px; }
-body.plain #prizes > * { grid-column: 1 / -1; }
-body.plain #prizes > .prize-tier { grid-column: span 3; display: flex; flex-direction: column; margin: 0 0 16px; padding: 18px; border-left: 0; border-top: 5px solid #8a877f; border-radius: 4px; }
-body.plain #prizes > :is(.gold, .silver, .bronze) { grid-column: span 2; }
-body.plain #prizes > .gold { border-top-color: #f1c40f; background: color-mix(in srgb, #f1c40f 16%, transparent); }
-body.plain #prizes > .silver { border-top-color: #95a5a6; }
-body.plain #prizes > .bronze { border-top-color: #e67e22; }
-body.plain .prize-amount { order: -1; float: none; margin-bottom: 6px; font-size: 28px; font-variant-numeric: tabular-nums; }
-body.plain .prize-tier p { margin: 4px 0 0; }
-body.plain #prizes > h3 { margin-top: 4px; }
+/* 1. Welcome */
+body.plain .hack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+body.plain .hack-stat {
+  padding: 14px 6px;
+  text-align: center;
+  opacity: 1 !important;
+  min-width: 0;
+  overflow: hidden;
+}
+body.plain .hack-stat .val {
+  display: block;
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: clamp(14px, 1.8cqw, 18px);
+  font-weight: 700;
+  color: #1b4332;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.plain .hack-stat .lbl {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #59554e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.plain #welcome .aside {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #27231e;
+}
 
-/* Sponsors: two across. */
-body.plain #sponsors .store { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+/* 2. Tracks */
+body.plain #tracks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+body.plain #tracks > :not(.track-card) {
+  grid-column: 1 / -1;
+}
+body.plain .track-card {
+  margin: 0;
+  padding: 18px 20px;
+}
+body.plain .track-card h3 {
+  margin: 10px 0 8px;
+  font-size: 16px;
+  color: #27221c;
+}
+body.plain .track-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #3b3630;
+}
+body.plain .track-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  border: 1px solid #201b16;
+  border-radius: 3px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.3), inset -1px -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* 3. Schedule Timeline (Minecraft Railway & Redstone Mechanism) */
+body.plain #schedule {
+  overflow: visible;
+}
+
+/* Top Horizontal Railway Track Header */
+body.plain .pv-timeline-top {
+  grid-column: 1 / -1;
+  margin: 6px 0 16px;
+  padding: 0 4px;
+}
+body.plain .pv-top-track-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+body.plain .pv-prop-torch {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  background: url("../assets/branding/redstone-torch.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 5px #ef4444);
+}
+body.plain .pv-top-badge {
+  flex: none;
+  padding: 6px 14px;
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+body.plain .pv-top-badge.d1 {
+  background: #7a4b28;
+  border: 2px solid #3c2415;
+  box-shadow: inset 1px 1px 0 #a4683a, inset -1px -1px 0 #28170c;
+  color: #f5eedb;
+}
+body.plain .pv-top-badge.d2 {
+  background: #505256;
+  border: 2px solid #242527;
+  box-shadow: inset 1px 1px 0 #787a7f, inset -1px -1px 0 #1b1c1e;
+  color: #edebe6;
+}
+body.plain .pv-rail-h {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  background: url("../assets/branding/rail-h.svg") center / 20px 20px repeat-x;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.plain .pv-minecart {
+  width: 32px;
+  height: 24px;
+  background: url("../assets/branding/minecart.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+  margin-top: -6px;
+}
+body.plain .pv-rail-h-end {
+  flex: none;
+  width: 48px;
+  height: 20px;
+  background: url("../assets/branding/rail-h.svg") center / 20px 20px repeat-x;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+body.plain .pv-redstone-dot {
+  width: 14px;
+  height: 14px;
+  background: #dc2626;
+  border: 2px solid #ff4d4d;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ef4444;
+  margin-right: -4px;
+}
+
+/* Timeline Body: Redstone Gutter Left + Day 1 + Day 2 + Redstone Gutter Right */
+body.plain .pv-timeline-body {
+  display: grid;
+  grid-template-columns: 20px 1fr 1fr 20px;
+  gap: 12px;
+  align-items: stretch;
+  position: relative;
+}
+
+/* Redstone Wire Gutters */
+body.plain .pv-redstone-gutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  position: relative;
+}
+body.plain .pv-redstone-gutter .rs-wire-v {
+  flex: 1;
+  width: 2px;
+  background: #dc2626;
+  box-shadow: 0 0 5px #ef4444;
+  margin: 4px auto;
+}
+body.plain .pv-redstone-gutter .rs-torch {
+  width: 18px;
+  height: 18px;
+  background: url("../assets/branding/redstone-torch.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 4px #ef4444);
+}
+body.plain .pv-redstone-gutter .rs-lever {
+  width: 18px;
+  height: 18px;
+  background: url("../assets/branding/lever.svg") center / contain no-repeat;
+}
+body.plain .pv-redstone-gutter .rs-repeater {
+  width: 18px;
+  height: 18px;
+  background: url("../assets/branding/repeater.svg") center / contain no-repeat;
+  transform: rotate(90deg);
+}
+body.plain .pv-redstone-gutter .rs-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #dc2626;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+/* Schedule Columns */
+body.plain .pv-day {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Timeline Cards */
+body.plain .schedule-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 10px 12px;
+  align-items: center;
+  padding: 12px 14px;
+  margin: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+body.plain .schedule-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Alternating Card Material Themes */
+body.plain .schedule-item.theme-stone {
+  background: linear-gradient(180deg, #dedbd4 0%, #cac5ba 100%);
+  border: 2px solid #25221d;
+  box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
+}
+body.plain .schedule-item.theme-stone::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  pointer-events: none;
+  background:
+    linear-gradient(#5a554c, #5a554c) top left / 4px 4px no-repeat,
+    linear-gradient(#5a554c, #5a554c) top right / 4px 4px no-repeat,
+    linear-gradient(#5a554c, #5a554c) bottom left / 4px 4px no-repeat,
+    linear-gradient(#5a554c, #5a554c) bottom right / 4px 4px no-repeat;
+}
+
+body.plain .schedule-item.theme-wood {
+  background: linear-gradient(180deg, #cbbca1 0%, #b8a687 100%);
+  border: 2px solid #3c2415;
+  box-shadow: inset 2px 2px 0 #9c6b3f, inset -2px -2px 0 #4a2d18;
+}
+body.plain .schedule-item.theme-wood::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  pointer-events: none;
+  background:
+    linear-gradient(#784c28, #784c28) top left / 4px 4px no-repeat,
+    linear-gradient(#784c28, #784c28) top right / 4px 4px no-repeat,
+    linear-gradient(#784c28, #784c28) bottom left / 4px 4px no-repeat,
+    linear-gradient(#784c28, #784c28) bottom right / 4px 4px no-repeat;
+}
+
+body.plain .schedule-item.theme-stone-wood {
+  background: linear-gradient(180deg, #d3cfc5 0%, #bebaa0 100%);
+  border: 2px solid #2c1e14;
+  box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #5c381c;
+}
+body.plain .schedule-item.theme-stone-wood::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  pointer-events: none;
+  background:
+    linear-gradient(#784c28, #784c28) top left / 4px 4px no-repeat,
+    linear-gradient(#5a554c, #5a554c) top right / 4px 4px no-repeat,
+    linear-gradient(#784c28, #784c28) bottom left / 4px 4px no-repeat,
+    linear-gradient(#5a554c, #5a554c) bottom right / 4px 4px no-repeat;
+}
+
+/* Vertical Rail Track Column Behind Time Pill */
+body.plain .schedule-item .rail-track {
+  position: absolute;
+  left: 20px;
+  top: -8px;
+  bottom: -8px;
+  width: 22px;
+  background: url("../assets/branding/rail-powered-v.svg") center / 22px 22px repeat-y;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Connecting standard rail between cards */
+body.plain .schedule-item .rail-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -14px;
+  width: 22px;
+  height: 14px;
+  background: url("../assets/branding/rail-v.svg") center / 22px 22px repeat-y;
+}
+
+/* Schedule Time Slot (Digital Stone Pill) */
+body.plain .schedule-time {
+  position: relative;
+  z-index: 2;
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1c1a17;
+  background: #dedbd4;
+  padding: 4px 2px;
+  text-align: center;
+  border: 2px solid #25221d;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #7b766c;
+  line-height: 1.2;
+}
+
+/* Card Content */
+body.plain .schedule-item strong {
+  display: block;
+  font-size: 14px;
+  color: #27221c;
+  line-height: 1.35;
+}
+body.plain .schedule-item .aside {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #555047;
+}
+
+/* Decorative Minecraft Props on Cards */
+body.plain .schedule-item .mc-props {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+body.plain .schedule-item .mc-props i {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+body.plain .schedule-item .prop-furnace { background-image: url("../assets/branding/furnace.svg"); }
+body.plain .schedule-item .prop-smoker { background-image: url("../assets/branding/furnace.svg"); }
+body.plain .schedule-item .prop-chest { background-image: url("../assets/branding/chest.svg"); }
+body.plain .schedule-item .prop-lamp-lit {
+  background-image: url("../assets/branding/redstone-lamp-lit.svg");
+  filter: drop-shadow(0 0 5px #f59e0b);
+}
+body.plain .schedule-item .prop-hopper { background-image: url("../assets/branding/hopper.svg"); }
+body.plain .schedule-item .prop-repeater { background-image: url("../assets/branding/repeater.svg"); }
+body.plain .schedule-item .prop-dispenser { background-image: url("../assets/branding/dispenser.svg"); }
+
+/* 4. Prizes */
+body.plain #prizes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+body.plain #prizes > :not(.prize-tier) {
+  grid-column: 1 / -1;
+}
+body.plain #prizes .prize-tier {
+  position: relative;
+  margin: 0;
+  padding: 16px 20px;
+}
+body.plain #prizes .prize-tier.gold {
+  grid-column: 1 / -1;
+  background: linear-gradient(180deg, #eedfb9 0%, #dac89d 100%);
+  border-color: #b58d24;
+  box-shadow: inset 2px 2px 0 #fbeeaf, inset -2px -2px 0 #8c6913;
+}
+body.plain #prizes .prize-tier.gold::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  pointer-events: none;
+  background:
+    linear-gradient(#d4af37, #d4af37) top left / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) top right / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom left / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom right / 4px 4px no-repeat;
+}
+body.plain #prizes .prize-tier.silver {
+  border-color: #7b8893;
+  background: linear-gradient(180deg, #e4e7ea 0%, #cbd0d5 100%);
+  box-shadow: inset 2px 2px 0 #f6f8f9, inset -2px -2px 0 #6e7982;
+}
+body.plain #prizes .prize-tier.bronze {
+  border-color: #a66a38;
+  background: linear-gradient(180deg, #e8d5c4 0%, #d4bea9 100%);
+  box-shadow: inset 2px 2px 0 #f7ece2, inset -2px -2px 0 #8c5324;
+}
+body.plain #prizes .prize-amount {
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1b4332;
+  margin-bottom: 6px;
+  display: block;
+}
+body.plain #prizes .prize-tier.gold .prize-amount {
+  color: #7a5405;
+}
+body.plain #prizes .prize-tier h3 {
+  font-size: 16px;
+  margin: 0 0 4px;
+  color: #27221c;
+}
+body.plain #prizes .prize-tier p {
+  font-size: 13px;
+  margin: 0;
+  color: #3b3630;
+}
+body.plain #prizes .swag-box {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+}
+
+/* 5. Sponsors */
+body.plain #sponsors .store {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
 body.plain #sponsors .store > li {
-  padding: 18px; border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 4px;
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  padding: 16px;
 }
-body.plain #sponsors .store > li + li { border-top: 2px solid color-mix(in srgb, var(--ink) 12%, transparent); }
-
-/* Team */
-body.plain .crew { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
-body.plain .crew-role { padding: 18px; border-left: 5px solid var(--accent); }
-
-/* FAQ: two columns of questions; the + turns to × as one opens. */
-body.plain #faq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
-body.plain #faq > :not(.faq-box) { grid-column: 1 / -1; }
-body.plain .faq-box { margin: 0; padding: 6px 14px; }
-body.plain .faq-box summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; }
-body.plain .faq-box summary h3 { margin: 0; }
-body.plain .faq-box summary::after {
-  content: "+"; flex: none; display: grid; place-items: center; width: 28px; height: 28px;
-  font: 700 20px/1 var(--text); color: #fff; text-shadow: 1px 1px 0 rgba(0, 0, 0, .4); background: var(--btn);
-  box-shadow: 0 0 0 2px var(--line), inset 2px 2px 0 rgba(255, 255, 255, .3), inset -2px -2px 0 rgba(0, 0, 0, .35);
-  transition: background-color .2s ease;
+body.plain #sponsors .listing {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 12px;
+  align-items: center;
 }
-body.plain .faq-box summary:hover::after { background: var(--btn-hover); }
-body.plain .faq-box details[open] summary::after { content: "−"; background: var(--cta); }
-body.plain .faq-box details > p { margin: 6px 0 10px; }
+body.plain #sponsors .listing h3 {
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #27221c;
+}
+body.plain #sponsors .listing p {
+  margin: 0;
+  font-size: 12px;
+  color: #3b3630;
+}
 
-/* Venue */
-body.plain .venue-address { padding: 18px; background: color-mix(in srgb, var(--accent) 12%, transparent); border: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px; }
-body.plain .travel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
-body.plain .travel-item { padding: 18px; }
+/* 6. Team */
+body.plain .crew {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+body.plain .crew-role {
+  padding: 16px 18px;
+}
+body.plain .crew-label {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 0 0 8px;
+  font-family: 'Minecraft', 'Silkscreen', monospace, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ede7dc;
+  background: #473e36;
+  border: 1px solid #201b16;
+  border-radius: 3px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.45);
+  text-shadow: 1px 1px 0 #15110d;
+}
+body.plain .crew-role h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #27221c;
+}
 
-/* Register and Contact forms. */
-body.plain :is(.signup, .mailbox) { margin: 20px 0 0; }
-body.plain .signup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-body.plain .signup > :is(textarea, .mailbox-foot) { grid-column: 1 / -1; }
+/* 7. FAQ: 2-Column Grid & Minecraft UI Accordion */
+body.plain #faq .faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  align-items: start;
+}
+body.plain #faq .faq-box {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+body.plain #faq .faq-box summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 6px 8px 6px 16px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  background: linear-gradient(180deg, #dedbd4 0%, #cac5ba 100%);
+  border: 2px solid #25221d;
+  box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.plain #faq .faq-box summary::-webkit-details-marker {
+  display: none;
+}
+body.plain #faq .faq-box summary::after {
+  display: none;
+}
+body.plain #faq .faq-q-text {
+  font: 600 15px/1.35 var(--text);
+  color: #27231e;
+  padding-right: 12px;
+}
+body.plain #faq .faq-toggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(180deg, #59554e 0%, #46423b 100%);
+  border: 2px solid #211e19;
+  box-shadow: inset 1px 1px 0 #807c73, inset -1px -1px 0 #282520;
+  color: #f1ede4;
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #1b1814;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+body.plain #faq .faq-toggle::before {
+  content: "+";
+  display: block;
+  margin-top: -2px;
+}
+body.plain #faq .faq-box details[open] .faq-toggle::before {
+  content: "−";
+}
+body.plain #faq .faq-box details[open] .faq-toggle {
+  background: linear-gradient(180deg, #4d5c48 0%, #364432 100%);
+}
 
+/* Golden Highlight State (On Hover, Open, or Focus) */
+body.plain #faq .faq-box summary:hover,
+body.plain #faq .faq-box details[open] summary,
+body.plain #faq .faq-box summary:focus-visible {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, #eedfb9 0%, #dac89d 100%);
+  border-color: #b58d24;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), inset 2px 2px 0 #fbeeaf, inset -2px -2px 0 #8c6913;
+}
+body.plain #faq .faq-box summary:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 2px 2px 0 #8c6913, inset -2px -2px 0 #fbeeaf;
+}
+body.plain #faq .faq-box summary:hover .faq-toggle,
+body.plain #faq .faq-box details[open] summary .faq-toggle,
+body.plain #faq .faq-box summary:focus-visible .faq-toggle {
+  border-color: #8c6913;
+  background: linear-gradient(180deg, #6c5a32 0%, #544422 100%);
+  box-shadow: inset 1px 1px 0 #9e854e, inset -1px -1px 0 #332711;
+  color: #fff2c4;
+}
+body.plain #faq .faq-box summary:hover::after,
+body.plain #faq .faq-box details[open] summary::after,
+body.plain #faq .faq-box summary:focus-visible::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  inset: -5px;
+  pointer-events: none;
+  background:
+    linear-gradient(#d4af37, #d4af37) top left / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) top right / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom left / 4px 4px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom right / 4px 4px no-repeat;
+}
+
+/* Expanded answer drawer */
+body.plain #faq .faq-answer {
+  border-top: none;
+  margin-top: -2px;
+}
+body.plain #faq .faq-answer p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #27231e;
+}
+body.pv-motion .faq-box details[open] .faq-answer {
+  animation: pv-rise 0.25s ease;
+}
+
+/* 8. Venue */
+body.plain .venue-address {
+  padding: 18px 20px;
+  margin: 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+body.plain .venue-address p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #27231e;
+}
+body.plain .travel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+body.plain .travel-item {
+  padding: 16px 18px;
+}
+body.plain .travel-item h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #27221c;
+}
+body.plain .travel-item p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #3b3630;
+}
+
+/* 9 & 10. Register and Contact Forms */
+body.plain :is(.signup, .mailbox) {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0 0;
+}
+body.plain .signup {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+body.plain .signup > :is(textarea, .mailbox-foot) {
+  grid-column: 1 / -1;
+}
+body.plain :is(.signup, .mailbox) :is(input, select, textarea) {
+  width: 100%;
+  padding: 12px 14px;
+  background: #dedbd4;
+  border: 2px solid #25221d;
+  box-shadow: inset 2px 2px 0 #7b766c, inset -2px -2px 0 #ffffff;
+  color: #27221c;
+  font-family: var(--text);
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+body.plain :is(.signup, .mailbox) :is(input, select, textarea):focus {
+  outline: none;
+  border-color: #b58d24;
+  box-shadow: inset 2px 2px 0 #8c6913, 0 0 0 2px #d4af37;
+  background: #f0ede6;
+}
+body.plain .mailbox-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
 /* The registration form uses the mailbox field treatment without submitting through the mailbox. */
 .signup {
   position: relative; display: grid; gap: 12px; padding: 14px;
@@ -244,6 +954,12 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
   body.plain #prizes > :is(.gold, .silver, .bronze) { grid-column: span 3; }
   body.plain #prizes > .gold { grid-column: 1 / -1; }
   .pv-days { grid-template-columns: minmax(0, 1fr); }
+  body.plain .pv-timeline-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.plain .pv-redstone-gutter {
+    display: none;
+  }
 }
 @media (max-width: 720px) {
   body.plain #hero { align-items: flex-end; min-height: 0; padding: 34vh 18px 64px; }
@@ -259,13 +975,20 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
   }
   .pv-tab { flex: none; min-width: 70px; padding: 7px 8px 6px; gap: 5px; font-size: 12px; }
   .pv-tab i { width: 24px; height: 24px; }
-  body.plain #pages > .page { width: calc(100% - 24px); margin-top: 16px; padding: 20px 16px 22px; }
-  body.plain #pages > .page > h2 { gap: 10px; font-size: 22px; }
-  body.plain #pages > .page > h2::before { width: 32px; height: 32px; padding: 3px; background-size: 24px; }
-  body.plain #pages > .page > h2 + p { font-size: 16px; }
+  body.plain #pages > .page {
+    border-width: 16px;
+    border-image-slice: 24;
+    border-image-width: 16px;
+    width: calc(100% - 20px);
+    margin: 20px auto 28px;
+    padding: 16px 14px 20px;
+  }
+  body.plain :is(.page-card-header, .faq-card-header) h2 {
+    font-size: 20px;
+  }
   body.plain .hack-grid { gap: 10px; }
-  body.plain .hack-stat .val { font-size: 24px; }
-  body.plain :is(#tracks, #faq, #sponsors .store, .crew, .travel, .signup) { grid-template-columns: minmax(0, 1fr); }
+  body.plain .hack-stat .val { font-size: clamp(14px, 1.8cqw, 18px); }
+  body.plain :is(#tracks, #faq .faq-grid, #sponsors .store, .crew, .travel, .signup, .pv-days) { grid-template-columns: minmax(0, 1fr); }
   body.plain #prizes > .prize-tier { grid-column: 1 / -1; }
   body.plain .prize-amount { font-size: 24px; }
   body.plain #sponsors .listing { grid-template-columns: 44px minmax(0, 1fr); }

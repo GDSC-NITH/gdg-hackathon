@@ -41,10 +41,35 @@ export function setupNavLinks() {
   nav.append(modeLink);
   syncModeLinks();
 
-  menu?.addEventListener('click', () => {
+  function closeMenu() {
+    nav.classList.remove('open');
+    menu?.setAttribute('aria-expanded', 'false');
+  }
+
+  menu?.addEventListener('click', e => {
+    e.stopPropagation();
     const open = !nav.classList.contains('open');
     nav.classList.toggle('open', open);
     menu.setAttribute('aria-expanded', String(open));
+  });
+
+  // Close mobile navigation drawer on outside click, Escape, or link selection
+  document.addEventListener('click', e => {
+    if (nav.classList.contains('open') && !e.target.closest('#siteBar .site-nav, #siteBar .site-menu')) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && nav.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+
+  nav.addEventListener('click', e => {
+    if (e.target.closest('a')) {
+      closeMenu();
+    }
   });
 }
 
