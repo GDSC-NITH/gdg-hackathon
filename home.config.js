@@ -1,7 +1,7 @@
 export default {
   name: 'Labyrinth',
   // 64×64 PNG, 4px arms, ≤ 18000 bytes. docs/avatar.md
-  skin: '',
+  skin: 'assets/me.png',
   languages: ['en'],
   weather: {
     city: 'Hamirpur',

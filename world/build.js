@@ -8,6 +8,7 @@ import { placeStation } from './kit.js';
 import { BUILDS } from './stations/index.js';
 import { surfaceAt, buildDecor } from './grounds.js';
 import { buildMountains } from './mountains.js';
+import { buildCampus } from './campus.js';
 
 let activePetals = null;
 
@@ -36,8 +37,10 @@ export function build({ grid, layer, materials, scene }) {
   }
   buildDecor({ ...out, layer, materials });
 
-  // Outside the wall: mountains on three sides, the sea open on the fourth.
-  // Pure backdrop — no sites, so none of it is ever reachable.
+  // Outside the wall: the NIT Hamirpur campus round the venue ground, then
+  // mountains and hills beyond it. Pure backdrop — no sites, so none of it
+  // is ever reachable.
+  buildCampus(out.B);
   const mountains = buildMountains(layer, materials, grid, out.B);
   scene.add(mountains.group);
 

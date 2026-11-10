@@ -1,6 +1,7 @@
 // Blocky Minecraft-style terrain outside the island: a rocky, snow-capped
 // mountain range backs the north side and continues down the west (left)
-// side; big green hills roll away to the east; the south stays open sea.
+// side; big green hills roll away to the east and the south. All of it
+// starts beyond the NIT Hamirpur campus (campus.js).
 // Columns sit outside the block grid — the invisible wall in build.js
 // already keeps visitors from ever
 // reaching them, so there is no walkable surface, collision or pick target
@@ -19,6 +20,7 @@ import { buildTufts } from '@engine/world/landscape.js';
 import { valueNoise } from '@engine/world/terrain.js';
 import { rng } from '@engine/world/textures.js';
 import { ISLAND } from './layout.js';
+import { CAMPUS_REACH as REACH } from './campus.js';
 
 const DEPTH = 100, NEAR = 20, NEAR_CELL = 3, FAR_CELL = 8;
 const STONE_LINE = 3, FOREST_LINE = 15, SNOW_LINE = 19, HILL_TOP = 16;
@@ -118,7 +120,7 @@ const HILL = { heightAt: hillHeightAt, look: hillLook, forestLine: HILL_TOP, bou
 // `point(u, d)` maps (along-coordinate, distance-out) to world (x, z);
 // `profile` picks the mountain or hill height field and planting rules.
 function paintBelt(B, r, tufts, belt) {
-  const { along, offset, point, profile } = belt;
+  const { along, offset, point, profile, near = true, depth = DEPTH } = belt;
   const pass = (dFrom, dTo, size) => {
     for (let a = along.from; a < along.to; a += size) {
       const u = a + size / 2;
@@ -142,61 +144,30 @@ function paintBelt(B, r, tufts, belt) {
       }
     }
   };
-  pass(0, NEAR, NEAR_CELL);
-  pass(NEAR, DEPTH, FAR_CELL);
+  // Belts deep in the fog skip the fine near cells.
+  if (near) pass(0, NEAR, NEAR_CELL);
+  pass(near ? NEAR : 0, depth, FAR_CELL);
 }
 
-// ---------- Gap filling between island and mountain/hill belts ----------
-function fillCoastGaps(B, grid) {
-  if (!grid) return;
-  for (let x = ISLAND.x0; x < ISLAND.x1; x++) {
-    for (let z = ISLAND.z0; z <= 24; z++) {
-      if (grid.get(x, -1, z)) continue; // Island block already present
-      // Only fill if near coast (North, West, or East)
-      const nearNorth = z <= -18;
-      const nearWest = x <= -18;
-      const nearEast = x >= 18;
-      if (!nearNorth && !nearWest && !nearEast) continue;
-
-      // Distance to nearest island block
-      let minD = 99;
-      for (let dx = -7; dx <= 7; dx++) {
-        for (let dz = -7; dz <= 7; dz++) {
-          if (grid.get(x + dx, -1, z + dz)) {
-            const d = Math.max(Math.abs(dx), Math.abs(dz));
-            if (d < minD) minD = d;
-          }
-        }
-      }
-
-      // Near island: keep lower than island surface (y=0) so the island's
-      // border step-down cliff remains visible; farther away, step up
-      // to seamlessly meet the mountain/hill belts.
-      let h = -0.45;
-      if (minD === 2) h = 0.0;
-      else if (minD === 3) h = 0.5;
-      else if (minD >= 4) h = 1.0;
-
-      B.box(x + 0.5, -1.2, z + 0.5, 1, h + 1.2, 1, GRASS, { shadow: false });
-    }
-  }
-}
-
+// The belts start beyond the NIT Hamirpur campus (campus.js), whose flat
+// ground now meets the island, so the old coast gap-fill is no longer used.
 export function buildMountains(layer, materials, grid, targetBatch = null) {
   const B = targetBatch || new BoxBatch(layer), r = rng(20260501), tufts = [];
-  fillCoastGaps(B, grid);
+  const west = ISLAND.x0 - REACH.west, east = ISLAND.x1 + REACH.east, north = ISLAND.z0 - REACH.north, south = ISLAND.z1 + REACH.south + 25;
   const belts = [
     // West (the left side, facing the spawn's north heading): rocky,
     // snow-capped mountain, same as the north range. Depth runs along -x
     // from the coast; u runs the full north-south span plus the belt's own
     // depth, so it wraps the NW and SW corners.
-    { offset: 0, along: { from: ISLAND.z0 - DEPTH, to: ISLAND.z1 + DEPTH }, point: (u, d) => [ISLAND.x0 - d, u], profile: MOUNTAIN },
+    { offset: 0, along: { from: north, to: south }, point: (u, d) => [west - d, u], profile: MOUNTAIN },
     // East: big green hills.
-    { offset: 500, along: { from: ISLAND.z0 - DEPTH, to: ISLAND.z1 + DEPTH }, point: (u, d) => [ISLAND.x1 + d, u], profile: HILL },
+    { offset: 500, along: { from: north, to: south }, point: (u, d) => [east + d, u], profile: HILL },
     // North: the rocky, snow-capped mountain range, directly behind the
     // plaza. Only the island's own width — west and east already cover the
     // corners — leaving the south side open to the sea.
-    { offset: 1000, along: { from: ISLAND.x0, to: ISLAND.x1 }, point: (u, d) => [u, ISLAND.z0 - d], profile: MOUNTAIN },
+    { offset: 1000, along: { from: west - 40, to: east + 40 }, point: (u, d) => [u, north - d], profile: MOUNTAIN },
+    // South: low green hills behind the New Lecture Hall.
+    { offset: 1500, along: { from: west, to: east }, point: (u, d) => [u, south + d], profile: HILL, near: false, depth: 60 },
   ];
   for (const belt of belts) paintBelt(B, r, tufts, belt);
 

@@ -9,6 +9,9 @@ same file. 1 block = 1 m; x points east, z points south, y points up.
 | `stations/<id>.js` | One station's look: its boxes, footprint and lights | One person per station |
 | `stations/index.js` | The list of station builds | When a station is added |
 | `grounds.js` | Paths and plaza surface, the maze inlay, lamp posts, flowers, GDG signboard | Landscape |
+| `campus.js` | NIT Hamirpur round the venue ground (backdrop, not walkable): fence and main gate, the road with Admin Block, Central Block and New Lecture Hall, basketball court and gallery, practice field, communication tower, chir pines | Landscape |
+| `mountains.js` | Mountains and hills beyond the campus; they start at `CAMPUS_REACH` from `campus.js` | Landscape |
+| `sakura.js` | Sakura trees on the ground and their falling petals | Landscape |
 | `kit.js` | Shared materials (`M`) and the station placement helper | Rarely |
 | `frame.js` | Facing names and local-to-world maths | Rarely |
 | `build.js` | Puts it all together; keeps the player on the island | Rarely |

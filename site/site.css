@@ -10,6 +10,22 @@
   --cta-edge: #1f4a12;
   --tag-bg: rgba(14, 16, 14, .62);
   --scrim: rgba(12, 14, 12, .78);
+  --sword-cursor: url("../assets/cursor/sword.png") 0 0;
+}
+
+/* Custom sword cursor across the entire site */
+html, body, #world, #world canvas, dialog {
+  cursor: var(--sword-cursor), auto;
+}
+
+/* Clickable elements inherit sword with pointer fallback */
+a, button, [role="button"],
+input[type="submit"], input[type="button"], input[type="reset"],
+summary, select, .mc-button, [data-go], .tag, .site-logo, .faq-box h3,
+#minimap, #minimap canvas, #hud button, #panel button, #siteBar button, #siteBar a,
+#phone .app, #phone .bar, #phone .back, .work-peek, .world-row, .world-refresh,
+#world[style*="pointer"], #world[style*="pointer"] canvas {
+  cursor: var(--sword-cursor), pointer;
 }
 
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
