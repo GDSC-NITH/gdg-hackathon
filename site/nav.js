@@ -20,10 +20,10 @@ export function syncModeLinks() {
   }
 }
 
-export function initNav(h) {
-  const panel = $('#panel');
+export function setupNavLinks() {
   const nav = $('#siteBar .site-nav');
   const menu = $('#siteBar .site-menu');
+  if (!nav || nav.children.length) return;
 
   // ---------- Top Bar Links ----------
   for (const p of PLAN) {
@@ -39,12 +39,20 @@ export function initNav(h) {
   modeLink.className = 'site-mode-link';
   modeLink.dataset.mode = '';
   nav.append(modeLink);
+  syncModeLinks();
 
   menu?.addEventListener('click', () => {
     const open = !nav.classList.contains('open');
     nav.classList.toggle('open', open);
     menu.setAttribute('aria-expanded', String(open));
   });
+}
+
+export function initNav(h) {
+  setupNavLinks();
+  const panel = $('#panel');
+  const nav = $('#siteBar .site-nav');
+  const menu = $('#siteBar .site-menu');
 
   // ---------- Flight Autopilot Navigation ----------
   let flyingTarget = null;
