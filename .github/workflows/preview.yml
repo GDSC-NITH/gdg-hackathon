@@ -92,13 +92,24 @@ jobs:
             const host = deployUrl.replace(/^https?:\/\//, '').split('/')[0];
             console.log(`Original deployment host: ${host}`);
 
-            // Detect scope suffix (e.g., devprashant19s-projects.vercel.app)
-            const scopeMatch = host.match(/-([a-zA-Z0-9_-]+)\.vercel\.app$/);
-            const candidates = [];
-            if (scopeMatch) {
-              candidates.push(`gdg-hackathon-pr-${prNumber}-${scopeMatch[1]}.vercel.app`);
+            // Fetch team slug to build the stable scoped alias
+            let teamSlug = 'devprashant19s-projects';
+            try {
+              const teamRes = await fetch(`https://api.vercel.com/v2/teams/${teamId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (teamRes.ok) {
+                const tdata = await teamRes.json();
+                if (tdata.slug) teamSlug = tdata.slug;
+              }
+            } catch (e) {
+              console.warn('Could not fetch team slug:', e.message);
             }
-            candidates.push(`gdg-hackathon-pr-${prNumber}.vercel.app`);
+
+            const candidates = [
+              `gdg-hackathon-pr-${prNumber}-${teamSlug}.vercel.app`,
+              `gdg-hackathon-pr-${prNumber}.vercel.app`
+            ];
 
             let activeAlias = null;
             for (const alias of candidates) {
