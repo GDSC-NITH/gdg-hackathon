@@ -53,6 +53,42 @@ export function initNav(h) {
   const panel = $('#panel');
   const nav = $('#siteBar .site-nav');
   const menu = $('#siteBar .site-menu');
+  const panelTitle = $('#panelTitle');
+  const typewriterStations = new Set(['welcome', 'tracks', 'schedule', 'prizes', 'sponsors', 'team', 'faq', 'venue', 'register']);
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let typingTimer = null;
+
+  function stopTyping() {
+    clearInterval(typingTimer);
+    typingTimer = null;
+    panelTitle.classList.remove('welcome-typing');
+    panelTitle.removeAttribute('aria-label');
+  }
+
+  const titleObserver = new MutationObserver(() => {
+    if (!panel.open || !typewriterStations.has(panel.dataset.station)) {
+      stopTyping();
+      return;
+    }
+    const title = panelTitle.textContent;
+    if (!title) return;
+
+    stopTyping();
+    if (prefersReducedMotion.matches && panel.dataset.station !== 'welcome') return;
+    panelTitle.textContent = '';
+    panelTitle.setAttribute('aria-label', title);
+    panelTitle.classList.add('welcome-typing');
+    let typed = 0;
+    typingTimer = setInterval(() => {
+      if (!panel.open || !typewriterStations.has(panel.dataset.station)) {
+        stopTyping();
+        return;
+      }
+      panelTitle.textContent = title.slice(0, ++typed);
+      if (typed === title.length) stopTyping();
+    }, 100);
+  });
+  titleObserver.observe(panel, { attributes: true, attributeFilter: ['data-station', 'open'] });
 
   // ---------- Flight Autopilot Navigation ----------
   let flyingTarget = null;
