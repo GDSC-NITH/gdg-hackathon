@@ -1,7 +1,7 @@
 name: Vercel Preview Deployment
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
@@ -16,14 +16,15 @@ concurrency:
 jobs:
   deploy-preview:
     name: Deploy Vercel Preview
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -35,7 +36,7 @@ jobs:
         run: |
           if [ -z "${{ secrets.VERCEL_TOKEN }}" ] || [ -z "${{ secrets.VERCEL_ORG_ID }}" ] || [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
             echo "has_secrets=false" >> $GITHUB_OUTPUT
-            echo "Vercel credentials are not present in this workflow environment (expected for PRs from forks due to GitHub secret protection)."
+            echo "Vercel credentials are not configured in repository secrets."
           else
             echo "has_secrets=true" >> $GITHUB_OUTPUT
           fi
@@ -62,33 +63,91 @@ jobs:
         id: deploy
         if: steps.check-secrets.outputs.has_secrets == 'true'
         run: |
-          DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --meta prId=${{ github.event.pull_request.number }} --meta prRef="${{ github.event.pull_request.head.ref }}")
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
           echo "Deployed successfully to: $DEPLOY_URL"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Comment on Pull Request
+      - name: Assign Stable Alias to Pull Request
+        id: alias
         if: steps.check-secrets.outputs.has_secrets == 'true' && steps.deploy.outputs.url != ''
+        uses: actions/github-script@v7
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const deployUrl = process.env.DEPLOY_URL.trim();
+            const token = process.env.VERCEL_TOKEN;
+            const teamId = process.env.VERCEL_ORG_ID;
+            const projectId = process.env.VERCEL_PROJECT_ID;
+            const prNumber = process.env.PR_NUMBER;
+
+            const host = deployUrl.replace(/^https?:\/\//, '').split('/')[0];
+            console.log(`Original deployment host: ${host}`);
+
+            // Detect scope suffix (e.g., devprashant19s-projects.vercel.app)
+            const scopeMatch = host.match(/-([a-zA-Z0-9_-]+)\.vercel\.app$/);
+            const candidates = [];
+            if (scopeMatch) {
+              candidates.push(`gdg-hackathon-pr-${prNumber}-${scopeMatch[1]}.vercel.app`);
+            }
+            candidates.push(`gdg-hackathon-pr-${prNumber}.vercel.app`);
+
+            let activeAlias = null;
+            for (const alias of candidates) {
+              console.log(`Attempting to set alias: ${alias}`);
+              try {
+                const res = await fetch(`https://api.vercel.com/v2/deployments/${host}/aliases?teamId=${teamId}`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ alias }),
+                });
+                const data = await res.json();
+                if (res.ok) {
+                  console.log(`Successfully mapped stable alias to ${alias}`);
+                  activeAlias = alias;
+                  break;
+                } else {
+                  console.warn(`Could not set alias ${alias}:`, JSON.stringify(data));
+                }
+              } catch (e) {
+                console.warn(`Fetch error for alias ${alias}:`, e.message);
+              }
+            }
+
+            const finalUrl = activeAlias ? `https://${activeAlias}` : (deployUrl.startsWith('http') ? deployUrl : `https://${deployUrl}`);
+            core.setOutput('final_url', finalUrl);
+            core.setOutput('alias', activeAlias || '');
+
+      - name: Comment on Pull Request
+        if: steps.check-secrets.outputs.has_secrets == 'true' && steps.alias.outputs.final_url != ''
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
-            const deployUrl = '${{ steps.deploy.outputs.url }}';
+            const finalUrl = '${{ steps.alias.outputs.final_url }}';
             const marker = '<!-- vercel-preview-deployment -->';
 
-            const fullUrl = deployUrl.startsWith('http') ? deployUrl : `https://${deployUrl}`;
             const commentBody = `${marker}
             ### 🚀 Vercel Preview Deployment Ready!
 
             | Name | Status | Preview Link |
             | :--- | :--- | :--- |
-            | **Labyrinth 3D Site** | ✅ Deployed | [**${fullUrl}**](${fullUrl}) |
+            | **Labyrinth 3D Site** | ✅ Deployed | [**${finalUrl}**](${finalUrl}) |
 
             * **Commit**: \`${context.payload.pull_request.head.sha.substring(0, 7)}\`
             * **Triggered by**: @${context.actor}
             * **Branch**: \`${context.payload.pull_request.head.ref}\`
+            * **Stable Link**: This preview link stays the same for every commit in this PR and is automatically decommissioned when merged.
 
             > *All 3D voxel stations, GLB models, and interactive cards are built and live in this preview.*`;
 
@@ -117,5 +176,118 @@ jobs:
                 });
               }
             } catch (err) {
-              console.warn('Could not post PR preview comment (GitHub token has restricted write permissions):', err.message);
+              console.warn('Could not post PR preview comment:', err.message);
+            }
+
+  cleanup-preview:
+    name: Kill Vercel Preview on Merge/Close
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check Vercel Credentials
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ] || [ -z "${{ secrets.VERCEL_ORG_ID }}" ] || [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+            echo "Vercel credentials are not configured in repository secrets."
+          else
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Tear Down Deployments and Remove Alias
+        if: steps.check-secrets.outputs.has_secrets == 'true'
+        uses: actions/github-script@v7
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const token = process.env.VERCEL_TOKEN;
+            const teamId = process.env.VERCEL_ORG_ID;
+            const projectId = process.env.VERCEL_PROJECT_ID;
+            const prNumber = String(process.env.PR_NUMBER);
+
+            console.log(`Cleaning up Vercel preview resources for PR #${prNumber}...`);
+
+            // 1. Delete matching aliases
+            try {
+              const aliasRes = await fetch(`https://api.vercel.com/v4/aliases?teamId=${teamId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const aliasData = await aliasRes.json();
+              const prAliases = (aliasData.aliases || []).filter(a => a.alias.includes(`pr-${prNumber}`));
+              for (const a of prAliases) {
+                console.log(`Deleting alias ${a.alias} (id: ${a.uid})...`);
+                await fetch(`https://api.vercel.com/v2/aliases/${a.uid}?teamId=${teamId}`, {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+              }
+            } catch (err) {
+              console.warn('Error deleting aliases:', err.message);
+            }
+
+            // 2. Delete deployments tagged with this PR
+            try {
+              const depRes = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&teamId=${teamId}&limit=100`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const depData = await depRes.json();
+              const prDeployments = (depData.deployments || []).filter(d => {
+                const metaPr = d.meta?.prId || d.meta?.githubPrId;
+                return metaPr === prNumber;
+              });
+
+              console.log(`Found ${prDeployments.length} deployments for PR #${prNumber}`);
+              for (const dep of prDeployments) {
+                console.log(`Deleting deployment ${dep.uid} (${dep.url})...`);
+                await fetch(`https://api.vercel.com/v13/deployments/${dep.uid}?teamId=${teamId}`, {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+              }
+            } catch (err) {
+              console.warn('Error deleting deployments:', err.message);
+            }
+
+      - name: Update PR Comment to Decommissioned
+        if: steps.check-secrets.outputs.has_secrets == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const isMerged = context.payload.pull_request.merged;
+            const marker = '<!-- vercel-preview-deployment -->';
+
+            const commentBody = `${marker}
+            ### 🛑 Vercel Preview Decommissioned
+
+            | Name | Status | PR Event |
+            | :--- | :--- | :--- |
+            | **Labyrinth 3D Site** | 🗑️ Killed (Offline) | ${isMerged ? 'Merged into `main`' : 'Pull request closed'} |
+
+            * The preview deployment and its alias have been permanently removed from Vercel.
+            * The temporary preview URL is now offline (returns 404).`;
+
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+
+              const botComment = comments.find(comment => comment.body.includes(marker));
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody,
+                });
+              }
+            } catch (err) {
+              console.warn('Could not update PR comment:', err.message);
             }
