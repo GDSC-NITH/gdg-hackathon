@@ -104,7 +104,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
   border-radius: 4px;
   padding: 4px 12px;
 }
-.faq-box summary { font-weight: 600; cursor: pointer; padding: 8px 0; }
+.faq-box h3 { margin: 8px 0 4px; font-size: 16px; }
 .faq-box p { margin: 4px 0 10px; color: var(--ink); }
 
 /* Hide external portals, language switch, BetterMapIt, and Homecraft map badges */
@@ -138,13 +138,14 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
 </header>
 
 <!-- The landing hero. data-starts / data-ends drive the countdown (ISO 8601 with offset). -->
-<section id="hero" aria-labelledby="heroTitle" data-starts="2026-12-19T09:00:00+05:30" data-ends="2026-12-20T18:00:00+05:30">
+<section id="hero" aria-labelledby="heroTitle" data-starts="2027-01-17T09:00:00+05:30" data-ends="2027-01-18T18:00:00+05:30">
   <div class="hero-card">
     <p class="hero-eyebrow">GDG on Campus · NIT Hamirpur presents</p>
     <h1 id="heroTitle"><span class="sr">Labyrinth</span><canvas class="hero-logo" data-text="LABYRINTH" aria-hidden="true"></canvas></h1>
     <p class="hero-tag">A 36-hour hackathon. Find your way through the maze, build something real.</p>
     <ul class="hero-facts">
-      <li><b>Dec 19–20</b>2026</li>
+      <li><b>Jan 17–18</b>2027</li>
+      <li><b>NIT Hamirpur</b>New Lecture Hall</li>
       <li><b>36 hours</b>of building</li>
       <li><b>₹1,50,000</b>prize pool</li>
     </ul>
@@ -153,7 +154,6 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
       <button class="mc-button cta hero-go" type="button" disabled>Loading the island…</button>
       <a class="mc-button" href="#register" data-go="register">Register</a>
     </div>
-    <p class="hero-note">Not a gamer? No problem: click any building to read about it. <a href="?plain" data-mode data-keep-text>Or read it as a normal page.</a></p>
   </div>
 </section>
 
@@ -170,7 +170,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
   <article class="page" id="welcome" data-station="welcome" data-icon="scroll">
     <h2>Welcome to Labyrinth</h2>
     <p><strong>Labyrinth hackathon Organised by GDG NIT Hamirpur.</strong></p>
-    <p>Join 300+ builders, creators, and hackers for 36 hours of high-energy creation and innovation. Lead Organizer: Prashant.</p>
+    <p>Join 300+ builders, creators, and hackers for 36 hours of high-energy creation and innovation. Lead Organisers: Harsh Bhushan Pathak, Daksh and Divyansh.</p>
 
     <div class="hack-grid">
       <div class="hack-stat"><span class="val">₹1,50,000</span><span class="lbl">Prize Pool</span></div>
@@ -179,11 +179,11 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
       <div class="hack-stat"><span class="val">36h</span><span class="lbl">Duration</span></div>
     </div>
 
-    <p class="aside">📅 <strong>Dec 19, 09:00 — Dec 20, 18:00 IST</strong><br>📍 <strong>Tech Innovation Hub</strong>, 42 Cyber Road, Outer Ring, Bengaluru</p>
+    <p class="aside">📅 <strong>Jan 17, 09:00 — Jan 18, 18:00 IST, 2027</strong><br>📍 <strong>New Lecture Hall</strong>, NIT Hamirpur, Himachal Pradesh</p>
 
     <div class="page-foot" style="margin-top:16px; display:flex; gap:10px;">
-      <a class="mc-button" href="#register" data-open="register">Register Now</a>
-      <a class="mc-button" href="#tracks" data-open="tracks">Explore Tracks</a>
+      <a class="mc-button" href="#register" data-go="register">Register Now</a>
+      <a class="mc-button" href="#tracks" data-go="tracks">Explore Tracks</a>
     </div>
   </article>
 
@@ -223,7 +223,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
     <p>All times in Indian Standard Time (IST):</p>
 
     <div class="schedule-item">
-      <div class="schedule-time">Dec 19<br>09:00</div>
+      <div class="schedule-time">Jan 17<br>09:00</div>
       <div><strong>Check-in & Welcome Breakfast</strong><br><span class="aside">Main Atrium — Badge collection, coffee & light bites</span></div>
     </div>
     <div class="schedule-item">
@@ -243,7 +243,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
       <div><strong>Workshop: Modern WebGL & 3D Web</strong><br><span class="aside">Workshop Hall — Hands-on session with lead mentors</span></div>
     </div>
     <div class="schedule-item">
-      <div class="schedule-time">Dec 20<br>00:00</div>
+      <div class="schedule-time">Jan 18<br>00:00</div>
       <div><strong>Midnight Energy Boost & Mini Games</strong><br><span class="aside">Recreation Lounge — Snacks, trivia, and rapid prizes</span></div>
     </div>
     <div class="schedule-item">
@@ -351,33 +351,24 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
   <!-- 6. Team Station -->
   <article class="page" id="team" data-station="team" data-icon="heart">
     <h2>Organizing Crew</h2>
-    <p>Labyrinth hackathon Organised by GDG NIT Hamirpur:</p>
+    <p>Labyrinth is organised by Google Developer Groups on Campus, NIT Hamirpur.</p>
 
     <div class="items">
       <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <h3 style="margin:0 0 2px;">GDG NIT Hamirpur</h3>
-        <p class="aside" style="margin:0 0 4px;"><strong>Organizing Community</strong></p>
-        <p style="margin:0;">Google Developer Groups on Campus NIT Hamirpur.</p>
+        <p class="aside" style="margin:0 0 4px;"><strong>Lead Organisers</strong></p>
+        <h3 style="margin:0;">Harsh Bhushan Pathak · Daksh · Divyansh</h3>
       </div>
       <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <h3 style="margin:0 0 2px;">Prashant</h3>
-        <p class="aside" style="margin:0 0 4px;"><strong>Lead Organizer & Creator</strong></p>
-        <p style="margin:0;">Founder & software architect leading the Labyrinth Hackathon.</p>
+        <p class="aside" style="margin:0 0 4px;"><strong>Technical Leads</strong></p>
+        <h3 style="margin:0;">Saurabh Chauhan · Prashant Bahuguna</h3>
       </div>
       <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <h3 style="margin:0 0 2px;">Priya Nair</h3>
-        <p class="aside" style="margin:0 0 4px;"><strong>Operations & Logistics</strong></p>
-        <p style="margin:0;">Organizer with 5+ years crafting community developer hackathons across India.</p>
-      </div>
-      <div style="margin-bottom:12px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.08);">
-        <h3 style="margin:0 0 2px;">Rohan Deshmukh</h3>
-        <p class="aside" style="margin:0 0 4px;"><strong>Technical Lead & 3D Engineering</strong></p>
-        <p style="margin:0;">Creative technologist and WebGL explorer building interactive graphics engines.</p>
+        <p class="aside" style="margin:0 0 4px;"><strong>Operations Lead</strong></p>
+        <h3 style="margin:0;">Parthivi Pradhan</h3>
       </div>
       <div style="margin-bottom:12px; padding:10px 0;">
-        <h3 style="margin:0 0 2px;">Ananya Patel</h3>
-        <p class="aside" style="margin:0 0 4px;"><strong>Design & Experience</strong></p>
-        <p style="margin:0;">Product designer specializing in accessible ergonomics and delightful interactions.</p>
+        <p class="aside" style="margin:0 0 4px;"><strong>Design Lead</strong></p>
+        <h3 style="margin:0;">Kshitij Chauhan</h3>
       </div>
     </div>
   </article>
@@ -386,46 +377,57 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
   <article class="page" id="faq" data-station="faq" data-icon="writing">
     <h2>FAQ & Rules</h2>
 
-    <details class="faq-box" open>
-      <summary>Who can participate in Labyrinth?</summary>
-      <p>Anyone passionate about software, design, and problem solving! College students, recent graduates, and professional engineers are all welcome.</p>
-    </details>
-
-    <details class="faq-box">
-      <summary>What is the team size requirement?</summary>
-      <p>Teams must consist of 2 to 4 members. Every team must designate one leader during registration.</p>
-    </details>
-
-    <details class="faq-box">
-      <summary>Is there any registration fee?</summary>
-      <p>No, Labyrinth is 100% free of charge! Food, drinks, swag, and access to industry mentors are fully covered by our sponsors.</p>
-    </details>
-
-    <details class="faq-box">
-      <summary>Can teams work on pre-existing projects?</summary>
-      <p>No. All code and designs must be created during the 36-hour hackathon window. Open-source libraries, APIs, and boilerplate templates are allowed.</p>
-    </details>
-
-    <details class="faq-box">
-      <summary>What should I bring to the venue?</summary>
-      <p>Your laptop, power charger, government or student ID, and enthusiasm to build! A sleeping bag is recommended if you plan to stay overnight.</p>
-    </details>
+    <div class="faq-box">
+      <h3>Is there a registration fee?</h3>
+      <p>No. Labyrinth is completely free. Meals, snacks and swag during the event are covered.</p>
+    </div>
+    <div class="faq-box">
+      <h3>What is the team size?</h3>
+      <p>Teams of 2 to 4 members. Each team names one team leader when registering.</p>
+    </div>
+    <div class="faq-box">
+      <h3>Who can participate?</h3>
+      <p>Any college student with a valid student ID. Students from all branches and years are welcome, including first-time hackers.</p>
+    </div>
+    <div class="faq-box">
+      <h3>I don’t have a team. Can I still join?</h3>
+      <p>Yes. Register on your own and we will help you find teammates before hacking starts.</p>
+    </div>
+    <div class="faq-box">
+      <h3>Can we work on an existing project?</h3>
+      <p>No. All code and designs must be made during the 36 hours. Open-source libraries, public APIs and starter templates are allowed.</p>
+    </div>
+    <div class="faq-box">
+      <h3>What should I bring?</h3>
+      <p>Your laptop, charger, student ID, any hardware you plan to use, and a water bottle. Bring a blanket if you plan to rest overnight.</p>
+    </div>
+    <div class="faq-box">
+      <h3>Will food and accommodation be provided?</h3>
+      <p>Meals and snacks are provided throughout the hackathon. The venue stays open overnight for hacking.</p>
+    </div>
+    <div class="faq-box">
+      <h3>How are projects judged?</h3>
+      <p>On innovation, technical complexity, design and usability, and impact. Teams demo to the judging panel at the end.</p>
+    </div>
   </article>
 
   <!-- 8. Venue Station -->
   <article class="page" id="venue" data-station="venue" data-icon="map">
     <h2>Venue & Travel Guide</h2>
-    <p><strong>Tech Innovation Hub</strong><br>42 Cyber Road, Outer Ring, Bengaluru, Karnataka 560103</p>
+    <p><strong>New Lecture Hall</strong><br>National Institute of Technology Hamirpur, Hamirpur, Himachal Pradesh 177005</p>
 
     <div style="margin:14px 0; padding:14px; background:rgba(0,0,0,0.04); border-radius:8px;">
-      <h3 style="margin-top:0;">🚆 Metro Transit</h3>
-      <p>The nearest metro station is 1.5 km away. Free dedicated feeder shuttles run every 20 minutes on the morning of December 19.</p>
+      <h3 style="margin-top:0;">🚌 By road</h3>
+      <p>Hamirpur is connected by HRTC and private buses from Chandigarh, Delhi, Shimla and Dharamshala. The campus is a short auto ride from Hamirpur bus stand.</p>
 
-      <h3>🚌 Buses & Cabs</h3>
-      <p>Outer Ring Road express buses stop directly outside the campus gate. A dedicated cab drop-off and pickup bay is situated at Gate 2.</p>
+      <h3>🚆 By train</h3>
+      <p>The nearest railway station is Una Himachal, about 80 km away. Buses and taxis run from Una to Hamirpur.</p>
 
-      <h3>🚗 On-Campus Parking</h3>
-      <p>Free secure covered parking is provided for both two-wheelers and four-wheelers for all registered hackathon attendees.</p>
+      <h3>✈️ By air</h3>
+      <p>The nearest airport is Gaggal (Kangra), about 90 km away. Chandigarh airport is the nearest major airport.</p>
+
+      <h3>📍 On campus</h3>
+      <p>Check in at the New Lecture Hall on Jan 17 from 09:00. Volunteers will guide you from the main gate.</p>
     </div>
   </article>
 
@@ -451,7 +453,7 @@ body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 
     <h2>Contact & Inquiries</h2>
     <form class="mailbox" method="post" enctype="text/plain">
       <input name="subject" maxlength="80" required placeholder="Subject" aria-label="Subject (required)">
-      <textarea name="message" rows="6" maxlength="1000" required placeholder="Write something to Prashant and the organizers..." aria-label="Write something"></textarea>
+      <textarea name="message" rows="6" maxlength="1000" required placeholder="Write something to the organisers..." aria-label="Write something"></textarea>
       <input name="contact" maxlength="120" required autocomplete="email" placeholder="Your Email (required)" aria-label="How to reach you (required)">
       <input class="trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="mailbox-foot"><button class="mc-button" type="submit" disabled>Send Message</button></div>

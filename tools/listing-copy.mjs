@@ -1,4 +1,4 @@
-export const pair = (zh, en) => `${en}  \n${zh}`;
+export const pair = (zh, en) => en;
 const dynamic = fn => {
   const def = fn();
   const f = arg => (typeof arg === 'string' && arg ? fn(arg) : def);
@@ -57,12 +57,12 @@ export function listingTitle(entry, update = false) {
 }
 export const statusText = {
   'PR title': {
-    success: 'Title format is valid. 标题格式正确。',
-    failure: 'Use type(scope): description. 请使用 type(scope): description 标题格式。',
+    success: 'Title format is valid.',
+    failure: 'Use type(scope): description.',
   },
   'Listing request': {
-    success: 'Listing request check passed. 收录申请检查通过。',
-    pending: 'Rechecking the listing request. 正在重新检查收录申请。',
-    failure: 'Listing request check failed. 收录申请检查未通过。',
+    success: 'Listing request check passed.',
+    pending: 'Rechecking the listing request.',
+    failure: 'Listing request check failed.',
   },
 };

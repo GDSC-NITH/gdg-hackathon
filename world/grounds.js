@@ -92,7 +92,7 @@ export function buildDecor({ B, layer, materials, obstacles, bakes, planes, grid
 // on front & back faces with solid timber log side pillars, top beam header,
 // grass foundation, and solid voxel collision so it looks substantial from all angles.
 function buildSignboard({ B, obstacles, bakes, planes, grid, forest }, x, z) {
-  const texture = new THREE.TextureLoader().load('assets/gdg-signboard.webp');
+  const texture = new THREE.TextureLoader().load('assets/branding/gdg-signboard.webp');
   texture.colorSpace = THREE.SRGBColorSpace;
 
   const boardW = 5.6;

@@ -4,10 +4,10 @@ export default {
   skin: '',
   languages: ['en'],
   weather: {
-    city: 'Bengaluru',
-    cityEn: 'Bengaluru',
-    latitude: 12.9716,
-    longitude: 77.5946,
+    city: 'Hamirpur',
+    cityEn: 'Hamirpur',
+    latitude: 31.7084,
+    longitude: 76.5274,
     timezone: 'Asia/Kolkata',
   },
   // The top bar links every station; the Dock keeps five so it fits beside the radar on phones.

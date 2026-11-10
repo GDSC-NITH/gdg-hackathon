@@ -83,9 +83,6 @@ body.plain .hero-facts b { color: var(--accent); text-shadow: none; }
 .hero-count p { margin: 0; font: 600 15px/1.3 var(--text); color: #80ff20; text-shadow: 2px 2px 0 #15210c; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 14px; }
 .hero-actions .mc-button { min-height: 46px; padding: 0 20px; font-size: 16px; }
-.hero-note { margin: 0; font: 500 14px/1.5 var(--text); color: #e3e0d8; text-shadow: 1px 1px 0 #000; }
-.hero-note a { color: #fff; }
-body.plain .hero-note { display: none; }
 body.hero-on #hud, body.hero-on #siteTags { visibility: hidden; }
 /* While the hero is up the world loads behind it, under open sky. */
 body.hero-on #loading { background: transparent; pointer-events: none; }

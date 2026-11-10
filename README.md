@@ -48,6 +48,10 @@ npm run check:site
 
 Validates site metadata, configuration, assets, and engine diffs.
 
+### Preview Deployments
+
+Pull requests to `main` automatically deploy an isolated preview build to Vercel and post a comment with the live preview link.
+
 ---
 
 ## 📂 Project Structure

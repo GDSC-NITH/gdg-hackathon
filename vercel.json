@@ -1,0 +1,28 @@
+{
+  "buildCommand": "bash tools/build.sh",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/homecraft.json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ]
+}

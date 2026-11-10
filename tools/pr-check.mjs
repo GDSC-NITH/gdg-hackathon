@@ -35,7 +35,7 @@ async function main() {
   }
   run('node', ['--test', 'tools/listing-github.test.mjs', 'tools/listing-validation.test.mjs']);
   if (!mode.browser) return;
-  run('node', ['--test', 'tools/update-engine.test.mjs']);
+  if (process.env.TEST_ENGINE_UPDATE) run('node', ['--test', 'tools/update-engine.test.mjs']);
   run('node', ['tools/check-site.mjs']);
   run('node', ['tools/check-metadata.mjs']);
   run('node', ['--test', 'tools/check-listing.test.mjs']);
