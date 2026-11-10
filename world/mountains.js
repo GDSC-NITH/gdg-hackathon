@@ -20,7 +20,7 @@ import { valueNoise } from '@engine/world/terrain.js';
 import { rng } from '@engine/world/textures.js';
 import { ISLAND } from './layout.js';
 
-const DEPTH = 110, NEAR = 20, NEAR_CELL = 2.5, FAR_CELL = 6;
+const DEPTH = 100, NEAR = 20, NEAR_CELL = 3, FAR_CELL = 8;
 const STONE_LINE = 3, FOREST_LINE = 15, SNOW_LINE = 19, HILL_TOP = 16;
 
 const GRASS = { top: 'grass_top', side: 'grass_side', bottom: 'dirt' };
@@ -134,7 +134,6 @@ function paintBelt(B, r, tufts, belt) {
           if (roll < 0.18 * density) broadleaf(B, jx, jz, h, 0.85 + r() * 0.5, seed);
           else if (roll < 0.34 * density) pine(B, jx, jz, h, 0.8 + r() * 0.55, seed);
           else if (roll < 0.52 * density) shrub(B, jx, jz, h, 0.8 + r() * 0.5, seed);
-          else if (roll < 0.52 * density + 0.3 * Math.max(density, 0.25)) tufts.push({ x: jx, y: h, z: jz, tile: TUFT_TILES[Math.floor(r() * TUFT_TILES.length)], s: 0.6 + r() * 0.4, ry: r() * Math.PI });
           if (h < STONE_LINE - 0.4 && dd > 8 && dd < 60 && r() < 0.012) cabin(B, cx, cz, h, Math.floor(r() * 4) * Math.PI / 2, Math.floor(r() * 1e6));
         } else if (profile.boulders && h < SNOW_LINE && r() < 0.08) boulder(B, jx, jz, h, 0.7 + r() * 0.6, Math.floor(r() * 1e6));
       }
