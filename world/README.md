@@ -12,7 +12,8 @@ same file. 1 block = 1 m; x points east, z points south, y points up.
 | `campus.js` | NIT Hamirpur round the venue ground (backdrop, not walkable): fence and main gate, the road with Admin Block, Central Block and New Lecture Hall, basketball court and gallery, practice field, communication tower, chir pines | Landscape |
 | `mountains.js` | Mountains and hills beyond the campus; they start at `CAMPUS_REACH` from `campus.js` | Landscape |
 | `sakura.js` | Sakura trees on the ground and their falling petals | Landscape |
-| `kit.js` | Shared materials (`M`) and the station placement helper | Rarely |
+| `markers.js` | What marks a station: its gold stage, the glowing outline and the floating gem, and their animation | Rarely |
+| `kit.js` | Shared materials (`M`) and the station placement helper (draws each station at `STATION_SCALE` from `layout.js`) | Rarely |
 | `frame.js` | Facing names and local-to-world maths | Rarely |
 | `build.js` | Puts it all together; keeps the player on the island | Rarely |
 | `../index.html` | Card text for each station (`<article data-station="<id>">`) and the hero | Content |
@@ -25,6 +26,13 @@ and **local +z is its front**, the side that faces the path. `layout.js` turns
 the station with `face: 'south' | 'east' | 'north' | 'west'`; the kit rotates
 the boxes, the footprint, the lights and the click box to match. Moving or
 turning a station never needs changes in its build file.
+
+Builds are written in real metres, and the kit draws every station at
+`STATION_SCALE` (1.25) times that size, footprint, lights and click box
+included, so stations stand out from the trees and lamps. `markers.js` then
+puts each one on a round gold stage with a glowing outline and floats a gold
+gem over its roof; the name tag in `site/tags.js` sits above the gem. Gold
+glow marks stations only, so keep other lights warm white or orange.
 
 ```js
 // world/stations/example.js
@@ -51,9 +59,10 @@ in `kit.js` so the island keeps one palette; add new ones there.
    name from `ART` in `engine/ui/icons.js`.
 4. Add `<article class="page" id="<id>" data-station="<id>">` with an `<h2>`
    to `index.html`.
-5. `grounds.js` paves a walkway from the station's front automatically. Keep
-   about 1.5 m clear in front of the station: visitors stand at
-   `approach` (default 2.8 m) from its centre.
+5. `grounds.js` paves a walkway from the station's front, and `markers.js`
+   gives it a stage, outline and gem, automatically. Keep about 1.5 m clear
+   in front of the scaled station: visitors stand at `approach` (default
+   3.5 m) from its centre.
 
 ## Checking your change
 

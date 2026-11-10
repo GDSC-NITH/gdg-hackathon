@@ -9,6 +9,7 @@ import { rng, canvasTexture } from '@engine/world/textures.js';
 import { M } from './kit.js';
 import { FACING } from './frame.js';
 import { PLAN, RING, AVENUE, MAZE, LAMPS, TREES, SIGNBOARD } from './layout.js';
+import { onStage } from './markers.js';
 
 // ---------- GDG Lawn Lettering ----------
 // 17 columns (x from -8 to 8), 11 rows (z from -6 to 4).
@@ -52,6 +53,9 @@ const onWalkway = (x, z) => walkways.some(w => w(x + 0.5, z + 0.5));
 export function surfaceAt(x, z) {
   if (inRect(MAZE, x, z)) return isGDG(x, z) ? 'travertine' : 'hedge';
   if (inRect(RING.inner, x, z)) return 'travertine';
+  // Each station stands on a round stage (world/markers.js), filled to its
+  // gold outline even where it reaches over the ring road.
+  if (onStage(x, z)) return 'stage';
   if (inRect(RING.outer, x, z) || inRect(AVENUE, x, z) || onWalkway(x, z)) return 'pavers';
   return 'grass';
 }

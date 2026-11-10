@@ -18,9 +18,13 @@ export const ISLAND = { x0: -25, x1: 25, z0: -26, z1: 29 };
 // Visitors start on the avenue, facing north towards the plaza.
 export const SPAWN = { x: 0, z: 21, heading: Math.PI };
 
+// Stations are drawn this many times their build size (world/kit.js), so they
+// read as the island's landmarks next to the trees and lamps.
+export const STATION_SCALE = 1.25;
+
 // Stations in tour order: the Dock, the top bar and "Next" all follow it.
 // face: the side the station's front looks towards (south, east, north, west).
-// approach: how far in front of the centre a visitor stands (default 2.8 m).
+// approach: how far in front of the centre a visitor stands (default 3.5 m).
 export const PLAN = [
   { id: 'welcome', en: 'Welcome', icon: 'scroll', x: -5.5, z: 14, face: 'east' },
   { id: 'tracks', en: 'Tracks', icon: 'works', x: -16, z: 3, face: 'east' },
@@ -33,7 +37,7 @@ export const PLAN = [
   { id: 'register', en: 'Register', icon: 'seal', x: 5.5, z: 14, face: 'west' },
 ];
 
-const standIn = (p, approach = p.approach ?? 2.8) => toWorld(p.x, p.z, FACING[p.face], 0, approach);
+const standIn = (p, approach = p.approach ?? 3.5) => toWorld(p.x, p.z, FACING[p.face], 0, approach);
 
 // What the engine reads: where to stand (at) and what to look at (look).
 export const STATIONS = [

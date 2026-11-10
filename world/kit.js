@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { yawOf, toWorld } from './frame.js';
+import { STATION_SCALE } from './layout.js';
 
 export { FACING, yawOf, toWorld } from './frame.js';
 
@@ -83,9 +84,11 @@ function bounds(x, z, yaw, lx, lz, w, d) {
 
 // out = { B, obstacles, hotspots, bakes, planes }: the lists build.js returns.
 // station = { id, x, z, face }, def = { size: [w, h, d], build(k) }.
+// Every station is drawn STATION_SCALE times its build size (layout.js), so
+// the stations stand out from the trees and lamps; builds stay in metres.
 export function placeStation(out, station, def) {
   const { B, obstacles, hotspots, bakes, planes, grid, forest } = out;
-  const { id, x, z } = station, yaw = yawOf(station.face);
+  const { id, x, z } = station, yaw = yawOf(station.face), s = STATION_SCALE;
   const [sw, sh, sd] = def.size;
   const k = {
     M,
@@ -95,13 +98,13 @@ export function placeStation(out, station, def) {
     box: (...args) => B.box(...args),
     // Something the player can't walk through, padded 5 cm as AGENTS.md asks.
     solid(lx, lz, w, d, level = 0, height = sh) {
-      const b = bounds(x, z, yaw, lx, lz, w + 0.1, d + 0.1);
+      const b = bounds(x, z, yaw, lx * s, lz * s, w * s + 0.1, d * s + 0.1);
       obstacles.push({ ...b, level });
       if (grid) {
         const x0 = Math.floor(b.x0), x1 = Math.ceil(b.x1);
         const z0 = Math.floor(b.z0), z1 = Math.ceil(b.z1);
         const y0 = Math.floor(level);
-        const y1 = Math.ceil(level + height);
+        const y1 = Math.ceil(level + height * s);
         grid.fill(x0, y0, z0, x1, y1, z1, 'stone', 'forestCollision');
         if (forest?.tops) {
           forest.tops.push({ x0, x1, z0, z1, y: y1, site: id });
@@ -110,19 +113,20 @@ export function placeStation(out, station, def) {
     },
     // A lamp baked into the night lighting. dir is a local direction or null.
     light(lx, y, lz, power, radius, dir = null) {
-      const [wx, wz] = toWorld(x, z, yaw, lx, lz);
+      const [wx, wz] = toWorld(x, z, yaw, lx * s, lz * s);
       let direction = null;
       if (dir) {
         const [dx, dz] = toWorld(0, 0, yaw, dir[0], dir[2]);
         direction = [dx, dir[1], dz];
       }
-      bakes.push({ id: `${id}-${bakes.length}`, position: [wx, y, wz], power, radius, direction });
+      bakes.push({ id: `${id}-${bakes.length}`, position: [wx, y * s, wz], power, radius: radius * s, direction });
     },
     // A THREE.Mesh placed in station space (signs, posters). Each one is a draw call.
     plane(mesh, lx, y, lz, ry = 0) {
-      const [wx, wz] = toWorld(x, z, yaw, lx, lz);
-      mesh.position.set(wx, y, wz);
+      const [wx, wz] = toWorld(x, z, yaw, lx * s, lz * s);
+      mesh.position.set(wx, y * s, wz);
       mesh.rotation.y = yaw + ry;
+      mesh.scale.multiplyScalar(s);
       planes.push(mesh);
       return mesh;
     },
@@ -147,14 +151,18 @@ export function placeStation(out, station, def) {
         // Recessed self-illuminated glowing lens
         B.box(cx, 0.03, cz, 0.20, 0.03, 0.20, glow);
         // Baked upward light volume cone
-        const [wx, wz] = toWorld(x, z, yaw, cx, cz);
+        const [wx, wz] = toWorld(x, z, yaw, cx * s, cz * s);
         bakes.push({ id: `${id}-c${bakes.length}`, position: [wx, 0.15, wz], power: 2.2, radius: 5.5, direction: [0, 1, 0] });
       }
     },
   };
-  B.at(x, 0, z, yaw, () => def.build(k));
+  B.at(x, 0, z, yaw, () => {
+    B.stack.push(B.stack[B.stack.length - 1].clone().scale(new THREE.Vector3(s, s, s)));
+    def.build(k);
+    B.stack.pop();
+  });
   // Click and proximity box: the station's whole size.
-  const [w, h, d] = def.size;
+  const [w, h, d] = def.size.map(v => v * s);
   const r = bounds(x, z, yaw, 0, 0, w, d);
   hotspots.push({ id, box: new THREE.Box3(new THREE.Vector3(r.x0, 0, r.z0), new THREE.Vector3(r.x1, h, r.z1)) });
 }
