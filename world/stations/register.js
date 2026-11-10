@@ -2,7 +2,9 @@
 // Local frame: (0, 0) is the centre, +z is the front (faces the path).
 export default {
   size: [3.4, 3.6, 3.4],
-  build({ box, solid, light, M }) {
+  build({ box, solid, light, cornerLights, M }) {
+    cornerLights(3.4, 3.4, 'purple');
+
     // Portal frame and its glow.
     box(0, 0, 0, 2.8, 0.6, 0.7, M.obsidian);
     box(-1.1, 0.6, 0, 0.6, 2.4, 0.7, M.obsidian);

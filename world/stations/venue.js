@@ -130,7 +130,10 @@ function mergeVenueModel(root) {
 
 export default {
   size: [5.6, 2.8, 4.4],
-  build({ box, solid, light, plane, M }) {
+  build({ box, solid, light, plane, cornerLights, M }) {
+    // 4 small ground corner lights with warm golden glow
+    cornerLights(5.6, 4.4, 'warm');
+
     // 3D GLTF Venue Building Group
     const group = new THREE.Group();
     plane(group, 0, 0, 0);

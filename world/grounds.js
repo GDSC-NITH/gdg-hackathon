@@ -101,9 +101,11 @@ function buildSignboard({ B, obstacles, bakes, planes, grid, forest }, x, z) {
   const half = depth / 2;
   const frameH = 3.32; // height of the timber frame on sides
 
-  // 1. Front & Back poster planes merged into 1 single draw call
+  // 1. Front & Back poster planes merged into 1 single draw call with self-illumination for night
   const posterMat = new THREE.MeshLambertMaterial({
     map: texture,
+    emissive: new THREE.Color(0x555045),
+    emissiveMap: texture,
     transparent: true,
     alphaTest: 0.25,
     side: THREE.DoubleSide
@@ -175,6 +177,13 @@ function buildSignboard({ B, obstacles, bakes, planes, grid, forest }, x, z) {
         y: 4, site: 'signboard'
       });
     }
+  }
+
+  // 4 small ground corner uplights around the monument base
+  for (const [cx, cz] of [[-2.6, -0.6], [2.6, -0.6], [-2.6, 0.6], [2.6, 0.6]]) {
+    B.box(x + cx, 0, z + cz, 0.32, 0.04, 0.32, M.blackMetal);
+    B.box(x + cx, 0.03, z + cz, 0.22, 0.03, 0.22, M.lanternGlow);
+    bakes.push({ id: `board-c-${cx}-${cz}`, position: [x + cx, 0.2, z + cz], power: 2.2, radius: 5.5, direction: [0, 1, 0] });
   }
 
   // Warm night lighting for both front and back

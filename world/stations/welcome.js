@@ -2,7 +2,9 @@
 // Local frame: (0, 0) is the centre, +z is the front (faces the path).
 export default {
   size: [2.8, 2.5, 2.5],
-  build({ box, solid, light, M }) {
+  build({ box, solid, light, cornerLights, M }) {
+    cornerLights(2.8, 2.5, 'warm');
+
     // Log corner pillars.
     for (const px of [-1.1, 1.1]) for (const pz of [-0.9, 0.9]) box(px, 0, pz, 0.28, 2.3, 0.28, M.log);
     // Roof beams and awning.

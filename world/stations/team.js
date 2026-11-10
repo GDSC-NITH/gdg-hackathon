@@ -69,15 +69,29 @@ function mergeTeamModel(root) {
   const mergedGroup = new THREE.Group();
   for (const [mat, geoms] of byMat.entries()) {
     const mergedGeom = mergeGeometries(geoms, false);
-    if (mergedGeom) {
-      mat.side = THREE.DoubleSide;
-      mat.roughness = 0.32;
-      mat.metalness = 0.15;
-      const mesh = new THREE.Mesh(mergedGeom, mat);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mergedGroup.add(mesh);
+    if (!mergedGeom) continue;
+
+    const m = mat.clone();
+    m.side = THREE.DoubleSide;
+    m.roughness = 0.32;
+    m.metalness = 0.15;
+
+    // Glowing laptop displays and night self-illumination
+    const name = m.name?.toLowerCase() || '';
+    if (name.includes('display') || name.includes('screen') || name.includes('glow')) {
+      m.emissive = new THREE.Color(0x9fd3ff);
+      m.emissiveIntensity = 1.35;
+    } else {
+      // Warm self-illumination so teammates, table, and chairs are clearly visible at night
+      const col = m.color || new THREE.Color(0x888888);
+      m.emissive = col.clone();
+      m.emissiveIntensity = 0.28;
     }
+
+    const mesh = new THREE.Mesh(mergedGeom, m);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mergedGroup.add(mesh);
   }
 
   mergedGroup.scale.setScalar(0.70);
@@ -86,10 +100,13 @@ function mergeTeamModel(root) {
 
 export default {
   size: [5.8, 3.2, 4.2],
-  build({ box, solid, light, plane, M }) {
+  build({ box, solid, light, plane, cornerLights, M }) {
     // Stepped Ceremonial Deepslate & Stone Dais
     box(0, 0, 0, 5.8, 0.2, 4.1, M.deepslate);
     box(0, 0.2, 0, 5.5, 0.15, 3.8, M.stone);
+
+    // 4 small ground corner lights with warm amber glow
+    cornerLights(5.8, 4.1, 'warm');
 
     // 3D GLTF Team Meeting Group
     const group = new THREE.Group();

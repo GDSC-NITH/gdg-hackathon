@@ -2,7 +2,9 @@
 // Local frame: (0, 0) is the centre, +z is the front (faces the path).
 export default {
   size: [3.2, 2.6, 3.2],
-  build({ box, solid, light, M }) {
+  build({ box, solid, light, cornerLights, M }) {
+    cornerLights(3.2, 3.2, 'fire');
+
     // Furnace and chimney.
     box(0, 0, -0.6, 1.5, 1.6, 1.4, M.deepslate);
     box(0, 1.6, -0.6, 0.75, 1.0, 0.75, M.stone);

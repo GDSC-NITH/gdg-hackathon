@@ -38,12 +38,12 @@ function mergePrizesModel(root) {
     if (cat === 'Gold') {
       mat = new THREE.MeshPhysicalMaterial({
         color: 0xf7be16,
-        metalness: 0.40,
+        metalness: 0.35,
         roughness: 0.22,
         clearcoat: 0.80,
         clearcoatRoughness: 0.12,
-        emissive: new THREE.Color(0x553906),
-        emissiveIntensity: 0.45,
+        emissive: new THREE.Color(0xf7be16),
+        emissiveIntensity: 0.38,
         side: THREE.DoubleSide,
       });
     } else if (name.includes('Pedestal obsidian')) {
@@ -53,8 +53,8 @@ function mergePrizesModel(root) {
         roughness: 0.12,
         clearcoat: 0.85,
         clearcoatRoughness: 0.10,
-        emissive: new THREE.Color(0x06090e),
-        emissiveIntensity: 0.2,
+        emissive: new THREE.Color(0x181c24),
+        emissiveIntensity: 0.35,
         side: THREE.DoubleSide,
       });
     } else if (name.includes('Pedestal dark walnut')) {
@@ -62,6 +62,8 @@ function mergePrizesModel(root) {
         color: 0x382214,
         roughness: 0.45,
         metalness: 0.05,
+        emissive: new THREE.Color(0x382214),
+        emissiveIntensity: 0.30,
         side: THREE.DoubleSide,
       });
     } else if (name.includes('GDG red')) {
@@ -70,8 +72,8 @@ function mergePrizesModel(root) {
         metalness: 0.15,
         roughness: 0.16,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x3a0805),
-        emissiveIntensity: 0.4,
+        emissive: new THREE.Color(0xea4335),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else if (name.includes('GDG blue')) {
@@ -80,8 +82,8 @@ function mergePrizesModel(root) {
         metalness: 0.15,
         roughness: 0.16,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x061840),
-        emissiveIntensity: 0.4,
+        emissive: new THREE.Color(0x4285f4),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else if (name.includes('GDG green')) {
@@ -90,8 +92,8 @@ function mergePrizesModel(root) {
         metalness: 0.15,
         roughness: 0.16,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x062810),
-        emissiveIntensity: 0.4,
+        emissive: new THREE.Color(0x34a853),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else if (name.includes('GDG yellow')) {
@@ -100,8 +102,8 @@ function mergePrizesModel(root) {
         metalness: 0.15,
         roughness: 0.16,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x3a2800),
-        emissiveIntensity: 0.4,
+        emissive: new THREE.Color(0xfbbc05),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else {
@@ -119,11 +121,14 @@ function mergePrizesModel(root) {
 
 export default {
   size: [3.4, 4.0, 3.4],
-  build({ box, solid, light, plane, M }) {
+  build({ box, solid, light, plane, cornerLights, M }) {
     // Stepped Ceremonial Dais
     box(0, 0, 0, 3.4, 0.2, 2.8, M.deepslate);
     box(0, 0.2, 0, 3.0, 0.15, 2.4, M.travertine);
     box(0, 0.35, 0, 2.6, 0.04, 2.0, M.redVelvet);
+
+    // 4 small ground corner lights with gold glow
+    cornerLights(3.4, 2.8, 'gold');
 
     // Polished gold corner bracket accents on the dais
     box(-1.4, 0.2, -1.1, 0.2, 0.05, 0.2, M.gold);

@@ -54,8 +54,8 @@ function mergeSponsorsModel(root) {
         roughness: 0.20,
         clearcoat: 0.85,
         clearcoatRoughness: 0.12,
-        emissive: new THREE.Color(0x075020),
-        emissiveIntensity: 0.55,
+        emissive: new THREE.Color(0x12d665),
+        emissiveIntensity: 0.45,
         side: THREE.DoubleSide,
       });
     } else if (c.r > 0.7 && c.g > 0.5 && c.b < 0.3) {
@@ -66,8 +66,8 @@ function mergeSponsorsModel(root) {
         roughness: 0.22,
         clearcoat: 0.80,
         clearcoatRoughness: 0.12,
-        emissive: new THREE.Color(0x483204),
-        emissiveIntensity: 0.5,
+        emissive: new THREE.Color(0xffcd38),
+        emissiveIntensity: 0.45,
         side: THREE.DoubleSide,
       });
     } else if (c.r < 0.25 && c.g < 0.25 && c.b < 0.25) {
@@ -78,7 +78,8 @@ function mergeSponsorsModel(root) {
         roughness: 0.12,
         clearcoat: 0.85,
         clearcoatRoughness: 0.10,
-        emissive: new THREE.Color(0x040806),
+        emissive: new THREE.Color(0x182420),
+        emissiveIntensity: 0.30,
         side: THREE.DoubleSide,
       });
     } else if (c.b > c.r * 1.5 && c.b > c.g * 1.2) {
@@ -88,8 +89,8 @@ function mergeSponsorsModel(root) {
         metalness: 0.15,
         roughness: 0.15,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x061840),
-        emissiveIntensity: 0.5,
+        emissive: new THREE.Color(0x4285f4),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else if (c.r > c.g * 1.5 && c.r > c.b * 1.5) {
@@ -99,8 +100,8 @@ function mergeSponsorsModel(root) {
         metalness: 0.15,
         roughness: 0.15,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x3a0805),
-        emissiveIntensity: 0.5,
+        emissive: new THREE.Color(0xea4335),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else if (c.r > 0.7 && c.g > 0.6 && c.b < 0.3) {
@@ -110,8 +111,8 @@ function mergeSponsorsModel(root) {
         metalness: 0.15,
         roughness: 0.15,
         clearcoat: 0.85,
-        emissive: new THREE.Color(0x3a2800),
-        emissiveIntensity: 0.5,
+        emissive: new THREE.Color(0xfbbc05),
+        emissiveIntensity: 0.75,
         side: THREE.DoubleSide,
       });
     } else {
@@ -129,11 +130,14 @@ function mergeSponsorsModel(root) {
 
 export default {
   size: [3.4, 4.0, 3.4],
-  build({ box, solid, light, plane, M }) {
+  build({ box, solid, light, plane, cornerLights, M }) {
     // Stepped Ceremonial Travertine & Emerald Dais
     box(0, 0, 0, 3.4, 0.2, 2.6, M.travertine);
     box(0, 0.2, 0, 3.0, 0.15, 2.2, M.deepslate);
     box(0, 0.35, 0, 2.6, 0.04, 1.8, M.emerald);
+
+    // 4 small ground corner lights with emerald glow
+    cornerLights(3.4, 2.6, 'emerald');
 
     // Polished gold corner bracket accents on the dais
     box(-1.4, 0.2, -1.0, 0.2, 0.05, 0.2, M.gold);

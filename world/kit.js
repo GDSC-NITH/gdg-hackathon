@@ -126,6 +126,31 @@ export function placeStation(out, station, def) {
       planes.push(mesh);
       return mesh;
     },
+    // 4 small stylish ground corner uplights around the station's base footprint
+    cornerLights(w, d, style = 'warm') {
+      const hx = w / 2 - 0.16, hz = d / 2 - 0.16;
+      const corners = [
+        [-hx, -hz],
+        [hx, -hz],
+        [-hx, hz],
+        [hx, hz]
+      ];
+      const glow = style === 'emerald' ? M.emerald :
+                   style === 'cyan' ? M.beaconGlow :
+                   style === 'purple' ? M.purplePortal :
+                   style === 'fire' ? M.fireGlow :
+                   style === 'gold' ? M.goldGlow : M.lanternGlow;
+
+      for (const [cx, cz] of corners) {
+        // Low-profile square bezel (basalt black metal)
+        B.box(cx, 0, cz, 0.30, 0.04, 0.30, M.blackMetal);
+        // Recessed self-illuminated glowing lens
+        B.box(cx, 0.03, cz, 0.20, 0.03, 0.20, glow);
+        // Baked upward light volume cone
+        const [wx, wz] = toWorld(x, z, yaw, cx, cz);
+        bakes.push({ id: `${id}-c${bakes.length}`, position: [wx, 0.15, wz], power: 2.2, radius: 5.5, direction: [0, 1, 0] });
+      }
+    },
   };
   B.at(x, 0, z, yaw, () => def.build(k));
   // Click and proximity box: the station's whole size.
