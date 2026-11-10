@@ -2,12 +2,14 @@
 // world/stations/, decoration, trees, and the invisible edge of the world.
 import { BoxBatch } from '@engine/world/blocks.js';
 import { buildIsland } from '@engine/world/terrain.js';
-import { buildForest } from '@engine/world/landscape.js';
+import { buildSakuraForest, createSakuraPetals } from './sakura.js';
 import { ISLAND, PLAN, TREES } from './layout.js';
 import { placeStation } from './kit.js';
 import { BUILDS } from './stations/index.js';
 import { surfaceAt, buildDecor } from './grounds.js';
 import { buildMountains } from './mountains.js';
+
+let activePetals = null;
 
 // Keeps visitors on the island: a wall around its edge and a ceiling 50 m up.
 const CEILING = 50;
@@ -23,9 +25,10 @@ const edge = {
 
 export function build({ grid, layer, materials, scene }) {
   buildIsland(grid, ISLAND, { surfaceAt, corner: 10, wobble: 0 });
-  const forest = buildForest(grid, layer, TREES);
-
-  const out = { B: new BoxBatch(layer), obstacles: [], hotspots: [], bakes: [], planes: [], grid, forest };
+  const out = { B: new BoxBatch(layer), obstacles: [], hotspots: [], bakes: [], planes: [], grid };
+  const forest = buildSakuraForest(grid, layer, TREES, out.B);
+  out.forest = forest;
+  activePetals = createSakuraPetals(scene, forest.spawners);
   for (const station of PLAN) {
     const def = BUILDS[station.id];
     if (def) placeStation(out, station, def);
@@ -35,7 +38,7 @@ export function build({ grid, layer, materials, scene }) {
 
   // Outside the wall: mountains on three sides, the sea open on the fourth.
   // Pure backdrop — no sites, so none of it is ever reachable.
-  const mountains = buildMountains(layer, materials, grid);
+  const mountains = buildMountains(layer, materials, grid, out.B);
   scene.add(mountains.group);
 
   return {
@@ -55,6 +58,8 @@ export function setup({ player, sound }) {
   let lastX = player.pos.x, lastZ = player.pos.z;
   return {
     update(dt) {
+      if (activePetals) activePetals.update(dt);
+
       // A last guard in case flight or a zip slips past the edge.
       const p = player.pos;
       if (p.x < minX) p.x = minX; else if (p.x > maxX) p.x = maxX;
