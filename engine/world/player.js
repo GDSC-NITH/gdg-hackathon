@@ -711,8 +711,20 @@ export function createPlayer({ avatar, nav, grid = null, ground = null, onArrive
     return true;
   }
 
+  function descend(amount = 0.6) {
+    if (mode !== 'fly') return;
+    if (pilot) pilot = null;
+    velocity.y = Math.min(velocity.y, -CLIMB * 0.6);
+    const below = floorBelow(pos.x, pos.z, y);
+    const ny = Math.max(below.y, y - amount);
+    if (!blocked(pos.x, ny, pos.z)) y = ny;
+    if (y - below.y < 0.05) {
+      if (below.landable) { mode = 'ground'; island = below.island; y = level = below.y; velocity.set(0, 0, 0); }
+    }
+  }
+
   return {
-    pos, web, update, goTo, follow, walkThrough, visit, cancel, teleport, jump, toggleFly, startFlying, stopFlying, flyTo, zipTo,
+    pos, web, update, goTo, follow, walkThrough, visit, cancel, teleport, jump, toggleFly, startFlying, stopFlying, flyTo, zipTo, descend,
     enterPool, swimTo, leavePool, toggleDive, flyIntoPool,
     get y() { return y; }, get heading() { return heading; }, get floorY() { return y; },
     get moving() { return speed > 0.3 || !!zip || (mode === 'fly' && velocity.lengthSq() > 0.1) || (mode === 'swim' && Math.hypot(swim.vx, swim.vz) > 0.3); },

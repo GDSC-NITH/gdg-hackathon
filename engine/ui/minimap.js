@@ -109,6 +109,7 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
   }
 
   function draw() {
+    if (root.hidden) return;
     if (!canvas.width) fit();
     const W = canvas.width, H = canvas.height;
     if (!W) return;
@@ -248,5 +249,12 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
 
   function redrawImage() { mapImage = drawMapImage(grid, obstacles, decorate); }
 
-  return { draw, toggleBig, isBigOpen: () => !bigRoot.hidden, drawBig, redrawImage };
+  function toggle(show = null) {
+    const next = show !== null ? show : root.hidden;
+    root.hidden = !next;
+    if (!root.hidden) draw();
+    return !root.hidden;
+  }
+
+  return { draw, toggle, isOpen: () => !root.hidden, toggleBig, isBigOpen: () => !bigRoot.hidden, drawBig, redrawImage };
 }

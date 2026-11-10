@@ -50,7 +50,8 @@ export function createInput(canvas, handlers) {
     if (!e.repeat) {
       if (!movement) {
         if (k === 'f' || k === 'e' || k === 'enter') handlers.interact?.();
-        else if (k === 'm' || k === 'tab') { e.preventDefault(); handlers.map?.(); }
+        else if (k === 'm') { e.preventDefault(); handlers.toggleMinimap?.(); }
+        else if (k === 'tab') { e.preventDefault(); handlers.map?.(); }
         else if (k === 'v') handlers.view?.();
         else if (k === 'p') handlers.phone?.();
       }
@@ -101,7 +102,7 @@ export function createInput(canvas, handlers) {
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinch = null;
     if (drag && e.pointerId === drag.id) {
-      if (!drag.moved && e.type === 'pointerup' && !blocked() && (drag.touch || drag.button === 0)) handlers.tap?.(e.clientX, e.clientY);
+      if (!drag.moved && e.type === 'pointerup' && !blocked() && (drag.touch || drag.button === 0)) handlers.tap?.(e.clientX, e.clientY, e);
       drag = null;
     }
   };
@@ -122,13 +123,16 @@ export function createInput(canvas, handlers) {
     const len = Math.hypot(x, z);
     if (len > 1) { x /= len; z /= len; }
     move.x = x; move.z = z;
-    move.run = held('ShiftLeft', 'shift') || keys.has('ShiftRight');
+    const shift = held('ShiftLeft', 'shift') || keys.has('ShiftRight');
+    move.run = shift;
     move.up = held('Space', ' ') || !!pad?.up;
-    move.down = held('ControlLeft', 'control') || keys.has('ControlRight') || !!pad?.down;
+    move.down = held('ControlLeft', 'control') || keys.has('ControlRight') || !!pad?.down || (handlers.isFlying?.() && shift);
     return move;
   }
 
   function clear() { keys.clear(); drag = null; pinch = null; pointers.clear(); }
 
-  return { read, clear };
+  const isShiftDown = () => held('ShiftLeft', 'shift') || keys.has('ShiftRight');
+
+  return { read, clear, isShiftDown };
 }

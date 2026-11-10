@@ -576,7 +576,11 @@ async function boot() {
     else hover(mouse.x, mouse.y);
   }
 
-  function tap(x, y) {
+  function tap(x, y, event = null) {
+    if (player.flying && (event?.shiftKey || input?.isShiftDown?.())) {
+      player.descend(0.6);
+      return;
+    }
     const target = pick(x, y);
     if (target.spot?.id === 'portal') { openPortal(); return; }
     // A tap during the opening shot only cuts it short; it does not send
@@ -690,6 +694,28 @@ async function boot() {
     onPick: navigate,
   });
 
+  // ---------- Minimap toggle ----------
+  const minimapButton = $('#minimapButton');
+  function syncMinimapButton(visible = !$('#minimap').hidden) {
+    minimapButton?.setAttribute('aria-pressed', String(visible));
+  }
+  function toggleMinimap(show = null) {
+    if (minimap.isBigOpen()) {
+      minimap.toggleBig(false);
+      return;
+    }
+    const visible = minimap.toggle(show);
+    syncMinimapButton(visible);
+  }
+  if (minimapButton) {
+    minimapButton.querySelector('span').style.backgroundImage = `url(${icon('map').url})`;
+    minimapButton.addEventListener('click', () => {
+      toggleMinimap();
+      sound.play('click');
+    });
+    syncMinimapButton();
+  }
+
   // ---------- First person ----------
   const viewButton = $('#viewButton'), crosshair = $('#crosshair');
   viewButton.querySelector('span').style.backgroundImage = `url(${icon('eye').url})`;
@@ -724,6 +750,9 @@ async function boot() {
   });
   // A touch screen has no keys to fly with: while the player flies by hand, a
   // D-pad and a climb/descend rocker come up in the bottom corners.
+  if (matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
+    document.body.classList.add('touch-device');
+  }
   const flightPad = matchMedia('(pointer: coarse)').matches ? createFlightPad($('#flightPad')) : null;
 
   // ---------- Phone ----------
@@ -791,6 +820,8 @@ async function boot() {
     view: toggleView,
     jump: () => { rig.skipIntro(); player.jump(); },
     toggleFly,
+    toggleMinimap,
+    isFlying: () => player.flying,
     phone: () => togglePhone(),
     map: () => minimap.toggleBig(),
     slot: n => hotbar.children[n - 1]?.click(),

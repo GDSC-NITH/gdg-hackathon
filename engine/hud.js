@@ -44,6 +44,7 @@ const HUD = `
     <button id="webButton" aria-label="吐丝" data-en-label="Web" aria-pressed="false"><span></span></button>
     <button id="flyButton" aria-label="飞行" aria-pressed="false"><span></span></button>
     <button id="viewButton" aria-label="第一人称" data-en-label="First person" aria-pressed="false"><span></span></button>
+    <button id="minimapButton" aria-label="小地图" data-en-label="Minimap" aria-pressed="true"><span></span></button>
     <button id="moodButton" aria-label="天气与时段" aria-expanded="false" aria-controls="weatherMenu"><span></span><b></b></button>
     <button id="soundButton" aria-label="声音" data-en-label="Sound" aria-pressed="false"><span></span></button>
   </div>
