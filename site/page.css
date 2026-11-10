@@ -12,7 +12,15 @@ body.plain::before {
 }
 
 /* ---------- Top bar: the tabs are the section list here ---------- */
-body.plain .site-nav, body.plain .site-menu { display: none; }
+body.plain .site-nav { display: none; }
+body.plain .site-actions { margin-left: auto; }
+@media (min-width: 1041px) {
+  body.plain .site-menu { display: none; }
+}
+@media (max-width: 1040px) {
+  body.plain .site-menu { display: block; }
+  body.plain .site-nav.open { display: flex; z-index: 60; }
+}
 body.plain .site-mode { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; color: #fff; background: rgba(255, 255, 255, .1); }
 body.plain .site-mode:hover { background: rgba(255, 255, 255, .2); text-decoration: none; }
 
