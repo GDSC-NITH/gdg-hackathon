@@ -137,10 +137,11 @@ body.reading #siteHint { display: none; }
   }
   .site-nav.open { display: flex; }
   .site-nav a { padding: 12px; font-size: 16px; }
+  #siteBar { gap: 10px; padding-right: max(10px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left));display:flex;justify-content:space-between; }
 }
 @media (max-width: 720px), (max-height: 520px) {
   :root { --bar-h: 52px; }
-  #siteBar { gap: 10px; padding-right: max(10px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  #siteBar { gap: 10px; padding-right: max(10px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left));display:flex;justify-content:space-between; }
   .site-logo span { font-size: 16px; }
   .site-mode { display: none; }
   .site-nav .site-mode-link { display: block; }
