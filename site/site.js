@@ -1,7 +1,7 @@
 // The website layer: makes the 3D island usable by someone who has never
 // played a game. It talks to the engine only through window.__home (the API
 // listed in AGENTS.md), so engine updates don't touch it.
-import { PLAN } from '@world/layout.js';
+import { PLAN, SPAWN } from '@world/layout.js';
 import { showHero, hideHero, initHero, enableHeroExplore, updateHeroProgress } from './hero.js';
 import { initHint, showHint } from './hint.js';
 import { initNav, syncModeLinks, setupNavLinks } from './nav.js';
@@ -10,8 +10,6 @@ import { initTags } from './tags.js';
 const $ = s => document.querySelector(s);
 const body = document.body;
 const isPlain = () => body.classList.contains('plain');
-const ids = PLAN.map(p => p.id);
-const deepLink = ids.includes(location.hash.slice(1)) || location.hash === '#mailbox' ? location.hash.slice(1) : null;
 
 // ---------- Initialize Navigation, Hero & Mode Links ----------
 setupNavLinks();
@@ -21,7 +19,11 @@ initHero({
 });
 initHint();
 
-if (!deepLink && !isPlain()) {
+if (!isPlain()) {
+  // Clear any leftover hash (e.g. from previous card visits) so it doesn't trigger auto-flight on reload
+  if (location.hash) {
+    history.replaceState(history.state, '', location.pathname + location.search);
+  }
   showHero();
 }
 
@@ -82,6 +84,11 @@ document.addEventListener('click', e => {
 function ready(h) {
   enableHeroExplore();
 
+  // Ensure player is kept at initial spawn position on load
+  if (SPAWN && h.player) {
+    h.player.teleport(SPAWN.x, SPAWN.z);
+  }
+
   navInstance = initNav(h);
 
   const tagsInstance = initTags({
@@ -90,8 +97,8 @@ function ready(h) {
     onUserInteract: () => navInstance.cancelFlight(),
   });
 
-  if (queued || deepLink) {
-    navInstance.nativeGo(queued || deepLink);
+  if (queued) {
+    navInstance.flyToStation(queued);
     showHint();
   }
 
