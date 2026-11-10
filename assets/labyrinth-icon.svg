@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" role="img" aria-label="Labyrinth the dog">
+  <title>Labyrinth</title>
+  <ellipse cx="5" cy="8" rx="4" ry="6" fill="#343b39" transform="rotate(-18 5 8)"/>
+  <ellipse cx="15" cy="8" rx="4" ry="6" fill="#343b39" transform="rotate(18 15 8)"/>
+  <rect x="4" y="6" width="12" height="11" rx="4" fill="#343b39"/>
+  <ellipse cx="6.5" cy="9" rx="1.3" ry="1" fill="#95623e"/>
+  <ellipse cx="13.5" cy="9" rx="1.3" ry="1" fill="#95623e"/>
+  <ellipse cx="6.8" cy="11" rx="1.4" ry="1.4" fill="#141a19"/>
+  <ellipse cx="13.2" cy="11" rx="1.4" ry="1.4" fill="#141a19"/>
+  <circle cx="7.3" cy="10.5" r="0.5" fill="#fff"/>
+  <circle cx="13.7" cy="10.5" r="0.5" fill="#fff"/>
+  <ellipse cx="10" cy="15" rx="5" ry="4" fill="#95623e"/>
+  <ellipse cx="10" cy="13.6" rx="2" ry="1.5" fill="#141a19"/>
+  <ellipse cx="10" cy="17.4" rx="1.6" ry="2" fill="#e8899a"/>
+</svg>
