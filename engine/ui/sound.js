@@ -13,7 +13,10 @@ const KEY = 'terryhome-sound';
 export function createSound() {
   let ctx = null, bus = null, tone = null, clear = null, room = null, white = null, rumble = null;
   let on = false;
-  try { on = localStorage.getItem(KEY) === 'on'; } catch {}
+  try {
+    const saved = localStorage.getItem(KEY);
+    on = saved === null ? true : saved === 'on';
+  } catch {}
 
   function ensure() {
     if (ctx) return ctx;
@@ -262,6 +265,28 @@ export function createSound() {
     }
   }
 
+  let bgm = null;
+  function getBgm() {
+    if (!bgm) {
+      bgm = new Audio('assets/music.mp3');
+      bgm.loop = true;
+      bgm.volume = 0.22;
+      bgm.preload = 'auto';
+    }
+    return bgm;
+  }
+
+  function syncBgm() {
+    if (on) {
+      const audio = getBgm();
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      }
+    } else if (bgm && !bgm.paused) {
+      bgm.pause();
+    }
+  }
+
   let bed = null, was = null, plinkIn = 0, clock = 0;
   function makeBed() {
     const loop = (buffer, gain) => { const s = ctx.createBufferSource(); s.buffer = buffer; s.loop = true; s.connect(gain); s.start(); return s; };
@@ -278,6 +303,9 @@ export function createSound() {
     return { shade, level, washGain, patterGain, humGain, drops: out(1, 0, clear) };
   }
   function ambience(rain = 0, under = false, indoor = false) {
+    if (bgm) {
+      bgm.volume = under ? 0.08 : 0.22;
+    }
     if (!on || !ctx) {
       if (bed) { bed.level.gain.setTargetAtTime(0, ctx.currentTime, 0.05); bed.humGain.gain.setTargetAtTime(0, ctx.currentTime, 0.05); }
       return;
@@ -304,22 +332,38 @@ export function createSound() {
       chirp(bed.drops, t + Math.random() * 0.05, f, f * 1.5, 0.06, 0.012 + Math.random() * 0.018);
     }
   }
-  // A hidden tab goes quiet; the rain does not keep falling in the background.
+  // A hidden tab goes quiet; the rain and music do not keep playing in the background.
   document.addEventListener('visibilitychange', () => {
-    if (!ctx) return;
-    if (document.hidden) ctx.suspend(); else if (on) ctx.resume();
+    if (document.hidden) {
+      ctx?.suspend();
+      if (bgm && !bgm.paused) bgm.pause();
+    } else if (on) {
+      ctx?.resume();
+      syncBgm();
+    }
   });
-  // Browsers let sound start only from a gesture: the first one wakes the
-  // rain for a visitor who left the sound on last time.
-  const wake = () => { if (on) { ensure(); ctx?.resume(); } };
-  addEventListener('pointerdown', wake, { once: true });
-  addEventListener('keydown', wake, { once: true });
+  // Browsers let sound start only from a gesture: any tap, click, or key press
+  // starts the background music and wakes the AudioContext.
+  const wake = () => {
+    if (on) {
+      ensure();
+      ctx?.resume();
+      syncBgm();
+      if (bgm && !bgm.paused) {
+        removeEventListener('pointerdown', wake);
+        removeEventListener('keydown', wake);
+      }
+    }
+  };
+  addEventListener('pointerdown', wake);
+  addEventListener('keydown', wake);
 
   function setOn(value) {
     on = value;
     try { localStorage.setItem(KEY, on ? 'on' : 'off'); } catch {}
     if (on) { ensure(); ctx?.resume(); }
+    syncBgm();
   }
 
-  return { play, ambience, setOn, get on() { return on; } };
+  return { play, ambience, setOn, get on() { return on; }, get bgm() { return getBgm(); } };
 }

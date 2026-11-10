@@ -1000,6 +1000,7 @@ async function boot() {
   addEventListener('resize', () => stage.resize());
   // Handy when poking at it from the console.
   window.__home = {
+    sound,
     stage, world, player, avatar, rig, nav, pets, cat, dog, extras, portal, worn, atmosphere, weatherFx, pool, weather, config, stats, setWeatherMode, getWeatherMode: () => weatherMode, setTimeMode, getTimeMode: () => timeMode, navigate, openPage, openPortal, go, setMood,
     teleport(x, z) { player.teleport(x, z); rig.recenter(player); },
     project(x, y, z) {
