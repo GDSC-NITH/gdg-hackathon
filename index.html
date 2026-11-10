@@ -132,19 +132,6 @@ body.night .page .crew-label { color: #4cd137; }
 .venue-address { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .page .venue-address p { margin: 0; }
 
-/* The registration form: the mailbox's look, without being wired as the mailbox. */
-.signup {
-  position: relative; display: grid; gap: 12px; padding: 14px;
-  border: 8px solid transparent; border-image: var(--mc-frame) 4 fill / 8px;
-}
-.signup textarea, .signup input {
-  width: 100%; padding: 10px 12px; border: 0; border-radius: 0;
-  font: 400 16px/1.5 var(--text); color: var(--ink); background: var(--field); box-shadow: 0 0 0 2px var(--field-edge);
-}
-.signup textarea { min-height: 120px; resize: none; }
-.signup textarea::placeholder, .signup input::placeholder { color: var(--field-hint); }
-.signup textarea:focus, .signup input:focus { outline: none; box-shadow: 0 0 0 2px var(--ink); }
-
 /* Hide external portals, language switch, BetterMapIt, and Homecraft map badges */
 #portalButton, #portalReturn, .hc-controls, .hc-control, .lang-switch, button.lang-switch, #panel .lang-switch { display: none !important; }
 #minimap .badge, #minimap .badge.credit, #minimap .badge.made, .badge.credit, .badge.made, a.badge {
@@ -507,7 +494,13 @@ body.night .page .crew-label { color: #4cd137; }
       <input name="teamName" maxlength="80" required placeholder="Team Name" aria-label="Team Name (required)">
       <input name="leaderEmail" type="email" maxlength="120" required placeholder="Team Leader Email" aria-label="Leader Email">
       <input name="teamSize" type="number" min="2" max="4" value="4" required placeholder="Team Size (2 - 4)" aria-label="Team Size">
-      <input name="trackChoice" maxlength="80" required placeholder="Preferred Track (AI / Web3 / 3D / Open)" aria-label="Track Choice">
+      <select name="Track" id="Track" required aria-label="Select Track">
+        <option value="" disabled selected hidden>Select a track</option>
+        <option value="us">Autonomous AI & Agents</option>
+        <option value="ca">Decentralized Systems</option>
+        <option value="uk">Interactive 3D & Spatial Web</option>
+        <option value="in"> Open Innovation</option>
+      </select>
       <textarea name="projectNotes" rows="4" maxlength="500" placeholder="Brief project idea or technology stack..." aria-label="Project Notes"></textarea>
       <div class="mailbox-foot">
         <button class="mc-button" type="submit">Submit Registration</button>

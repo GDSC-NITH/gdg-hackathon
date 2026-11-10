@@ -186,10 +186,24 @@ body.plain .venue-address { padding: 18px; background: color-mix(in srgb, var(--
 body.plain .travel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
 body.plain .travel-item { padding: 18px; }
 
-/* Register and Contact: the form in two columns. */
+/* Register and Contact forms. */
 body.plain :is(.signup, .mailbox) { margin: 20px 0 0; }
 body.plain .signup { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 body.plain .signup > :is(textarea, .mailbox-foot) { grid-column: 1 / -1; }
+
+/* The registration form uses the mailbox field treatment without submitting through the mailbox. */
+.signup {
+  position: relative; display: grid; gap: 12px; padding: 14px;
+  border: 8px solid transparent; border-image: var(--mc-frame) 4 fill / 8px;
+}
+.signup :is(input, select, textarea) {
+  width: 100%; padding: 10px 12px; border: 0; border-radius: 0;
+  font: 400 16px/1.5 var(--text); color: var(--ink); background: var(--field);
+  box-shadow: 0 0 0 2px var(--field-edge);
+}
+.signup textarea { min-height: 120px; resize: none; }
+.signup :is(input, select, textarea)::placeholder { color: var(--field-hint); }
+.signup :is(input, select, textarea):focus { outline: none; box-shadow: 0 0 0 2px var(--ink); }
 
 /* Footer */
 .pv-foot { display: none; }
