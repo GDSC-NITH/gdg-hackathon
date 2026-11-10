@@ -144,8 +144,45 @@ function paintBelt(B, r, tufts, belt) {
   pass(NEAR, DEPTH, FAR_CELL);
 }
 
-export function buildMountains(layer, materials) {
+// ---------- Gap filling between island and mountain/hill belts ----------
+function fillCoastGaps(B, grid) {
+  if (!grid) return;
+  for (let x = ISLAND.x0; x < ISLAND.x1; x++) {
+    for (let z = ISLAND.z0; z <= 24; z++) {
+      if (grid.get(x, -1, z)) continue; // Island block already present
+      // Only fill if near coast (North, West, or East)
+      const nearNorth = z <= -18;
+      const nearWest = x <= -18;
+      const nearEast = x >= 18;
+      if (!nearNorth && !nearWest && !nearEast) continue;
+
+      // Distance to nearest island block
+      let minD = 99;
+      for (let dx = -7; dx <= 7; dx++) {
+        for (let dz = -7; dz <= 7; dz++) {
+          if (grid.get(x + dx, -1, z + dz)) {
+            const d = Math.max(Math.abs(dx), Math.abs(dz));
+            if (d < minD) minD = d;
+          }
+        }
+      }
+
+      // Near island: keep lower than island surface (y=0) so the island's
+      // border step-down cliff remains visible; farther away, step up
+      // to seamlessly meet the mountain/hill belts.
+      let h = -0.45;
+      if (minD === 2) h = 0.0;
+      else if (minD === 3) h = 0.5;
+      else if (minD >= 4) h = 1.0;
+
+      B.box(x + 0.5, -1.2, z + 0.5, 1, h + 1.2, 1, GRASS, { shadow: false });
+    }
+  }
+}
+
+export function buildMountains(layer, materials, grid) {
   const B = new BoxBatch(layer), r = rng(20260501), tufts = [];
+  fillCoastGaps(B, grid);
   const belts = [
     // West (the left side, facing the spawn's north heading): rocky,
     // snow-capped mountain, same as the north range. Depth runs along -x

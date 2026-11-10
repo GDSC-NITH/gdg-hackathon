@@ -35,7 +35,7 @@ export function build({ grid, layer, materials, scene }) {
 
   // Outside the wall: mountains on three sides, the sea open on the fourth.
   // Pure backdrop — no sites, so none of it is ever reachable.
-  const mountains = buildMountains(layer, materials);
+  const mountains = buildMountains(layer, materials, grid);
   scene.add(mountains.group);
 
   return {
