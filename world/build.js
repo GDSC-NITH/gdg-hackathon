@@ -10,6 +10,7 @@ import { surfaceAt, buildDecor } from './grounds.js';
 import { buildMountains } from './mountains.js';
 import { buildCampus } from './campus.js';
 import { defineStage, buildMarkers, markerPulse } from './markers.js';
+import { venueUniforms } from './stations/venue.js';
 
 let activePetals = null;
 
@@ -59,7 +60,7 @@ export function build({ grid, layer, materials, scene }) {
   };
 }
 
-export function setup({ player, sound, world }) {
+export function setup({ stage, player, sound, world }) {
   const pulse = markerPulse(world);
   const minX = ISLAND.x0 + 0.5, maxX = ISLAND.x1 - 0.5, minZ = ISLAND.z0 + 0.5, maxZ = ISLAND.z1 - 0.5;
   let stepClock = 0;
@@ -68,6 +69,9 @@ export function setup({ player, sound, world }) {
     update(dt) {
       if (activePetals) activePetals.update(dt);
       pulse(dt);
+      if (venueUniforms) {
+        venueUniforms.uNight.value = stage ? stage.night : (world?.isNight?.() ? 1.0 : 0.0);
+      }
 
       // A last guard in case flight or a zip slips past the edge.
       const p = player.pos;
