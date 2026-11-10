@@ -4,7 +4,7 @@
 import { PLAN } from '@world/layout.js';
 import { isHeroOn, showHero, hideHero, drawLogo, initHero, enableHeroExplore, updateHeroProgress } from './hero.js';
 import { initHint, showHint } from './hint.js';
-import { initNav, syncModeLinks } from './nav.js';
+import { initNav, syncModeLinks, setupNavLinks } from './nav.js';
 import { initTags } from './tags.js';
 
 const $ = s => document.querySelector(s);
@@ -13,7 +13,8 @@ const isPlain = () => body.classList.contains('plain');
 const ids = PLAN.map(p => p.id);
 const deepLink = ids.includes(location.hash.slice(1)) || location.hash === '#mailbox' ? location.hash.slice(1) : null;
 
-// ---------- Initialize Hero & Mode Links ----------
+// ---------- Initialize Navigation, Hero & Mode Links ----------
+setupNavLinks();
 syncModeLinks();
 initHero({
   onDismiss: showHint,
