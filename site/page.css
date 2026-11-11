@@ -29,7 +29,11 @@ body.plain #hero {
   position: relative; isolation: isolate; overflow: hidden;
   display: flex; align-items: center; max-width: none; margin: 0;
   min-height: min(640px, calc(100svh - var(--bar-h) - 40px));
+<<<<<<< HEAD
   padding: 64px 48px 72px;
+=======
+  padding: 64px max(24px, env(safe-area-inset-right)) 72px max(16px, env(safe-area-inset-left));
+>>>>>>> 7522030 (Align hero block to the left edge to match the navbar logo (#33))
   background: #182016;
 }
 body.plain #hero::before {
@@ -961,11 +965,11 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
     display: none;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) {
   body.plain #hero {
     align-items: flex-start;
     min-height: 0;
-    padding: 28px 18px 48px;
+    padding: 28px max(12px, env(safe-area-inset-right)) 48px max(12px, env(safe-area-inset-left));
   }
   body.plain #hero::before {
     inset: 0;

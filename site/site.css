@@ -76,11 +76,11 @@ body.plain #pages .plain-title { display: none; }
 #hero { display: none; }
 body.hero-on #hero {
   position: fixed; inset: 0; z-index: 54; display: flex; align-items: center;
-  padding: calc(var(--bar-h) + 24px) 48px 32px;
+  padding: calc(var(--bar-h) + 24px) max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left));
   background: linear-gradient(90deg, var(--scrim) 0, rgba(12, 14, 12, .55) 480px, rgba(12, 14, 12, 0) 760px);
   pointer-events: none;
 }
-body.plain #hero { display: block; max-width: 720px; margin: 0 auto; padding: 40px 22px 0; }
+body.plain #hero { display: block; max-width: none; margin: 0; padding: 40px 22px 0 max(16px, env(safe-area-inset-left)); }
 .hero-card { pointer-events: auto; width: min(520px, 100%); color: #fff; }
 body.plain .hero-card { color: var(--ink); width: auto; }
 .hero-eyebrow { margin: 0 0 14px; font: 600 14px/1.3 var(--text); letter-spacing: .4px; color: #cfe8c4; text-shadow: 1px 1px 0 #000; }
@@ -184,7 +184,7 @@ body.reading #siteHint { display: none; }
   #weatherMenu { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h) + 52px); }
   body.hero-on #hero {
     align-items: flex-start;
-    padding: calc(var(--bar-h) + env(safe-area-inset-top) + 26px) 18px max(24px, env(safe-area-inset-bottom));
+    padding: calc(var(--bar-h) + env(safe-area-inset-top) + 26px) max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
     background: linear-gradient(180deg, var(--scrim) 0, rgba(12, 14, 12, .8) 60%, rgba(12, 14, 12, .25) 100%);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
