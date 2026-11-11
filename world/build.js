@@ -25,13 +25,13 @@ let dog = null;
 const dogPos = { x: SPAWN.x + 1.4, z: SPAWN.z + 1.6 };
 let dogHeading = SPAWN.heading;
 
-// Keeps visitors on the island: a wall around its edge and a ceiling 50 m up.
+// Keeps visitors on the island: a wall around its edge, solid ground, and a ceiling 50 m up.
 const CEILING = 50;
 const outside = (x, z) => x <= ISLAND.x0 + 0.3 || x >= ISLAND.x1 - 0.3 || z <= ISLAND.z0 + 0.3 || z >= ISLAND.z1 - 0.3;
 const edge = {
   levels() {},
-  collides: (x, feet, z) => feet + 1.8 >= CEILING || (feet < CEILING && feet >= -10 && outside(x, z)),
-  obstructed: (x, z, y) => y < CEILING && y >= -10 && outside(x, z),
+  collides: (x, feet, z) => feet + 1.8 >= CEILING || feet < -0.01 || (feet < CEILING && feet >= -10 && outside(x, z)),
+  obstructed: (x, z, y) => y < -0.01 || (y < CEILING && y >= -10 && outside(x, z)),
   pick: () => null,
   ladderAt: () => null,
   spots: () => [],
@@ -39,7 +39,17 @@ const edge = {
 
 export function build({ grid, layer, materials, scene }) {
   defineStage(grid);
-  buildIsland(grid, ISLAND, { surfaceAt, corner: 10, wobble: 0 });
+  buildIsland(grid, ISLAND, { surfaceAt, corner: 0, wobble: 0 });
+  // Ensure the entire campus ground within and along the perimeter boundary has solid ground blocks
+  // so flight descending or walking near borders never sinks below ground level.
+  for (let x = ISLAND.x0 - 1; x <= ISLAND.x1; x++) {
+    for (let z = ISLAND.z0 - 1; z <= ISLAND.z1; z++) {
+      if (!grid.type(x, -1, z)) {
+        grid.set(x, -1, z, surfaceAt(x, z));
+        grid.set(x, -2, z, 'dirt');
+      }
+    }
+  }
   const out = { B: new BoxBatch(layer), obstacles: [], hotspots: [], bakes: [], planes: [], grid };
   const forest = buildSakuraForest(grid, layer, TREES, out.B);
   out.forest = forest;

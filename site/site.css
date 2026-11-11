@@ -142,6 +142,10 @@ body.reading #siteHint { display: none; }
 #panel .tour[hidden] { display: none; }
 #panel .tour span { flex: 1; text-align: center; font: 600 13px/1 var(--text); color: #fff; text-shadow: 1px 1px 0 #000; }
 #panel .tour .mc-button { min-height: 38px; padding: 0 12px; font-size: 14px; }
+#panelTitle.welcome-typing::after {
+  content: '|'; margin-left: .08em; animation: welcome-cursor-blink .8s steps(2, start) infinite;
+}
+@keyframes welcome-cursor-blink { to { visibility: hidden; } }
 
 .site-nav .site-mode-link { display: none; color: #cfe8c4; }
 
@@ -171,18 +175,29 @@ body.reading #siteHint { display: none; }
   .site-nav .site-mode-link { display: block; }
   #corner { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h)); }
   #weatherMenu { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h) + 52px); }
-  body.hero-on #hero { align-items: flex-end; padding: calc(var(--bar-h) + 16px) 18px max(24px, env(safe-area-inset-bottom));
-    background: linear-gradient(0deg, var(--scrim) 0, rgba(12, 14, 12, .62) 62%, rgba(12, 14, 12, .1) 100%); }
-  .hero-tag { font-size: 16px; }
-  .hero-count div { min-width: 0; flex: 1; }
+  body.hero-on #hero {
+    align-items: flex-start;
+    padding: calc(var(--bar-h) + env(safe-area-inset-top) + 26px) 18px max(24px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, var(--scrim) 0, rgba(12, 14, 12, .8) 60%, rgba(12, 14, 12, .25) 100%);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hero-eyebrow { margin-bottom: 12px; font-size: 14px; }
+  .hero-logo { margin-bottom: 16px; max-width: 360px; }
+  .hero-tag { font-size: 16px; margin-bottom: 18px; line-height: 1.45; }
+  .hero-facts { gap: 8px; margin-bottom: 18px; }
+  .hero-facts li { padding: 8px 12px; font-size: 13px; }
+  .hero-facts b { font-size: 16px; }
+  .hero-count { margin-bottom: 18px; gap: 6px; }
+  .hero-count div { min-width: 0; flex: 1; padding: 8px 6px 6px; }
   .hero-count b { font-size: 20px; }
-  .hero-actions .mc-button { flex: 1; }
+  .hero-actions { margin-bottom: 14px; gap: 10px; }
+  .hero-actions .mc-button { flex: 1; min-height: 44px; padding: 0 16px; font-size: 15px; white-space: nowrap; }
   .site-tag { gap: 6px; font-size: 13px; padding: 5px 9px 5px 6px; }
   .site-tag i { width: 18px; height: 18px; }
   .site-tag::after { margin-left: -5px; border-width: 5px; }
   /* Phones keep the bottom for the Dock and the radar: the hint goes under the switches. */
   #siteHint { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h) + 56px); bottom: auto; font-size: 13px; }
-  .hero-actions .mc-button { padding: 0 12px; white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
   .site-tag { transition: none; animation: none; }
@@ -242,7 +257,18 @@ body.hero-on #agentChatPanel, body.reading #agentChatPanel { display: none; }
 .agent-chat-status { margin: 0 14px 12px; min-height: 14px; font: 500 12px/1.3 var(--text); color: var(--ink-soft); }
 
 @media (max-width: 760px) {
+  #agentChat {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 140px);
+  }
+  #agentChatToggle { width: 56px; height: 56px; }
+  #agentChatToggle img { width: 36px; height: 36px; }
   #agentChatPanel { width: 100vw; }
+}
+@media (max-width: 560px) {
+  #agentChat {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 116px);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   #agentChatPanel, #appShift { transition: none; }

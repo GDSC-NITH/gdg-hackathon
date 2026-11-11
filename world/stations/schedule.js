@@ -5,8 +5,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Enhanced PBR merger grouping by architectural feature to deliver
-// authentic Minecraft voxel aesthetics with glowing clockwork, digital timetable,
-// polished brass trims, and energy aura while strictly respecting draw call limits.
+// authentic Minecraft voxel aesthetics with a distinct, beautiful clock dial,
+// complete 12-hour markings, tapered hands, digital timetable, polished brass trims,
+// and energy aura while strictly respecting draw call limits.
 function mergeScheduleModel(root) {
   root.updateMatrixWorld(true);
   const byFeature = new Map();
@@ -27,10 +28,18 @@ function mergeScheduleModel(root) {
         cat = 'cyanAura';
       } else if (name.includes('clock_face')) {
         cat = 'clockFace';
-      } else if (name.includes('clock_bezel') || name.includes('roof_finial') || name.includes('tower_belt') ||
+      } else if (name.includes('clock_bezel')) {
+        cat = 'clockBezel';
+      } else if (name.includes('clock_hand') || name.includes('geometry_27')) {
+        cat = 'clockHands';
+      } else if (name.includes('hour_mark')) {
+        cat = 'clockMarks';
+      } else if (name.includes('clock_pin')) {
+        cat = 'clockPin';
+      } else if (name.includes('roof_finial') || name.includes('tower_belt') ||
                  name.includes('base_gold') || name.includes('schedule_gold_trim') || name.includes('schedule_letter') ||
                  name.includes('agenda_frame') || name.includes('gear_ring') || name.includes('gear_tooth') ||
-                 name.includes('clock_pin') || name.includes('banner_pole')) {
+                 name.includes('banner_pole')) {
         cat = 'gold';
       } else if (name.includes('lantern')) {
         cat = 'lantern';
@@ -40,7 +49,7 @@ function mergeScheduleModel(root) {
         cat = 'agendaRow';
       } else if (name.includes('agenda_indicator')) {
         cat = 'agendaIndicator';
-      } else if (name.includes('clock_hand') || name.includes('hour_mark') || name.includes('gear_hub') || name.includes('schedule_plaque') || name.includes('clock_panel')) {
+      } else if (name.includes('gear_hub') || name.includes('schedule_plaque') || name.includes('clock_panel')) {
         cat = 'darkTrim';
       } else if (name.includes('banner')) {
         cat = 'banner';
@@ -81,8 +90,63 @@ function mergeScheduleModel(root) {
         opacity: 0.92,
         side: THREE.DoubleSide,
       });
+    } else if (cat === 'clockFace') {
+      // Luminous warm ivory enamel clock face - high contrast base
+      mat = new THREE.MeshPhysicalMaterial({
+        color: 0xfffaea,
+        emissive: new THREE.Color(0xfff0d0),
+        emissiveIntensity: 0.45,
+        roughness: 0.18,
+        metalness: 0.05,
+        clearcoat: 0.85,
+        side: THREE.DoubleSide,
+      });
+    } else if (cat === 'clockBezel') {
+      // Polished gold outer ring framing the clock face
+      mat = new THREE.MeshPhysicalMaterial({
+        color: 0xf5b324,
+        emissive: new THREE.Color(0xd48806),
+        emissiveIntensity: 0.50,
+        metalness: 0.55,
+        roughness: 0.15,
+        clearcoat: 0.90,
+        side: THREE.DoubleSide,
+      });
+    } else if (cat === 'clockMarks') {
+      // Crisp 12-hour tick marks: deep obsidian black with subtle contrast sheen
+      mat = new THREE.MeshPhysicalMaterial({
+        color: 0x111620,
+        emissive: new THREE.Color(0x080b10),
+        emissiveIntensity: 0.20,
+        metalness: 0.35,
+        roughness: 0.15,
+        clearcoat: 0.90,
+        side: THREE.DoubleSide,
+      });
+    } else if (cat === 'clockHands') {
+      // Unmistakable clock hands: dark obsidian with a gold-edged center line
+      mat = new THREE.MeshPhysicalMaterial({
+        color: 0x0d1117,
+        emissive: new THREE.Color(0x161b22),
+        emissiveIntensity: 0.35,
+        metalness: 0.40,
+        roughness: 0.15,
+        clearcoat: 0.95,
+        side: THREE.DoubleSide,
+      });
+    } else if (cat === 'clockPin') {
+      // Radiant gold center cap pivot holding the clock hands
+      mat = new THREE.MeshPhysicalMaterial({
+        color: 0xffd54f,
+        emissive: new THREE.Color(0xffb300),
+        emissiveIntensity: 0.80,
+        metalness: 0.60,
+        roughness: 0.12,
+        clearcoat: 0.95,
+        side: THREE.DoubleSide,
+      });
     } else if (cat === 'gold') {
-      // Polished clockwork brass & architectural gold trim
+      // Polished clockwork brass, gears, finial, and lettering
       mat = new THREE.MeshPhysicalMaterial({
         color: 0xf5b324,
         emissive: new THREE.Color(0xd48806),
@@ -101,17 +165,6 @@ function mergeScheduleModel(root) {
         emissiveIntensity: 1.5,
         metalness: 0.1,
         roughness: 0.2,
-        side: THREE.DoubleSide,
-      });
-    } else if (cat === 'clockFace') {
-      // Illuminated warm ivory clock face
-      mat = new THREE.MeshPhysicalMaterial({
-        color: 0xfff5dd,
-        emissive: new THREE.Color(0xffebd0),
-        emissiveIntensity: 0.50,
-        roughness: 0.22,
-        metalness: 0.05,
-        clearcoat: 0.70,
         side: THREE.DoubleSide,
       });
     } else if (cat === 'agendaScreen') {
@@ -146,7 +199,7 @@ function mergeScheduleModel(root) {
         side: THREE.DoubleSide,
       });
     } else if (cat === 'darkTrim') {
-      // Chiseled obsidian clock hands, tick marks and backing plaque
+      // Backing sign plaque, gear hub, and clock housing panel
       mat = new THREE.MeshPhysicalMaterial({
         color: 0x181e28,
         emissive: new THREE.Color(0x0f141c),
@@ -250,9 +303,9 @@ export default {
 
     solid(0, 0, 4.2, 3.8);
 
-    // Architectural night illumination
-    light(0, 2.6, 1.6, 2.6, 9);
-    light(0, 4.4, 0, 2.2, 8);
+    // Focused architectural night illumination targeting the clock face and timetable
+    light(0, 3.2, 1.6, 3.0, 10);
+    light(0, 4.6, 0, 2.2, 8);
     light(-1.8, 2.0, 0, 2.0, 7);
     light(1.8, 2.0, 0, 2.0, 7);
   },

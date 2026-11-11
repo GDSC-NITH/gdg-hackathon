@@ -962,10 +962,20 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
   }
 }
 @media (max-width: 720px) {
-  body.plain #hero { align-items: flex-end; min-height: 0; padding: 34vh 18px 64px; }
-  body.plain #hero::before { inset: 0 0 auto; height: 62vh; background-image: url("../assets/branding/island-small.webp"); background-position: 58% 0; }
+  body.plain #hero {
+    align-items: flex-start;
+    min-height: 0;
+    padding: 28px 18px 48px;
+  }
+  body.plain #hero::before {
+    inset: 0;
+    height: 100%;
+    background-image: url("../assets/branding/island-small.webp");
+    background-position: 58% 25%;
+    background-size: cover;
+  }
   body.plain #hero::after {
-    background: linear-gradient(0deg, #182016 0, #182016 38%, rgba(24, 32, 22, .72) 58%, rgba(24, 32, 22, .08) 100%);
+    background: linear-gradient(180deg, rgba(24, 32, 22, .88) 0, rgba(24, 32, 22, .76) 55%, rgba(24, 32, 22, .95) 100%);
   }
   .pv-grass { height: 30px; background-size: 48px 48px; }
   body.plain::before { background-size: 48px 48px; }

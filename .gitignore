@@ -7,6 +7,8 @@ tools/.check/
 tools/.serve-url
 .impeccable/
 .release/
+__pycache__/
+*.pyc
 *.glb
 !assets/**/*.glb
 !assets/*.glb

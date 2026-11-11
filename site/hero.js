@@ -66,7 +66,15 @@ export function initHero({ onExplore, onDismiss }) {
 
   go?.addEventListener('click', () => {
     if (body.classList.contains('plain')) {
-      location.href = $('[data-mode]').href;
+      const modeLink = $('[data-mode]');
+      if (modeLink?.href) {
+        location.href = modeLink.href;
+      } else {
+        const url = new URL(location.href);
+        url.searchParams.delete('plain');
+        url.searchParams.set('3d', '');
+        location.href = url.pathname + url.search.replace(/=(?=&|$)/g, '');
+      }
     } else {
       hideHero(onDismiss);
       onExplore?.();
