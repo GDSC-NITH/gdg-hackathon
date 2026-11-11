@@ -1,7 +1,7 @@
 // Keys, mouse and touch, reduced to what the world needs: a move vector, a run
 // flag, up and down for flight, orbit and zoom deltas, taps, and the point
 // under the cursor. Space jumps; two quick presses start or end flight, as in
-// Minecraft. While flying, Space climbs, Ctrl descends and Shift goes faster.
+// Minecraft. While flying, Space climbs, Ctrl or Shift descends; Shift also goes faster.
 // P brings the phone up and puts it away. Only the primary button taps.
 // On a touch screen the flight pad (handlers.pad) adds its arrows to the keys.
 
@@ -23,7 +23,7 @@ export function createInput(canvas, handlers) {
     e.target instanceof HTMLSelectElement || e.target instanceof HTMLElement && e.target.isContentEditable;
   addEventListener('keydown', e => {
     const k = e.key.toLowerCase(), id = keyId(e), movement = MOVE_KEYS.has(id);
-    // Ctrl is the descend key; with it held, only movement keys pass through.
+    // Ctrl and Shift are movement modifiers; Shift also sprints and descends while flying.
     if (id === 'ControlLeft' || id === 'ControlRight' || id === 'control') { if (!typing(e) && !blocked()) keys.add(id); return; }
     if (typing(e) || e.metaKey || e.altKey || (e.ctrlKey && !movement)) return;
     if (k === 'escape') { handlers.escape?.(); return; }
@@ -124,7 +124,7 @@ export function createInput(canvas, handlers) {
     move.x = x; move.z = z;
     move.run = held('ShiftLeft', 'shift') || keys.has('ShiftRight');
     move.up = held('Space', ' ') || !!pad?.up;
-    move.down = held('ControlLeft', 'control') || keys.has('ControlRight') || !!pad?.down;
+    move.down = held('ControlLeft', 'control') || keys.has('ControlRight') || move.run || !!pad?.down;
     return move;
   }
 

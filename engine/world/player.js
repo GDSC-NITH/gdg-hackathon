@@ -3,7 +3,7 @@
 // shore pier and the mountain behind the house); the surfaces hand over where
 // they meet. Space
 // jumps; a double tap starts or ends flight, as in Minecraft: Space climbs,
-// Ctrl descends and Shift goes faster. Tapping somewhere the player cannot walk to
+// Ctrl descends; Shift sprints on foot and descends while flying. Tapping somewhere the player cannot walk to
 // flies them there and lands them. Flight checks the house's blocks and
 // everything outside, so the player cannot pass through walls, rock or the mountain; from
 // inside the house the player leaves by the front doors.

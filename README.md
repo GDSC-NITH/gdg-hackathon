@@ -18,7 +18,7 @@ Built with Three.js and native ES modules, running completely in modern browsers
 - **🕹️ Movement & Flight Dynamics**:
   - `W`, `A`, `S`, `D` / Arrow keys: Walk and navigate.
   - `Space`: Jump / double-tap to toggle flight mode.
-  - `Shift` / `Ctrl`: Sprint on foot or descend while flying.
+  - `Shift`: Sprint on foot; descend and fly faster while flying. `Ctrl`: descend while flying.
   - `F`: Interact with nearby stations.
   - `M`: Toggle radar minimap.
 - **⚡ Strict Performance Budget**:
