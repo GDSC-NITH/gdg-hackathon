@@ -239,6 +239,97 @@ body.night .page .crew-label { color: #4cd137; }
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   Station Identity Cues — 3D panel only
+   Adds a narrow accent strip and a compact location placard to each opened
+   card. Scoped entirely to dialog#panel so the page-view (body.plain) is
+   never affected. No engine files modified.
+
+   Architecture:
+   • dialog#panel[data-station] receives a CSS custom-property set for each
+     station: --st-color (accent hue), --st-icon (emoji/char), --st-label
+     (location copy). These are purely decorative tokens.
+   • #panel .body.page gains a top colored strip via box-shadow and a
+     ::before placard via CSS content. No new DOM elements needed.
+   • @media prefers-reduced-motion: the placard stays; only the fade-in
+     animation is suppressed.
+   ========================================================================== */
+
+/* --- Per-station tokens --- */
+dialog#panel[data-station="welcome"]  { --st-color: #6fa544; --st-icon: "🏠"; --st-label: "Spawn Point · Welcome Board"; }
+dialog#panel[data-station="tracks"]   { --st-color: #0984e3; --st-icon: "⚔"; --st-label: "Quest Board · Challenge Tracks"; }
+dialog#panel[data-station="schedule"] { --st-color: #dc2626; --st-icon: "⏱"; --st-label: "Redstone Clock · 36-Hour Timeline"; }
+dialog#panel[data-station="prizes"]   { --st-color: #d4af37; --st-icon: "🏆"; --st-label: "Loot Chest · Prizes & Swag"; }
+dialog#panel[data-station="sponsors"] { --st-color: #8e44ad; --st-icon: "🏪"; --st-label: "Trading Hall · Partners"; }
+dialog#panel[data-station="team"]     { --st-color: #e74c3c; --st-icon: "📋"; --st-label: "Notice Board · Organising Crew"; }
+dialog#panel[data-station="faq"]      { --st-color: #2f5b46; --st-icon: "📖"; --st-label: "Guidebook · FAQ & Rules"; }
+dialog#panel[data-station="venue"]    { --st-color: #3498db; --st-icon: "🗺"; --st-label: "Map Table · Venue & Travel"; }
+dialog#panel[data-station="register"] { --st-color: #3c8527; --st-icon: "🔮"; --st-label: "Sign-up Portal · Register"; }
+dialog#panel[data-station="mailbox"]  { --st-color: #7b6f5a; --st-icon: "✉"; --st-label: "Mailbox · Contact & Inquiries"; }
+
+/* --- Accent strip on the panel body --- */
+/* A 4px colored top border drawn with box-shadow so it sits inside the
+   existing border-image frame without shifting layout. Only appears when a
+   station token is set. Layered under the frame bevel. */
+dialog#panel[data-station] .body.page {
+  box-shadow:
+    0 0 0 2px var(--line, #111),
+    0 12px 36px rgba(0, 0, 0, 0.45),
+    inset 0 4px 0 0 var(--st-color, transparent);
+}
+
+/* --- Location placard --- */
+/* A compact "you are here" strip at the very top of the scrollable content.
+   Uses ::before so no DOM changes are needed. Hidden by default; only shown
+   when --st-label and --st-icon are defined (i.e. a known station is open).
+   Not shown in body.plain (page view has its own headers). */
+dialog#panel[data-station] .body.page::before {
+  content: var(--st-icon, "") "  " var(--st-label, "");
+  display: block;
+  /* Readable Minecraft-style placard */
+  margin: -4px -4px 18px;
+  padding: 10px 16px 10px 14px;
+  background: rgba(22, 19, 14, 0.9);
+  border: 2px solid #000;
+  border-top: none;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.12),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.55),
+    0 3px 0 rgba(0, 0, 0, 0.35);
+  /* Readable pixelated label text */
+  font-family: 'Silkscreen', 'Press Start 2P', 'Minecraft', monospace, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.4px;
+  color: rgba(240, 234, 220, 0.95);
+  text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0, 0, 0, 0.4);
+  /* Left accent bar matching the station color */
+  border-left: 6px solid var(--st-color, #888);
+  /* Fade in with the panel */
+  animation: st-placard-in 0.28s ease-out backwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes st-placard-in {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog#panel[data-station] .body.page::before {
+    animation: none;
+  }
+}
+
+/* Mobile: scale down gracefully on small screens */
+@media (max-width: 720px), (max-height: 520px) {
+  dialog#panel[data-station] .body.page::before {
+    font-size: 11px;
+    padding: 8px 12px 8px 10px;
+    margin-bottom: 14px;
+  }
+}
 </style>
 <script type="importmap">{"imports":{
   "three":"./vendor/three/three.module.min.js",
