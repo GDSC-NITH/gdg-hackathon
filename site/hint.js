@@ -11,7 +11,7 @@ const store = {
 export function showHint() {
   if (!hint || store.get('labyrinth-hint') || document.body.classList.contains('plain')) return;
   hint.querySelector('span').innerHTML = touch
-    ? 'Tap a building or its name to open it. Drag to look around.'
+    ? 'Walk with the stick, drag to look around. Tap a building or its name to open it.'
     : 'Click a building or its name to open it. Drag to look around, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to walk.';
   hint.hidden = false;
 }

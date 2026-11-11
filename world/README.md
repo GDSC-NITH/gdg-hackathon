@@ -17,7 +17,7 @@ same file. 1 block = 1 m; x points east, z points south, y points up.
 | `frame.js` | Facing names and local-to-world maths | Rarely |
 | `build.js` | Puts it all together; keeps the player on the island | Rarely |
 | `../index.html` | Card text for each station (`<article data-station="<id>">`) and the hero | Content |
-| `../site/` | The website layer: top bar, hero, name tags, click-to-open, Prev/Next | Web UI |
+| `../site/` | The website layer: top bar, hero, name tags, click-to-open, Prev/Next, page view, touch thumbstick and jump button (`touch.js`) | Web UI |
 
 ## Station frame
 

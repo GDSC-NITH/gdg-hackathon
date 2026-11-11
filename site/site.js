@@ -6,6 +6,7 @@ import { showHero, hideHero, initHero, enableHeroExplore, updateHeroProgress } f
 import { initHint, showHint } from './hint.js';
 import { initNav, syncModeLinks, setupNavLinks } from './nav.js';
 import { initTags } from './tags.js';
+import { initTouchControls } from './touch.js';
 import { initChat } from './chat.js';
 
 const $ = s => document.querySelector(s);
@@ -93,6 +94,9 @@ function ready(h) {
 
   navInstance = initNav(h);
 
+  // Thumbstick and jump button on touch screens (issue #30).
+  const touchControls = initTouchControls(h, { onStart: () => navInstance.cancelFlight() });
+
   const tagsInstance = initTags({
     h,
     onVisit: id => navInstance.flyToStation(id),
@@ -109,5 +113,6 @@ function ready(h) {
     if (document.hidden) return;
     navInstance.arrive();
     tagsInstance.placeTags();
+    touchControls?.update();
   })();
 }

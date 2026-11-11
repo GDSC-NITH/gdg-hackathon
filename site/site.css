@@ -210,6 +210,56 @@ body.reading #siteHint { display: none; }
   .site-tag { transition: none; animation: none; }
 }
 
+/* ---------- Touch controls (site/touch.js) ---------- */
+/* A thumbstick to walk and a jump button, on touch screens only, in the
+   stone of the corner switches. A tablet keeps the radar bottom left, so the
+   stick stands above it; the jump button stands above Labyrinth's button. */
+#touchStick, #touchJump { display: none; }
+body.touch-controls #touchStick, body.touch-controls #touchJump { display: block; }
+#touchStick {
+  position: fixed; left: max(24px, env(safe-area-inset-left)); bottom: calc(250px + env(safe-area-inset-bottom)); z-index: 11;
+  width: 124px; height: 124px; border-radius: 50%; touch-action: none; -webkit-user-select: none; user-select: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, .1) 0 34%, rgba(14, 16, 14, .38) 35%);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, .55), inset 0 0 0 2px rgba(255, 255, 255, .28);
+  opacity: .78; transition: opacity .15s;
+}
+#touchStick i {
+  position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 12px;
+  background: var(--btn); box-shadow: 0 0 0 2px var(--line), inset 2px 2px 0 rgba(255, 255, 255, .32), inset -2px -3px 0 rgba(0, 0, 0, .38);
+  transition: transform .18s ease-out, background-color .12s; pointer-events: none;
+}
+#touchStick.on { opacity: 1; }
+#touchStick.on i { background: var(--accent); transition: background-color .12s; }
+#touchJump {
+  position: fixed; right: max(24px, env(safe-area-inset-right)); bottom: calc(112px + env(safe-area-inset-bottom)); z-index: 11;
+  width: 68px; height: 68px; padding: 0; border: 0; border-radius: 50%; touch-action: none; -webkit-user-select: none; user-select: none;
+  display: none; place-items: center; background: var(--btn); opacity: .85;
+  box-shadow: 0 0 0 2px var(--line), inset 2px 2px 0 rgba(255, 255, 255, .32), inset -2px -3px 0 rgba(0, 0, 0, .38);
+}
+body.touch-controls #touchJump { display: grid; }
+#touchJump svg { width: 28px; height: 28px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: square; filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, .35)); }
+#touchJump.on { opacity: 1; background: var(--accent); transform: translateY(2px); box-shadow: 0 0 0 2px var(--line), inset 2px 3px 0 rgba(0, 0, 0, .38), inset -2px -2px 0 rgba(255, 255, 255, .16); }
+/* A phone held upright: the Dock takes the bottom left and the radar the
+   bottom right, so the stick stands over the Dock and the station prompt
+   over the stick. */
+@media (max-width: 720px) and (min-height: 521px) {
+  #touchStick { left: max(16px, env(safe-area-inset-left)); bottom: calc(96px + env(safe-area-inset-bottom)); width: 116px; height: 116px; }
+  body.xp-on #touchStick { bottom: calc(128px + env(safe-area-inset-bottom)); }
+  #touchJump { right: max(16px, env(safe-area-inset-right)); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 236px); width: 62px; height: 62px; }
+  body.touch-controls #prompt { bottom: calc(222px + env(safe-area-inset-bottom)); }
+  body.touch-controls.xp-on #prompt { bottom: calc(254px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 560px) and (min-height: 521px) {
+  #touchJump { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 188px); }
+}
+/* Held sideways: the stick takes the bottom-left corner, jump stands left
+   of the radar, and the prompt moves over the stick. */
+@media (max-height: 520px) {
+  #touchStick { left: max(20px, env(safe-area-inset-left)); bottom: calc(18px + env(safe-area-inset-bottom)); width: 108px; height: 108px; }
+  #touchJump { right: calc(max(12px, env(safe-area-inset-right)) + 150px); bottom: calc(24px + env(safe-area-inset-bottom)); width: 58px; height: 58px; }
+  body.touch-controls #prompt { bottom: calc(138px + env(safe-area-inset-bottom)); }
+}
+
 /* ---------- Labyrinth (backend/agent chat widget) ---------- */
 :root { --chat-w: 460px; }
 
