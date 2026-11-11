@@ -102,6 +102,13 @@ body.plain .hero-facts b { color: var(--accent); text-shadow: none; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 14px; }
 .hero-actions .mc-button { min-height: 46px; padding: 0 20px; font-size: 16px; }
 body.hero-on #hud, body.hero-on #siteTags { visibility: hidden; }
+body.hero-on .hero-card > * { animation: hero-rise .6s cubic-bezier(.2, .7, .2, 1) backwards; }
+body.hero-on .hero-card > :nth-child(2) { animation-delay: .08s; }
+body.hero-on .hero-card > :nth-child(3) { animation-delay: .16s; }
+body.hero-on .hero-card > :nth-child(4) { animation-delay: .24s; }
+body.hero-on .hero-card > :nth-child(5) { animation-delay: .32s; }
+body.hero-on .hero-card > :nth-child(6) { animation-delay: .4s; }
+@keyframes hero-rise { from { opacity: 0; transform: translateY(16px); } }
 /* While the hero is up the world loads behind it, under open sky. */
 body.hero-on #loading { background: transparent; pointer-events: none; }
 body.hero-on #loading .bar { display: none; }
@@ -262,7 +269,22 @@ body.touch-controls #touchJump { display: grid; }
    so the panel can still sit outside it, pinned to the true viewport edge. */
 
 #agentChat { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; }
-body.hero-on #agentChat, body.reading #agentChat { display: none; }
+body.hero-on #agentChat, body.reading #agentChat, body.phone-on #agentChat { display: none; }
+
+/* Keep the station prompt clear of Labyrinth's chat button on desktop */
+@media (min-width: 721px) and (min-height: 521px) {
+  #prompt {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 80px);
+    right: max(16px, env(safe-area-inset-right));
+  }
+  body.phone-on #prompt {
+    right: 286px;
+    bottom: max(22px, env(safe-area-inset-bottom));
+  }
+  body.touch-controls #prompt {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 188px);
+  }
+}
 
 #agentChatToggle {
   width: 72px; height: 72px; border: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -295,6 +317,24 @@ body.hero-on #agentChatPanel, body.reading #agentChatPanel { display: none; }
 .agent-chat-msg { margin: 0; max-width: 88%; padding: 8px 10px; border-radius: 4px; font: 400 13px/1.4 var(--text); white-space: pre-wrap; }
 .agent-chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; }
 .agent-chat-msg.assistant { align-self: flex-start; background: color-mix(in srgb, var(--ink) 8%, transparent); }
+
+/* One-tap questions: a single row that scrolls sideways. */
+.agent-chat-chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px; scrollbar-width: none; border-top: 2px solid color-mix(in srgb, var(--ink) 14%, transparent); }
+.agent-chat-chips::-webkit-scrollbar { display: none; }
+.agent-chat-chips button {
+  flex: none; padding: 6px 10px; border: 0; border-radius: 4px; cursor: pointer;
+  font: 500 12px/1.2 var(--text); color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.agent-chat-chips button:hover, .agent-chat-chips button:focus-visible { outline: none; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+#agentChatPanel:has(.agent-chat-form input:disabled) .agent-chat-chips { opacity: 0.5; pointer-events: none; }
+
+/* "Show me <station>" under an answer. */
+.agent-chat-go {
+  align-self: flex-start; padding: 6px 10px; border-radius: 4px; text-decoration: none;
+  font: 600 12px/1.2 var(--text); color: #fff; background: var(--accent);
+}
+.agent-chat-go:hover, .agent-chat-go:focus-visible { outline: none; filter: brightness(1.1); }
 
 .agent-chat-form { display: flex; gap: 8px; padding: 10px 14px; border-top: 2px solid color-mix(in srgb, var(--ink) 14%, transparent); }
 .agent-chat-form input {

@@ -64,9 +64,23 @@ jobs:
         id: deploy
         if: steps.check-secrets.outputs.has_secrets == 'true'
         run: |
-          DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --meta prId=${{ github.event.pull_request.number }} --meta prRef="${{ github.event.pull_request.head.ref }}")
-          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
-          echo "Deployed successfully to: $DEPLOY_URL"
+          DEPLOY_OUTPUT=""
+          DEPLOY_STATUS=0
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --meta prId=${{ github.event.pull_request.number }} --meta prRef="${{ github.event.pull_request.head.ref }}" 2>&1) || DEPLOY_STATUS=$?
+          
+          if [ $DEPLOY_STATUS -eq 0 ]; then
+            DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -Eo 'https://[^ ]+\.vercel\.app' | tail -n 1 || echo "$DEPLOY_OUTPUT" | tail -n 1)
+            echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+            echo "rate_limited=false" >> $GITHUB_OUTPUT
+            echo "Deployed successfully to: $DEPLOY_URL"
+          elif echo "$DEPLOY_OUTPUT" | grep -qiE "api-deployments-free-per-day|Resource is limited|rate limit"; then
+            echo "::warning::Vercel preview deployment daily rate limit reached (100/day on free tier). Skipping preview deployment."
+            echo "url=" >> $GITHUB_OUTPUT
+            echo "rate_limited=true" >> $GITHUB_OUTPUT
+          else
+            echo "$DEPLOY_OUTPUT"
+            exit $DEPLOY_STATUS
+          fi
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -191,6 +205,47 @@ jobs:
               console.warn('Could not post PR preview comment:', err.message);
             }
 
+      - name: Comment on Pull Request (Rate Limited)
+        if: steps.check-secrets.outputs.has_secrets == 'true' && steps.deploy.outputs.rate_limited == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const marker = '<!-- vercel-preview-rate-limited -->';
+            const commentBody = `${marker}
+            ### ⚠️ Vercel Preview Deployment Deferred
+
+            Vercel daily deployment quota (100 deployments/24h on free tier) has been reached for this account.
+            * **Status**: Preview deployment skipped for commit \`${context.payload.pull_request.head.sha.substring(0, 7)}\`
+            * **CI Status**: All code tests and checks continue to run normally.
+            * The quota automatically resets as the 24-hour rolling window advances.`;
+
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              const botComment = comments.find(c => c.body.includes(marker));
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: commentBody,
+                });
+              }
+            } catch (err) {
+              console.warn('Could not post rate limit comment:', err.message);
+            }
+
   cleanup-preview:
     name: Kill Vercel Preview on Merge/Close
     if: github.event.action == 'closed'
@@ -232,7 +287,9 @@ jobs:
                 headers: { Authorization: `Bearer ${token}` },
               });
               const aliasData = await aliasRes.json();
-              const prAliases = (aliasData.aliases || []).filter(a => a.alias.includes(`pr-${prNumber}`));
+              // Only this PR's own aliases: "pr-4" must not match "pr-41".
+              const ownAlias = new RegExp(`-pr-${prNumber}[-.]`);
+              const prAliases = (aliasData.aliases || []).filter(a => ownAlias.test(a.alias));
               for (const a of prAliases) {
                 console.log(`Deleting alias ${a.alias} (id: ${a.uid})...`);
                 await fetch(`https://api.vercel.com/v2/aliases/${a.uid}?teamId=${teamId}`, {
@@ -244,17 +301,19 @@ jobs:
               console.warn('Error deleting aliases:', err.message);
             }
 
-            // 2. Delete deployments tagged with this PR or branch
+            // 2. Delete preview deployments tagged with this PR.
+            // Never match by branch name: a PR from a fork's `main` would
+            // then match every production deployment built from `main`.
+            // Production deployments are never deleted here.
             try {
               const depRes = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&teamId=${teamId}&limit=100`, {
                 headers: { Authorization: `Bearer ${token}` },
               });
               const depData = await depRes.json();
               const prDeployments = (depData.deployments || []).filter(d => {
-                const metaPr = d.meta?.prId || d.meta?.githubPrId;
-                const matchesPr = metaPr === prNumber;
-                const matchesBranch = branchRef && d.meta?.githubCommitRef === branchRef;
-                return matchesPr || matchesBranch;
+                if (d.target === 'production') return false;
+                const metaPr = String(d.meta?.prId || d.meta?.githubPrId || '');
+                return metaPr === prNumber;
               });
 
               console.log(`Found ${prDeployments.length} deployments for PR #${prNumber}`);

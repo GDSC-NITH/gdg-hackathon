@@ -1,8 +1,9 @@
 // Team: 3D Voxel GDG Hackathon Team Meeting.
 // Local frame: (0, 0) is the centre, +z is the front (faces the path).
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { loadModel } from '../models.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { bakeStation } from '../bake.js';
 
 function makeTransform(px, py, pz, tx, ty, tz, rotY) {
   return new THREE.Matrix4()
@@ -112,10 +113,9 @@ export default {
     const group = new THREE.Group();
     plane(group, 0, 0.35, 0);
 
-    const loader = new GLTFLoader();
-    loader.load('assets/models/gdg_hackathon_team_meeting.glb', (gltf) => {
+    loadModel('assets/models/gdg_hackathon_team_meeting.glb', (gltf) => {
       const model = gltf.scene;
-      const optimized = mergeTeamModel(model);
+      const optimized = bakeStation(mergeTeamModel(model));
       group.add(optimized);
     });
 

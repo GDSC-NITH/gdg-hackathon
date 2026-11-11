@@ -18,7 +18,9 @@
 <link rel="icon" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<!-- Loaded without blocking: a render-blocking stylesheet also holds back the module scripts, so the 3D world would wait on Google Fonts. -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet"></noscript>
 <script>
 // On mobile devices, default to the 2D page view unless 3D is explicitly requested (?3d)
 (function() {
@@ -643,10 +645,10 @@ dialog#panel[data-station] .body.page::before {
       </div>
       <div class="crew-role">
         <p class="crew-label">Technical Leads</p>
-        <h3>Saurabh Chauhan · Prashant Bahuguna</h3>
+        <h3>Saurabh Chauhan · Prashant Bahuguna · Pradyuman Sharma</h3>
       </div>
       <div class="crew-role">
-        <p class="crew-label">Operations Lead</p>
+        <p class="crew-label">Student Coordinator</p>
         <h3>Parthivi Pradhan</h3>
       </div>
       <div class="crew-role">
@@ -882,14 +884,9 @@ if (location.protocol === 'file:') {
 }
 </script>
 <noscript><style>#world,#hud,#loading{display:none}#pages{display:block}</style></noscript>
-<script>
-// Automatically remove BetterMapIt and Homecraft badge buttons from the radar
-const purgeBadges = () => {
-  document.querySelectorAll('#minimap .badge, #minimap .badge.credit, #minimap .badge.made, a.badge').forEach(el => el.remove());
-};
-purgeBadges();
-new MutationObserver(purgeBadges).observe(document.documentElement, { childList: true, subtree: true });
-</script>
+<!-- Hides the BetterMapIt and Homecraft badges on the radar. A CSS rule costs nothing per frame;
+     the previous MutationObserver re-queried the whole document on every DOM change. -->
+<style>#minimap .badge, a.badge { display: none !important; }</style>
 <script type="module" src="engine/main.js"></script>
 <script type="module" src="site/site.js"></script>
 </body>

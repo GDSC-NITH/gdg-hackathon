@@ -8,6 +8,12 @@ import { icon } from './icons.js';
 import { nameOf } from '../lang.js';
 
 const PPM = 8; // map pixels per metre
+// A world can export MAP_MARGIN (metres) to have its map show ground beyond the
+// island's edge, painted by its `decorate` hook, and MAP_BACKGROUND for what
+// lies past that. Worlds that export neither look as before.
+const MARGIN = Math.max(0, Number(L.MAP_MARGIN) || 0);
+const ORIGIN = { x: ISLAND.x0 - MARGIN, z: ISLAND.z0 - MARGIN };
+const BACKGROUND = L.MAP_BACKGROUND || '#9fc6e8';
 const COLORS = {
   grass: '#7aa653', sand: '#d5c8a7', leaves: '#3d7a2c', osmanthus: '#4f8a3a', hedge: '#3f7a2d', log: '#6e5434',
   concrete: '#d9d5cd', wood_floor: '#bd956a', epoxy: '#c3c6c9', deck: '#bd956a', pavers: '#b3afa6', travertine: '#ddd4c3', coping: '#ddd4c3',
@@ -18,7 +24,7 @@ const COLORS = {
 
 // `decorate(ctx, X, Z, PPM)` lets a world paint extras (a court's lines) over the blocks.
 export function drawMapImage(grid, obstacles, decorate = null) {
-  const w = (ISLAND.x1 - ISLAND.x0) * PPM, h = (ISLAND.z1 - ISLAND.z0) * PPM;
+  const w = (ISLAND.x1 - ISLAND.x0 + 2 * MARGIN) * PPM, h = (ISLAND.z1 - ISLAND.z0 + 2 * MARGIN) * PPM;
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
@@ -36,6 +42,7 @@ export function drawMapImage(grid, obstacles, decorate = null) {
     const c = v => Math.max(0, Math.min(255, Math.round(v * k)));
     return `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`;
   };
+  const X = x => (x - ORIGIN.x) * PPM, Z = z => (z - ORIGIN.z) * PPM;
   for (let x = ISLAND.x0; x < ISLAND.x1; x++) for (let z = ISLAND.z0; z < ISLAND.z1; z++) {
     const here = top(x, z);
     if (!here) continue;
@@ -46,9 +53,8 @@ export function drawMapImage(grid, obstacles, decorate = null) {
     const pool = !!POOL && x >= POOL.x0 && x < POOL.x1 && z >= POOL.z0 && z < POOL.z1;
     // A block type can bring its own map colour: grid.define('x', { map: '#hex', ... }).
     ctx.fillStyle = shade(pool ? COLORS.pool_deep : here.t.map || COLORS[here.t.name] || '#888888', k);
-    ctx.fillRect((x - ISLAND.x0) * PPM, (z - ISLAND.z0) * PPM, PPM, PPM);
+    ctx.fillRect(X(x), Z(z), PPM, PPM);
   }
-  const X = x => (x - ISLAND.x0) * PPM, Z = z => (z - ISLAND.z0) * PPM;
   decorate?.(ctx, X, Z, PPM);
   // Furniture, as soft shadows.
   ctx.fillStyle = 'rgba(30, 34, 38, .28)';
@@ -69,7 +75,8 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
   const zooms = [2.6, 4, 6.2];
   let zoomIndex = 1;
   const dpr = Math.min(devicePixelRatio || 1, 1.5);
-  const blips = STATIONS.map(s => ({ s, img: icon(s.id).canvas }));
+  // A station's own pixel icon (`icon` in the layout), as the Dock uses; its id is the fallback.
+  const blips = STATIONS.map(s => ({ s, img: icon(s.icon || s.id).canvas }));
   let dirty = true, lastX = null, lastZ = null, lastHeading = null, lastYaw = null, lastZoom = null, lastRouteKey = '';
 
   function fit() {
@@ -131,14 +138,14 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     lastYaw = yaw; lastZoom = zoomIndex; lastRouteKey = routeKey;
     const scale = zooms[zoomIndex] * (W / 204);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#9fc6e8';
+    ctx.fillStyle = BACKGROUND;
     ctx.fillRect(0, 0, W, H);
     ctx.save();
     ctx.translate(W / 2, H / 2);
     ctx.rotate(yaw);
     ctx.imageSmoothingEnabled = false;
     const k = scale / PPM;
-    ctx.drawImage(mapImage, (ISLAND.x0 - p.x) * scale, (ISLAND.z0 - p.z) * scale, mapImage.width * k, mapImage.height * k);
+    ctx.drawImage(mapImage, (ORIGIN.x - p.x) * scale, (ORIGIN.z - p.z) * scale, mapImage.width * k, mapImage.height * k);
     // Route to the waypoint.
     if (route && route.length) {
       ctx.lineJoin = 'round'; ctx.lineCap = 'round';
@@ -189,7 +196,8 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     if (open) {
       const r = big.getBoundingClientRect();
       big.width = Math.round(r.width * dpr); big.height = Math.round(r.height * dpr);
-      const fitScale = Math.min(big.width / (ISLAND.x1 - ISLAND.x0), big.height / (ISLAND.z1 - ISLAND.z0)) * 0.94;
+      // The island with half the margin round it; the rest is a pan away.
+      const fitScale = Math.min(big.width / (ISLAND.x1 - ISLAND.x0 + MARGIN), big.height / (ISLAND.z1 - ISLAND.z0 + MARGIN)) * 0.94;
       view = { cx: (ISLAND.x0 + ISLAND.x1) / 2, cz: (ISLAND.z0 + ISLAND.z1) / 2, scale: fitScale, min: fitScale * 0.9, max: fitScale * 4 };
       drawBig();
     } else {
@@ -230,12 +238,12 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     if (bigRoot.hidden || !view) return;
     const W = big.width, H = big.height, s = view.scale;
     bctx.setTransform(1, 0, 0, 1, 0, 0);
-    bctx.fillStyle = '#9fc6e8';
+    bctx.fillStyle = BACKGROUND;
     bctx.fillRect(0, 0, W, H);
     bctx.imageSmoothingEnabled = false;
-    const ox = W / 2 - (view.cx - ISLAND.x0) * s, oz = H / 2 - (view.cz - ISLAND.z0) * s;
+    const ox = W / 2 - (view.cx - ORIGIN.x) * s, oz = H / 2 - (view.cz - ORIGIN.z) * s;
     bctx.drawImage(mapImage, ox, oz, mapImage.width * s / PPM, mapImage.height * s / PPM);
-    const P = (x, z) => [ox + (x - ISLAND.x0) * s, oz + (z - ISLAND.z0) * s];
+    const P = (x, z) => [ox + (x - ORIGIN.x) * s, oz + (z - ORIGIN.z) * s];
     bctx.font = `600 ${13 * dpr}px -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif`;
     bctx.textAlign = 'left'; bctx.textBaseline = 'middle';
     for (const { s: st, img } of blips) {
@@ -243,10 +251,12 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
       const glyph = 22 * dpr;
       drawBlip(bctx, x, y, img, glyph);
       const label = nameOf(st);
-      const tw = bctx.measureText(label).width;
-      const lx = x + glyph / 2 + 5 * dpr;
+      const tw = bctx.measureText(label).width, boxW = tw + 12 * dpr;
+      // Labels point away from the middle of the island, so neighbours near the
+      // centre line (Welcome and Register) do not write over each other.
+      const lx = st.at[0] < (ISLAND.x0 + ISLAND.x1) / 2 ? x - glyph / 2 - 5 * dpr - boxW : x + glyph / 2 + 5 * dpr;
       bctx.fillStyle = 'rgba(12, 14, 16, .72)';
-      bctx.fillRect(lx, y - 10 * dpr, tw + 12 * dpr, 20 * dpr);
+      bctx.fillRect(lx, y - 10 * dpr, boxW, 20 * dpr);
       bctx.fillStyle = '#fff';
       bctx.fillText(label, lx + 6 * dpr, y + 1 * dpr);
     }

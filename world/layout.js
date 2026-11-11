@@ -15,6 +15,12 @@ import { FACING, toWorld } from './frame.js';
 
 export const ISLAND = { x0: -25, x1: 25, z0: -26, z1: 29 };
 
+// The map shows this many metres round the fence (the campus: road, court,
+// field, blocks and pine woods), painted from the world's boxes (plan.js).
+export const MAP_MARGIN = 50;
+// Past that, the pine woods and foothills.
+export const MAP_BACKGROUND = '#4f7a42';
+
 // Visitors start on the avenue, facing north towards the plaza.
 export const SPAWN = { x: 0, z: 21, heading: Math.PI };
 

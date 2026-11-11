@@ -1,8 +1,9 @@
 // Sponsors: 3D Voxel Green Dollar GDG Topper Monument.
 // Local frame: (0, 0) is the centre, +z is the front (faces the path).
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { loadModel } from '../models.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { bakeStation } from '../bake.js';
 
 // Enhanced PBR merger with face normals, crystal emerald luster and glowing energy aura
 function mergeSponsorsModel(root) {
@@ -152,12 +153,11 @@ export default {
     const group = new THREE.Group();
     plane(group, 0, 0.39, 0);
 
-    const loader = new GLTFLoader();
-    loader.load('assets/models/gdg_green_dollar_gdg_topper.glb', (gltf) => {
+    loadModel('assets/models/gdg_green_dollar_gdg_topper.glb', (gltf) => {
       const model = gltf.scene;
       model.scale.setScalar(0.55);
       // Y is already UP in this model
-      const optimized = mergeSponsorsModel(model);
+      const optimized = bakeStation(mergeSponsorsModel(model));
       group.add(optimized);
     });
 

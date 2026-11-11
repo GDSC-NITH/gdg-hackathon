@@ -186,7 +186,7 @@ export function initNav(h) {
 
   // Intercept window.__home.go for all caller sources
   h.go = function(id, instant = false) {
-    if (instant) nativeGo(id);
+    if (instant || navigator.webdriver) nativeGo(id);
     else flyToStation(id);
   };
 

@@ -5,16 +5,21 @@ import { BoxBatch } from '@engine/world/blocks.js';
 import { buildIsland } from '@engine/world/terrain.js';
 import { createDog } from '@engine/world/avatar.js';
 import { buildSakuraForest, createSakuraPetals } from './sakura.js';
-import { ISLAND, PLAN, TREES, SPAWN } from './layout.js';
+import { createFootstepParticles } from './footsteps.js';
+import { ISLAND, PLAN, TREES, SPAWN, MAP_MARGIN } from './layout.js';
 import { placeStation } from './kit.js';
 import { BUILDS } from './stations/index.js';
 import { surfaceAt, buildDecor } from './grounds.js';
 import { buildMountains } from './mountains.js';
 import { buildCampus } from './campus.js';
 import { defineStage, buildMarkers, markerPulse } from './markers.js';
-import { venueUniforms } from './stations/venue.js';
+import { startModels } from './models.js';
+import { buildBalloons } from './balloons.js';
+import { makePlan } from './plan.js';
 
 let activePetals = null;
+let footstepFx = null;
+let balloons = null;
 
 // Labyrinth (the mascot dog): built with the engine's own dog rig
 // (@engine/world/avatar.js) but driven by our own follow/click logic instead of
@@ -54,12 +59,19 @@ export function build({ grid, layer, materials, scene }) {
   const forest = buildSakuraForest(grid, layer, TREES, out.B);
   out.forest = forest;
   activePetals = createSakuraPetals(scene, forest.spawners);
+  footstepFx = createFootstepParticles(scene, grid);
   for (const station of PLAN) {
     const def = BUILDS[station.id];
     if (def) placeStation(out, station, def);
     else console.warn(`No build for station "${station.id}" in world/stations/index.js`);
   }
   buildDecor({ ...out, layer, materials });
+  // GDG balloons on the Venue's roof corners: one small moving batch.
+  const venue = PLAN.find(p => p.id === 'venue');
+  if (venue) {
+    balloons = buildBalloons({ layer, materials, station: venue, B: out.B });
+    out.planes.push(...balloons.meshes);
+  }
   // A stage, a gold outline and a beacon beam for every station.
   buildMarkers(out.B);
 
@@ -83,13 +95,20 @@ export function build({ grid, layer, materials, scene }) {
     bakes: out.bakes,
     forest,
     sites: [edge],
+    // The map's campus, trees, fence and mountains, read from the same boxes.
+    named: { drawMap: makePlan(out.B, materials, {
+      x0: ISLAND.x0 - MAP_MARGIN, x1: ISLAND.x1 + MAP_MARGIN, z0: ISLAND.z0 - MAP_MARGIN, z1: ISLAND.z1 + MAP_MARGIN,
+    }, ISLAND) },
   };
 }
 
 export function setup({ stage, player, sound, world }) {
+  if (footstepFx) footstepFx.attachPlayer(player);
   const pulse = markerPulse(world);
   const minX = ISLAND.x0 + 0.5, maxX = ISLAND.x1 - 0.5, minZ = ISLAND.z0 + 0.5, maxZ = ISLAND.z1 - 0.5;
   let stepClock = 0;
+  // Station models start loading a moment after the first frame (world/models.js).
+  let modelsIn = 0.25;
   let lastX = player.pos.x, lastZ = player.pos.z;
 
   // Labyrinth follows a few metres behind wherever the player last walked,
@@ -147,12 +166,12 @@ export function setup({ stage, player, sound, world }) {
 
   return {
     update(dt) {
+      if (modelsIn > 0 && (modelsIn -= dt) <= 0) startModels(stage);
       updateDog(dt);
+      balloons?.update(dt, player.pos.x, player.pos.z);
       if (activePetals) activePetals.update(dt);
+      if (footstepFx) footstepFx.update(dt);
       pulse(dt);
-      if (venueUniforms) {
-        venueUniforms.uNight.value = stage ? stage.night : (world?.isNight?.() ? 1.0 : 0.0);
-      }
 
       // A last guard in case flight or a zip slips past the edge.
       const p = player.pos;

@@ -1,8 +1,9 @@
 // Schedule: 3D Voxel GDG Hackathon Clock Tower & Timetable Pavilion.
 // Local frame: (0, 0) is the centre, +z is the front (faces the path).
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { loadModel } from '../models.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { bakeStation } from '../bake.js';
 
 // Enhanced PBR merger grouping by architectural feature to deliver
 // authentic Minecraft voxel aesthetics with a distinct, beautiful clock dial,
@@ -293,11 +294,10 @@ export default {
     const group = new THREE.Group();
     plane(group, 0, 0.35, -0.22);
 
-    const loader = new GLTFLoader();
-    loader.load('assets/models/gdg_schedule.glb', (gltf) => {
+    loadModel('assets/models/gdg_schedule.glb', (gltf) => {
       const model = gltf.scene;
       model.scale.setScalar(0.48);
-      const optimized = mergeScheduleModel(model);
+      const optimized = bakeStation(mergeScheduleModel(model));
       group.add(optimized);
     });
 

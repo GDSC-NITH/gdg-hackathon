@@ -23,7 +23,71 @@ const ICEBREAKERS = [
 const MAX_LEN = 500;
 const MAX_HISTORY = 8;
 
+// Questions offered as one-tap chips under the conversation.
+const QUICK = [
+  'When is check-in?',
+  'What are the tracks?',
+  'What can I win?',
+  'Where is the venue?',
+  'How do I register?',
+];
+
+// A question about one of these topics gets a "Show me" button under the
+// answer that takes the visitor to the station: in 3D the player travels
+// there (the dog follows), in the page view it opens that section. The
+// first matching topic wins, so the more specific ones come first.
+const TOPICS = [
+  ['register', 'Register', /regist|\bsign ?up\b|\bapply\b|\benrol/i],
+  ['prizes', 'Prizes', /prize|reward|\b(win|wins|winning|winners?|won)\b|\bcash\b|\bswag\b|troph/i],
+  ['tracks', 'Tracks', /\btracks?\b|\btheme|\bdomains?\b|problem statement|categor/i],
+  ['sponsors', 'Sponsors', /sponsor|\bpartners?\b/i],
+  ['team', 'Team', /organi[sz]er|coordinator|core team|\bcontact\b/i],
+  ['venue', 'Venue', /\bvenue|\bwhere\b|location|\breach\b|\bhall\b|campus|address|direction/i],
+  ['schedule', 'Schedule', /schedule|\bwhen\b|\btimes?\b|check-?in|timeline|deadline|\bstarts?\b|\bends?\b|\bdates?\b|agenda/i],
+  ['faq', 'FAQ', /\bfaq\b|\brules?\b|eligib|team size|\bcost|\bfees?\b|\bfree\b|\bbring\b|\bfood\b|\bstay\b|accommodation/i],
+];
+const topicOf = text => TOPICS.find(([, , re]) => re.test(text)) || null;
+
 const $ = s => document.querySelector(s);
+
+let wolfAudio = null;
+
+function isSoundMuted() {
+  if (window.__home?.sound) {
+    return !window.__home.sound.on;
+  }
+  try {
+    return localStorage.getItem('terryhome-sound') === 'off';
+  } catch {
+    return false;
+  }
+}
+
+export function playWolfBark() {
+  if (isSoundMuted()) return;
+  try {
+    if (!wolfAudio) {
+      wolfAudio = new Audio('assets/sfx/wolf-bark.mp3');
+      wolfAudio.volume = 0.75;
+    }
+    wolfAudio.currentTime = 0;
+    wolfAudio.play().catch(() => {});
+  } catch (err) {
+    console.warn('Wolf bark sound error:', err);
+  }
+}
+
+// Ensure wolf sound halts immediately if the visitor mutes sound
+document.addEventListener('click', e => {
+  if (e.target.closest('#soundButton')) {
+    setTimeout(() => {
+      if (isSoundMuted() && wolfAudio && !wolfAudio.paused) {
+        wolfAudio.pause();
+        wolfAudio.currentTime = 0;
+      }
+    }, 20);
+  }
+});
 
 export function initChat() {
   const root = $('#agentChat');
@@ -81,9 +145,16 @@ export function initChat() {
     }, 2500);
   }
 
-  toggle.addEventListener('click', () => (isOpen ? close() : open()));
+  toggle.addEventListener('click', () => {
+    playWolfBark();
+    (isOpen ? close() : open());
+  });
   closeBtn.addEventListener('click', close);
-  document.addEventListener('open-labyrinth-chat', open);
+  document.addEventListener('open-labyrinth-chat', () => {
+    playWolfBark();
+    open();
+  });
+  panel.querySelector('.agent-chat-title-row')?.addEventListener('click', playWolfBark);
   document.addEventListener('keydown', e => { if (isOpen && e.key === 'Escape') close(); });
 
   function bubble(role, text) {
@@ -93,6 +164,43 @@ export function initChat() {
     log.append(p);
     log.scrollTop = log.scrollHeight;
   }
+
+  // "Show me" under an answer. A plain #link, so the page view's own link
+  // handling opens the section; in 3D it travels to the station instead.
+  function showMe([id, label]) {
+    const a = document.createElement('a');
+    a.className = 'agent-chat-go';
+    a.href = `#${id}`;
+    a.textContent = `🐾 Show me ${label}`;
+    a.addEventListener('click', e => {
+      const h = window.__home;
+      if (h?.go && !document.body.classList.contains('plain')) {
+        e.preventDefault();
+        h.go(id);
+      }
+      close();
+    });
+    log.append(a);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // One-tap questions: each sends its text exactly as if typed.
+  const chips = document.createElement('div');
+  chips.className = 'agent-chat-chips';
+  chips.setAttribute('aria-label', 'Suggested questions');
+  for (const q of QUICK) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = q;
+    chips.append(b);
+  }
+  chips.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || pending || shuttingDown) return;
+    input.value = b.textContent;
+    form.requestSubmit();
+  });
+  form.before(chips);
 
   async function submit(e) {
     e.preventDefault();
@@ -127,6 +235,10 @@ export function initChat() {
         throw new Error(data.error || (res.status === 404 ? 'Assistant endpoint not found' : 'bad response'));
       }
       bubble('assistant', data.reply);
+      if (res.ok) {
+        const topic = topicOf(message);
+        if (topic) showMe(topic);
+      }
       history = [...history, { role: 'assistant', content: data.reply }].slice(-MAX_HISTORY);
       status.textContent = '';
     } catch (err) {

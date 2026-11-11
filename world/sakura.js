@@ -31,6 +31,9 @@ const SHADES = [
 export function buildSakuraForest(grid, layer, spots = [], targetBatch = null) {
   const batch = targetBatch || new BoxBatch(layer);
   const r = rng(20260503);
+  // The canopies' collision blocks are never drawn (world.js drops the
+  // forestCollision group), but the map paints them: pink, like the canopy.
+  if (!grid.typeIndex.has('sakura_canopy')) grid.define('sakura_canopy', { tex: { all: 'leaves' }, map: '#f4a6bf' });
   const treeBounds = [];
   const tops = [];
   const spawners = [];
@@ -81,7 +84,7 @@ export function buildSakuraForest(grid, layer, spots = [], targetBatch = null) {
       grid.fill(
         Math.floor(cx - w / 2), Math.floor(y), Math.floor(cz - d / 2),
         Math.ceil(cx + w / 2), Math.round(y + h), Math.ceil(cz + d / 2),
-        'hedge', 'forestCollision'
+        'sakura_canopy', 'forestCollision'
       );
       tops.push({
         x0: Math.floor(cx - w / 2), x1: Math.ceil(cx + w / 2),
