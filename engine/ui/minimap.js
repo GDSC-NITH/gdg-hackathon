@@ -122,8 +122,8 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     const route = getRoute();
     const routeKey = route && route.length ? `${route.length},${route[route.length - 1].x},${route[route.length - 1].z}` : '';
     if (!force && !dirty &&
-        lastX === p.x && lastZ === p.z && lastHeading === p.heading &&
-        lastYaw === yaw && lastZoom === zoomIndex && lastRouteKey === routeKey) {
+      lastX === p.x && lastZ === p.z && lastHeading === p.heading &&
+      lastYaw === yaw && lastZoom === zoomIndex && lastRouteKey === routeKey) {
       return;
     }
     dirty = false;
@@ -140,7 +140,6 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     const k = scale / PPM;
     ctx.drawImage(mapImage, (ISLAND.x0 - p.x) * scale, (ISLAND.z0 - p.z) * scale, mapImage.width * k, mapImage.height * k);
     // Route to the waypoint.
-    const route = getRoute();
     if (route && route.length) {
       ctx.lineJoin = 'round'; ctx.lineCap = 'round';
       const path = () => { ctx.beginPath(); ctx.moveTo(0, 0); for (const q of route) ctx.lineTo((q.x - p.x) * scale, (q.z - p.z) * scale); };
