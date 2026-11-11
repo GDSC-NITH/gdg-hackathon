@@ -14,7 +14,7 @@ concurrency:
 jobs:
   prepare:
     if: github.repository == 'terryHu7/homecraft'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       RELEASE_TAG: ${{ inputs.tag }}
@@ -37,7 +37,7 @@ jobs:
           git merge-base --is-ancestor HEAD origin/main
           test -f "docs/releases/$RELEASE_TAG.md"
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - run: npm run check:pr
       - run: npm run release:prepare
       - name: Create a draft for final review
