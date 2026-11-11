@@ -313,21 +313,19 @@ body.hero-on #agentChatPanel, body.reading #agentChatPanel { display: none; }
 #agentChatPanel h2 { margin: 0; font: 700 17px/1.2 var(--text); }
 .agent-chat-close { border: 0; background: transparent; color: var(--ink); font-size: 20px; line-height: 1; padding: 4px 8px; cursor: pointer; }
 
-.agent-chat-log { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
-.agent-chat-log::-webkit-scrollbar { display: none; }
-.agent-chat-msg { margin: 0; max-width: 88%; padding: 8px 10px; border-radius: 4px; font: 400 13px/1.4 var(--text); white-space: pre-wrap; }
-.agent-chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; padding: 10px;
-/* 1. Forces unbroken strings like 'kkkkkk...' to break onto new lines */
-  overflow-wrap: anywhere;
-  word-break: break-word;
-
-  /* 2. Prevents the container from expanding beyond its parent */
-  max-width: 80%;
-  box-sizing: border-box;
-
-  /* 3. Safety net in case of stubborn inner content */
-  overflow: hidden;
+.agent-chat-log {
+  flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px;
+  /* Firefox slim scrollbar support */
+  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 28%, transparent) transparent;
 }
+/* WebKit scrollbar support (Chrome, Edge, Safari) */
+.agent-chat-log::-webkit-scrollbar{ width: 6px;}
+.agent-chat-log::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 28%, transparent); border-radius: 3px; }
+/* Base bubble styling shared by both user and assistant */
+.agent-chat-msg { margin: 0; max-width: 88%; padding: 8px 10px; border-radius: 4px; font: 400 13px/1.4 var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+/* User variant */
+.agent-chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; }
+/* Assistant variant */
 .agent-chat-msg.assistant { align-self: flex-start; background: color-mix(in srgb, var(--ink) 8%, transparent); }
 
 /* One-tap questions: a single row that scrolls sideways. */
