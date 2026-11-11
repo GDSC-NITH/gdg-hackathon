@@ -269,7 +269,22 @@ body.touch-controls #touchJump { display: grid; }
    so the panel can still sit outside it, pinned to the true viewport edge. */
 
 #agentChat { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; }
-body.hero-on #agentChat, body.reading #agentChat { display: none; }
+body.hero-on #agentChat, body.reading #agentChat, body.phone-on #agentChat { display: none; }
+
+/* Keep the station prompt clear of Labyrinth's chat button on desktop */
+@media (min-width: 721px) and (min-height: 521px) {
+  #prompt {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 80px);
+    right: max(16px, env(safe-area-inset-right));
+  }
+  body.phone-on #prompt {
+    right: 286px;
+    bottom: max(22px, env(safe-area-inset-bottom));
+  }
+  body.touch-controls #prompt {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 188px);
+  }
+}
 
 #agentChatToggle {
   width: 72px; height: 72px; border: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
