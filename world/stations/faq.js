@@ -205,7 +205,7 @@ function mergeFAQModel(root) {
 }
 
 export default {
-  size: [4.2, 5.0, 4.2],
+  size: [4.2, 3.5, 4.2],
   build({ box, solid, light, plane, cornerLights, M }) {
     // Stepped Ceremonial Deepslate & Pavers Dais
     box(0, 0, 0, 4.2, 0.20, 4.2, M.deepslate);

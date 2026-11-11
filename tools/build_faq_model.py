@@ -316,10 +316,9 @@ def build_faq_scene():
     b.add_box('pavilion_pillar', 0, 3.38, 0, 1.8, 0.22, 1.8)
     # Cupola crown
     b.add_box('pavilion_roof', 0, 3.60, 0, 2.0, 0.16, 2.0)
-    # Spire finial
-    b.add_box('gold_trim', 0, 3.76, 0, 0.32, 0.24, 0.32)
-    b.add_box('gold_trim', 0, 4.00, 0, 0.16, 0.32, 0.16)
-    b.add_box('floating_crystal', 0, 4.32, 0, 0.12, 0.18, 0.12)
+    # Roof ornamental gold crest
+    b.add_box('gold_trim', 0, 3.76, 0, 0.36, 0.14, 0.36)
+    b.add_box('gold_trim', 0, 3.90, 0, 0.18, 0.12, 0.18)
 
     # ==========================================
     # 4. QUESTION MARK MOTIF (Front Facade Emblem)
