@@ -165,6 +165,18 @@ function createAttendantFaceMeshes() {
   return group;
 }
 
+function flipWinding(geometry) {
+  if (geometry.index) {
+    const indices = geometry.index.array;
+    for (let i = 0; i < indices.length; i += 3) {
+      const tmp = indices[i];
+      indices[i] = indices[i + 1];
+      indices[i + 1] = tmp;
+    }
+    geometry.index.needsUpdate = true;
+  }
+}
+
 function attendantModel(root) {
   root.updateMatrixWorld(true);
   const byMaterial = new Map();
@@ -172,13 +184,13 @@ function attendantModel(root) {
   root.traverse(child => {
     if (!child.isMesh || !child.geometry || !child.name.startsWith('TeammateWhite_')) return;
     const part = child.name.slice('TeammateWhite_'.length).toLowerCase();
-    // Exclude old broken eye and misaligned badges; we replace them with proper Minecraft face & GDG logo
-    if (!/^(seat|back|chairleg|torso|neck|head|hair|hairback|fringe|arm|hand|thigh|shoe)$/.test(part)) return;
+    // Exclude old broken eye and misaligned badges; include both arms, hands, legs, and all chair legs
+    if (!/^(seat|back|chairleg(?:_\d+)?|torso|neck|head|hair|hairback|fringe|arm(?:_\d+)?|hand(?:_\d+)?|thigh(?:_\d+)?|shoe(?:_\d+)?)$/.test(part)) return;
     if (/torso|arm/.test(part)) shirtMaterials.add(child.material);
     const geometry = child.geometry.clone();
     geometry.applyMatrix4(child.matrixWorld);
     geometry.applyMatrix4(moveAttendantPart(child.name));
-    if (/^(seat|back|chairleg)$/.test(part)) {
+    if (/^(seat|back|chairleg(?:_\d+)?)$/.test(part)) {
       geometry.computeBoundingBox();
       const center = geometry.boundingBox.getCenter(new THREE.Vector3());
       geometry.applyMatrix4(
@@ -190,6 +202,31 @@ function attendantModel(root) {
     }
     if (!byMaterial.has(child.material)) byMaterial.set(child.material, []);
     byMaterial.get(child.material).push(geometry);
+
+    // The GLTF exported orphan meshes without node references for the other arm, hand, and leg.
+    // Mirror symmetrical parts across X to ensure both arms, both hands, and both legs are rendered.
+    if (/^(arm|hand|thigh|shoe)$/.test(part)) {
+      const mirrored = geometry.clone();
+      mirrored.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+      flipWinding(mirrored);
+      byMaterial.get(child.material).push(mirrored);
+    }
+
+    if (/^chairleg$/.test(part)) {
+      // Mirror chair leg to all 4 corners of the chair
+      geometry.computeBoundingBox();
+      const zOffset = 0.44; // Front-to-back leg spacing
+      for (const [sx, dz] of [[-1, 0], [1, -zOffset], [-1, -zOffset]]) {
+        const leg = geometry.clone();
+        leg.applyMatrix4(
+          new THREE.Matrix4()
+            .makeTranslation(0, 0, dz)
+            .multiply(new THREE.Matrix4().makeScale(sx, 1, 1)),
+        );
+        if (sx < 0) flipWinding(leg);
+        byMaterial.get(child.material).push(leg);
+      }
+    }
   });
 
   const group = new THREE.Group();
@@ -197,6 +234,7 @@ function attendantModel(root) {
     const geometry = mergeGeometries(geometries, false);
     if (!geometry) continue;
     const materialCopy = material.clone();
+    materialCopy.side = THREE.DoubleSide;
     if (shirtMaterials.has(material)) {
       materialCopy.color.setHex(0x17191d);
       materialCopy.emissive?.setHex(0x050505);
@@ -251,6 +289,23 @@ export default {
     box(0, 2.48, 1.58, 5.1, 0.2, 0.22, M.wood);
     box(0, 2.42, -1.52, 4.65, 0.14, 0.18, M.wood);
 
+    // Back wall: sturdy timber paneling with oak framing and a display shelf.
+    box(0, 0, -1.45, 4.10, 0.35, 0.24, M.log);
+    box(0, 0.35, -1.45, 4.10, 2.05, 0.20, M.wood);
+    box(0, 2.38, -1.45, 4.10, 0.16, 0.22, M.oak);
+    for (const px of [-1.98, -0.72, 0.72, 1.98]) {
+      box(px, 0.35, -1.34, 0.14, 2.03, 0.04, M.oak);
+    }
+    // Decorative back shelf with books, scrolls, and an event plaque behind the attendant.
+    box(0, 1.32, -1.32, 1.32, 0.06, 0.20, M.oak);
+    box(-0.52, 1.16, -1.33, 0.06, 0.16, 0.14, M.blackMetal);
+    box(0.52, 1.16, -1.33, 0.06, 0.16, 0.14, M.blackMetal);
+    box(-0.35, 1.38, -1.32, 0.38, 0.32, 0.14, M.books);
+    box(0.08, 1.38, -1.32, 0.26, 0.14, 0.13, M.paper);
+    box(0.42, 1.38, -1.32, 0.12, 0.22, 0.11, M.gold);
+    box(0, 1.88, -1.33, 1.16, 0.36, 0.04, M.blackMetal);
+    box(0, 1.90, -1.32, 1.08, 0.30, 0.03, M.paint(0x1a73e8));
+
     // Raised reception counter with a deep front apron.
     box(0, 0.42, 0.62, 2.85, 0.72, 0.62, M.oak);
     box(0, 0.22, 0.97, 3.72, 0.25, 0.16, M.wood);
@@ -303,15 +358,16 @@ export default {
       box(x, 1.96, 0, 0.18, 0.18, 0.18, M.lanternGlow);
     }
 
-    // Keep the visitor lane open while blocking the counter, rear posts and side posts.
-    solid(0, 1.25, 2.5, 0.9, 0, 1.1);
-    solid(-2.35, 0, 0.35, 3.9);
-    solid(2.35, 0, 0.35, 3.9);
-    solid(0, -1.85, 4.7, 0.35, 0, 2.8);
+    // Solid collision: blocks the counter, back wall and side posts, keeping the visitor walkway completely clear.
+    solid(0, 0.62, 2.85, 0.62, 0, 1.15);
+    solid(0, -1.45, 4.4, 0.35, 0, 2.8);
+    solid(-2.25, 0, 0.35, 3.1);
+    solid(2.25, 0, 0.35, 3.1);
 
-    // Warm lantern illumination, with separate sources for the counter and sign.
+    // Warm lantern illumination, with separate sources for the counter, sign and back wall.
     light(-1.35, 2.35, 0, 2.4, 7, [0, -1, 0]);
     light(1.35, 2.35, 0, 2.4, 7, [0, -1, 0]);
     light(0, 2.55, -1.55, 2.2, 7, [0, 0, 1]);
+    light(0, 2.1, -1.3, 1.8, 5, [0, -1, 1]);
   },
 };
