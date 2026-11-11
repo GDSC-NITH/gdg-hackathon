@@ -898,7 +898,7 @@ async function boot() {
   let debugClock = 0;
   const weatherFocus = new THREE.Vector3();
   const governor = { t: 0, frames: 0, sum: 0, sq: 0, level: 0 };
-  let mapClock = 0, promptClock = 0, hoverClock = 0;
+  let promptClock = 0, hoverClock = 0;
   let hudShown = false;
   let wasPaused = false;
   // Lying still on the pool's floor, looking up, the HUD fades away until the
@@ -963,8 +963,7 @@ async function boot() {
     const still = player.gazing && rig.gazeAmount >= 1 && !paused && !phone.up;
     if (still && !quiet && now - lastInput > 2500) { quiet = true; document.body.classList.add('quiet'); }
     else if (!still && quiet) { quiet = false; document.body.classList.remove('quiet'); }
-    mapClock += elapsed;
-    if (hudShown && mapClock >= 0.1) { mapClock = 0; minimap.draw(); }
+    if (hudShown && !minimap.isBigOpen() && !panel.open && !document.hidden) minimap.draw();
     hoverClock += elapsed;
     if (hoverClock >= 0.1) {
       hoverClock = 0;

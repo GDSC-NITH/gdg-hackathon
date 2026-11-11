@@ -70,11 +70,13 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
   let zoomIndex = 1;
   const dpr = Math.min(devicePixelRatio || 1, 1.5);
   const blips = STATIONS.map(s => ({ s, img: icon(s.id).canvas }));
+  let dirty = true, lastX = null, lastZ = null, lastHeading = null, lastYaw = null, lastZoom = null, lastRouteKey = '';
 
   function fit() {
     const r = canvas.getBoundingClientRect();
     canvas.width = Math.round(r.width * dpr);
     canvas.height = Math.round(r.height * dpr);
+    dirty = true;
   }
   fit();
   addEventListener('resize', fit);
@@ -82,10 +84,12 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
   root.querySelectorAll('[data-zoom]').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation();
     zoomIndex = Math.max(0, Math.min(zooms.length - 1, zoomIndex + (b.dataset.zoom === 'in' ? 1 : -1)));
+    dirty = true;
   }));
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
     zoomIndex = Math.max(0, Math.min(zooms.length - 1, zoomIndex + (e.deltaY < 0 ? 1 : -1)));
+    dirty = true;
   }, { passive: false });
   root.querySelector('.expand').style.backgroundImage = `url(${icon('map').url})`;
   root.querySelector('.expand').addEventListener('click', () => toggleBig(true));
@@ -99,6 +103,7 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     const p = getPlayer();
     const dx = sx * Math.cos(a) - sy * Math.sin(a), dz = sx * Math.sin(a) + sy * Math.cos(a);
     onPick(p.x + dx / scale, p.z + dz / scale);
+    dirty = true;
   });
 
   // The pixel mark already has its own ink outline, so it sits on the map
@@ -108,13 +113,23 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     context.drawImage(img, x - glyph / 2, y - glyph / 2, glyph, glyph);
   }
 
-  function draw() {
+  function draw(force = false) {
     if (!canvas.width) fit();
     const W = canvas.width, H = canvas.height;
     if (!W) return;
     const p = getPlayer();
-    const scale = zooms[zoomIndex] * (W / 204);
     const yaw = getYaw();
+    const route = getRoute();
+    const routeKey = route && route.length ? `${route.length},${route[route.length - 1].x},${route[route.length - 1].z}` : '';
+    if (!force && !dirty &&
+        lastX === p.x && lastZ === p.z && lastHeading === p.heading &&
+        lastYaw === yaw && lastZoom === zoomIndex && lastRouteKey === routeKey) {
+      return;
+    }
+    dirty = false;
+    lastX = p.x; lastZ = p.z; lastHeading = p.heading;
+    lastYaw = yaw; lastZoom = zoomIndex; lastRouteKey = routeKey;
+    const scale = zooms[zoomIndex] * (W / 204);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = '#9fc6e8';
     ctx.fillRect(0, 0, W, H);
@@ -178,6 +193,8 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
       const fitScale = Math.min(big.width / (ISLAND.x1 - ISLAND.x0), big.height / (ISLAND.z1 - ISLAND.z0)) * 0.94;
       view = { cx: (ISLAND.x0 + ISLAND.x1) / 2, cz: (ISLAND.z0 + ISLAND.z1) / 2, scale: fitScale, min: fitScale * 0.9, max: fitScale * 4 };
       drawBig();
+    } else {
+      dirty = true;
     }
     return !bigRoot.hidden;
   }
@@ -246,7 +263,7 @@ export function createMinimap({ root, bigRoot, grid, obstacles, decorate = null,
     bctx.restore();
   }
 
-  function redrawImage() { mapImage = drawMapImage(grid, obstacles, decorate); }
+  function redrawImage() { mapImage = drawMapImage(grid, obstacles, decorate); dirty = true; }
 
   return { draw, toggleBig, isBigOpen: () => !bigRoot.hidden, drawBig, redrawImage };
 }
