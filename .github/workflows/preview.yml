@@ -232,7 +232,9 @@ jobs:
                 headers: { Authorization: `Bearer ${token}` },
               });
               const aliasData = await aliasRes.json();
-              const prAliases = (aliasData.aliases || []).filter(a => a.alias.includes(`pr-${prNumber}`));
+              // Only this PR's own aliases: "pr-4" must not match "pr-41".
+              const ownAlias = new RegExp(`-pr-${prNumber}[-.]`);
+              const prAliases = (aliasData.aliases || []).filter(a => ownAlias.test(a.alias));
               for (const a of prAliases) {
                 console.log(`Deleting alias ${a.alias} (id: ${a.uid})...`);
                 await fetch(`https://api.vercel.com/v2/aliases/${a.uid}?teamId=${teamId}`, {
@@ -244,17 +246,19 @@ jobs:
               console.warn('Error deleting aliases:', err.message);
             }
 
-            // 2. Delete deployments tagged with this PR or branch
+            // 2. Delete preview deployments tagged with this PR.
+            // Never match by branch name: a PR from a fork's `main` would
+            // then match every production deployment built from `main`.
+            // Production deployments are never deleted here.
             try {
               const depRes = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&teamId=${teamId}&limit=100`, {
                 headers: { Authorization: `Bearer ${token}` },
               });
               const depData = await depRes.json();
               const prDeployments = (depData.deployments || []).filter(d => {
-                const metaPr = d.meta?.prId || d.meta?.githubPrId;
-                const matchesPr = metaPr === prNumber;
-                const matchesBranch = branchRef && d.meta?.githubCommitRef === branchRef;
-                return matchesPr || matchesBranch;
+                if (d.target === 'production') return false;
+                const metaPr = String(d.meta?.prId || d.meta?.githubPrId || '');
+                return metaPr === prNumber;
               });
 
               console.log(`Found ${prDeployments.length} deployments for PR #${prNumber}`);
