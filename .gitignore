@@ -2,7 +2,7 @@ dist/
 .DS_Store
 node_modules
 backend/mailbox/.wrangler/
-backend/.env
+.env
 tools/.check/
 tools/.serve-url
 .impeccable/

@@ -6,13 +6,27 @@
 #   With no port, the OS picks a free one and the browser opens that address.
 #   --lan also lets phones on the same Wi-Fi open it (and anyone else on that network, while it runs).
 #   The chosen address is printed, and written to tools/.serve-url for the checks.
-import functools, http.server, os, pathlib, signal, socket, sys, threading, webbrowser
+import functools, http.server, os, pathlib, shutil, signal, socket, subprocess, sys, threading, webbrowser
 
 args = [a for a in sys.argv[1:] if a != '--lan']
 lan = '--lan' in sys.argv[1:]
 chosen = int(args[0]) if args else 0
 root = pathlib.Path(__file__).resolve().parent.parent
 url_file = root / 'tools' / '.serve-url'
+
+# /api/chat is proxied to tools/dev-api.mjs (started below), which loads .env
+# and runs the real api/chat.js handler — the same code Vercel deploys, not a
+# separate reimplementation here. DEV_API_PORT must match dev-api.mjs's default.
+DEV_API_PORT = 8788
+dev_api_proc = None
+node_bin = shutil.which('node')
+if node_bin:
+    dev_api_proc = subprocess.Popen(
+        [node_bin, str(root / 'tools' / 'dev-api.mjs')],
+        cwd=str(root), env={**os.environ, 'DEV_API_PORT': str(DEV_API_PORT)},
+    )
+else:
+    print('node not found on PATH — /api/chat will be unavailable locally.', flush=True)
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     left = None  # bytes still to send for a range reply
@@ -82,15 +96,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             length = int(self.headers.get('Content-Length', 0))
             body_bytes = self.rfile.read(length) if length > 0 else b'{}'
 
-            # 1. Forward to local Express backend if running on :8787
+            # Proxy to tools/dev-api.mjs, which runs the real api/chat.js
+            # handler. Not reachable only if Node is missing or the adapter
+            # hasn't finished starting yet (it's spawned right before this
+            # server starts listening, so that's normally just a brief window).
             try:
                 fwd = urllib.request.Request(
-                    'http://127.0.0.1:8787/api/chat',
+                    f'http://127.0.0.1:{DEV_API_PORT}/api/chat',
                     data=body_bytes,
                     headers={'Content-Type': 'application/json'},
                     method='POST',
                 )
-                with urllib.request.urlopen(fwd, timeout=5) as resp:
+                with urllib.request.urlopen(fwd, timeout=20) as resp:
                     resp_bytes = resp.read()
                     self.send_response(resp.status)
                     self.send_header('Content-Type', 'application/json')
@@ -99,69 +116,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(resp_bytes)
                     return
+            except urllib.error.HTTPError as e:
+                # The adapter answered (e.g. a 503/429/403 from api/chat.js's
+                # own logic) — relay its body as-is rather than falling back.
+                resp_bytes = e.read()
+                self.send_response(e.code)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Cache-Control', 'no-cache')
+                self.end_headers()
+                self.wfile.write(resp_bytes)
+                return
             except Exception:
                 pass
 
-            # 2. Check for GROQ_API_KEY in environment or backend/.env
-            groq_key = os.environ.get('GROQ_API_KEY', '').strip()
-            if not groq_key:
-                env_path = root / 'backend' / '.env'
-                if env_path.exists():
-                    for line in env_path.read_text(encoding='utf-8').splitlines():
-                        if line.strip().startswith('GROQ_API_KEY='):
-                            groq_key = line.split('=', 1)[1].strip()
-                            break
-
-            if groq_key:
-                try:
-                    payload = json.loads(body_bytes.decode('utf-8'))
-                    msg = payload.get('message', '').strip()
-                    history = payload.get('history', [])
-                    groq_req_data = json.dumps({
-                        'model': os.environ.get('GROQ_MODEL', 'llama-3.3-70b-versatile'),
-                        'messages': [
-                            {'role': 'system', 'content': 'You are Labyrinth, a friendly and concise hackathon mascot dog. Answer questions accurately based on the Labyrinth hackathon in 1-3 short sentences.'},
-                            *history,
-                            {'role': 'user', 'content': msg}
-                        ],
-                        'temperature': 0.2,
-                        'max_tokens': 150,
-                    }).encode('utf-8')
-                    groq_req = urllib.request.Request(
-                        'https://api.groq.com/openai/v1/chat/completions',
-                        data=groq_req_data,
-                        headers={
-                            'Content-Type': 'application/json',
-                            'Authorization': f'Bearer {groq_key}',
-                        },
-                        method='POST',
-                    )
-                    with urllib.request.urlopen(groq_req, timeout=15) as g_resp:
-                        g_data = json.loads(g_resp.read().decode('utf-8'))
-                        reply_text = g_data['choices'][0]['message']['content'].strip()
-                        out_data = json.dumps({'reply': reply_text}).encode('utf-8')
-                        self.send_response(200)
-                        self.send_header('Content-Type', 'application/json')
-                        self.send_header('Access-Control-Allow-Origin', '*')
-                        self.send_header('Cache-Control', 'no-cache')
-                        self.end_headers()
-                        self.wfile.write(out_data)
-                        return
-                except Exception as e:
-                    err_out = json.dumps({'reply': f'*whine* Error reaching Groq: {e}'}).encode('utf-8')
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.send_header('Cache-Control', 'no-cache')
-                    self.end_headers()
-                    self.wfile.write(err_out)
-                    return
-
-            # 3. Friendly fallback explanation
             fallback = json.dumps({
-                'reply': "Woof! To enable AI responses locally, either start the Express server ('cd backend && npm start') or set GROQ_API_KEY in backend/.env! 🐾"
+                'unavailable': True,
             }).encode('utf-8')
-            self.send_response(200)
+            self.send_response(503)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Cache-Control', 'no-cache')
@@ -208,6 +180,12 @@ except KeyboardInterrupt:
     pass
 finally:
     server.server_close()
+    if dev_api_proc:
+        dev_api_proc.terminate()
+        try:
+            dev_api_proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            dev_api_proc.kill()
     try:
         if url_file.read_text() == url:
             url_file.unlink()

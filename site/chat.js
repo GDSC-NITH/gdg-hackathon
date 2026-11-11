@@ -1,7 +1,7 @@
 // Labyrinth: a floating toggle (and, in the 3D world, Labyrinth himself — see
 // world/build.js, which dispatches "open-labyrinth-chat" on click) opens a
-// chat drawer that calls backend/agent. Stays hidden until home.config.js
-// sets `agent.endpoint`. See backend/README.md.
+// chat drawer that calls the api/chat.js serverless function. Stays hidden
+// until home.config.js sets `agent.endpoint`.
 import { config } from '@engine/config.js';
 
 const ENDPOINT = (config.agent?.endpoint || '').trim();
@@ -42,6 +42,7 @@ export function initChat() {
   let pending = false;
   let isOpen = false;
   let greeted = false;
+  let shuttingDown = false;
 
   function open() {
     if (isOpen) return;
@@ -61,6 +62,23 @@ export function initChat() {
     panel.classList.remove('open');
     panel.setAttribute('aria-hidden', 'true');
     toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  // All configured API keys are exhausted (or none are configured) — this
+  // isn't a per-visitor problem, so rather than show everyone a broken-looking
+  // bot, say one last goodbye and disappear for the rest of this page load.
+  // A fresh page load tries again from scratch, so it self-heals once fixed.
+  function shutdown() {
+    shuttingDown = true;
+    bubble('assistant', "*flops over* I'm out of juice for right now — check back in a bit! 🐾");
+    status.textContent = '';
+    input.disabled = true;
+    send.disabled = true;
+    setTimeout(() => {
+      close();
+      root.hidden = true;
+      panel.hidden = true;
+    }, 2500);
   }
 
   toggle.addEventListener('click', () => (isOpen ? close() : open()));
@@ -99,7 +117,13 @@ export function initChat() {
         signal: AbortSignal.timeout(20000),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || typeof data.reply !== 'string') {
+      if (data?.unavailable) {
+        shutdown();
+        return;
+      }
+      // A reply string is shown as-is even on a non-200 (e.g. 429 rate limit) —
+      // the backend still sends an in-character message for those.
+      if (typeof data.reply !== 'string') {
         throw new Error(data.error || (res.status === 404 ? 'Assistant endpoint not found' : 'bad response'));
       }
       bubble('assistant', data.reply);
@@ -111,9 +135,11 @@ export function initChat() {
         : "Couldn't reach the assistant. Try again in a moment.";
     } finally {
       pending = false;
-      input.disabled = false;
-      send.disabled = false;
-      input.focus({ preventScroll: true });
+      if (!shuttingDown) {
+        input.disabled = false;
+        send.disabled = false;
+        input.focus({ preventScroll: true });
+      }
     }
   }
 
