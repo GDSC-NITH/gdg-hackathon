@@ -14,6 +14,157 @@ function moveAttendantPart(name) {
     .multiply(new THREE.Matrix4().makeTranslation(0, 0, -sourceZ));
 }
 
+function createGdgLogoMeshes() {
+  const pixelSize = 0.048;
+  const depth = 0.018;
+  const zPos = -0.446; // Front of torso (-0.46) + 0.014
+
+  // 8 cols x 6 rows pattern from me.png
+  // Left bracket < (Red top, Blue bottom)
+  // Right bracket > (Green top, Yellow bottom)
+  const xOffset = -3.5 * pixelSize; // Center horizontally
+  const yBase = 2.22;
+
+  const redBoxes = [];
+  const blueBoxes = [];
+  const greenBoxes = [];
+  const yellowBoxes = [];
+
+  const addPixel = (col, row, list) => {
+    const x = xOffset + col * pixelSize;
+    const y = yBase - row * pixelSize;
+    const geom = new THREE.BoxGeometry(pixelSize * 0.95, pixelSize * 0.95, depth);
+    geom.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, zPos));
+    list.push(geom);
+  };
+
+  // Left bracket <
+  addPixel(2, 0, redBoxes);
+  addPixel(1, 1, redBoxes);
+  addPixel(2, 1, redBoxes);
+  addPixel(0, 2, redBoxes);
+  addPixel(1, 2, redBoxes);
+
+  addPixel(0, 3, blueBoxes);
+  addPixel(1, 3, blueBoxes);
+  addPixel(1, 4, blueBoxes);
+  addPixel(2, 4, blueBoxes);
+  addPixel(2, 5, blueBoxes);
+
+  // Right bracket >
+  addPixel(5, 0, greenBoxes);
+  addPixel(5, 1, greenBoxes);
+  addPixel(6, 1, greenBoxes);
+  addPixel(6, 2, greenBoxes);
+  addPixel(7, 2, greenBoxes);
+
+  addPixel(6, 3, yellowBoxes);
+  addPixel(7, 3, yellowBoxes);
+  addPixel(5, 4, yellowBoxes);
+  addPixel(6, 4, yellowBoxes);
+  addPixel(5, 5, yellowBoxes);
+
+  const group = new THREE.Group();
+
+  const makeMesh = (boxes, color, emissive) => {
+    const merged = mergeGeometries(boxes, false);
+    if (!merged) return;
+    const mat = new THREE.MeshPhysicalMaterial({
+      color,
+      emissive,
+      emissiveIntensity: 0.55,
+      roughness: 0.2,
+      metalness: 0.1,
+      clearcoat: 0.9,
+    });
+    const mesh = new THREE.Mesh(merged, mat);
+    mesh.castShadow = true;
+    group.add(mesh);
+  };
+
+  makeMesh(redBoxes, 0xea4335, 0xd93025);
+  makeMesh(blueBoxes, 0x4285f4, 0x1a73e8);
+  makeMesh(greenBoxes, 0x34a853, 0x1e8e3e);
+  makeMesh(yellowBoxes, 0xfbbc05, 0xf9ab00);
+
+  return group;
+}
+
+function createAttendantFaceMeshes() {
+  const depth = 0.018;
+  const zPos = -0.418; // Front of head (-0.425) + 0.007
+
+  const whiteBoxes = [];
+  const pupilBoxes = [];
+  const browBoxes = [];
+  const mouthBoxes = [];
+  const blushBoxes = [];
+
+  const addBox = (list, cx, cy, w, h, d = depth) => {
+    const geom = new THREE.BoxGeometry(w, h, d);
+    geom.applyMatrix4(new THREE.Matrix4().makeTranslation(cx, cy, zPos));
+    list.push(geom);
+  };
+
+  // 1. Two Symmetrical Minecraft Eyes (Left and Right)
+  // Eye height Y: [2.87, 2.97], centered at 2.92
+  // White sclera
+  addBox(whiteBoxes, -0.155, 2.92, 0.065, 0.09); // Left eye outer
+  addBox(whiteBoxes, 0.155, 2.92, 0.065, 0.09);  // Right eye outer
+
+  // Pupils (Inner)
+  addBox(pupilBoxes, -0.095, 2.915, 0.055, 0.08); // Left eye inner pupil
+  addBox(pupilBoxes, 0.095, 2.915, 0.055, 0.08);  // Right eye inner pupil
+
+  // Tiny catchlight glint in each pupil
+  const glintZ = zPos + 0.004;
+  const addGlint = (cx, cy) => {
+    const geom = new THREE.BoxGeometry(0.02, 0.025, depth * 0.5);
+    geom.applyMatrix4(new THREE.Matrix4().makeTranslation(cx, cy, glintZ));
+    whiteBoxes.push(geom);
+  };
+  addGlint(-0.11, 2.935);
+  addGlint(0.08, 2.935);
+
+  // 2. Eyebrows
+  addBox(browBoxes, -0.125, 2.99, 0.12, 0.035);
+  addBox(browBoxes, 0.125, 2.99, 0.12, 0.035);
+
+  // 3. Cheerful smile mouth
+  addBox(mouthBoxes, 0, 2.72, 0.13, 0.038);
+  addBox(mouthBoxes, -0.07, 2.74, 0.03, 0.035);
+  addBox(mouthBoxes, 0.07, 2.74, 0.03, 0.035);
+
+  // 4. Subtle rosy blush
+  addBox(blushBoxes, -0.175, 2.79, 0.07, 0.045);
+  addBox(blushBoxes, 0.175, 2.79, 0.07, 0.045);
+
+  const group = new THREE.Group();
+
+  const makeMesh = (boxes, color, emissive = 0x000000, emissiveIntensity = 0) => {
+    const merged = mergeGeometries(boxes, false);
+    if (!merged) return;
+    const mat = new THREE.MeshPhysicalMaterial({
+      color,
+      emissive,
+      emissiveIntensity,
+      roughness: 0.3,
+      metalness: 0.05,
+    });
+    const mesh = new THREE.Mesh(merged, mat);
+    mesh.castShadow = true;
+    group.add(mesh);
+  };
+
+  makeMesh(whiteBoxes, 0xf8f9fa, 0xefefef, 0.15);
+  makeMesh(pupilBoxes, 0x1a1e24, 0x0a0c0e, 0.1);
+  makeMesh(browBoxes, 0x3d2516);
+  makeMesh(mouthBoxes, 0xa3443b, 0x822e26, 0.15);
+  makeMesh(blushBoxes, 0xdf8478, 0xcd6f63, 0.12);
+
+  return group;
+}
+
 function attendantModel(root) {
   root.updateMatrixWorld(true);
   const byMaterial = new Map();
@@ -21,7 +172,8 @@ function attendantModel(root) {
   root.traverse(child => {
     if (!child.isMesh || !child.geometry || !child.name.startsWith('TeammateWhite_')) return;
     const part = child.name.slice('TeammateWhite_'.length).toLowerCase();
-    if (!/^(seat|back|chairleg|torso|neck|head|hair|hairback|fringe|eye|arm|hand|thigh|shoe|badge[0-3])$/.test(part)) return;
+    // Exclude old broken eye and misaligned badges; we replace them with proper Minecraft face & GDG logo
+    if (!/^(seat|back|chairleg|torso|neck|head|hair|hairback|fringe|arm|hand|thigh|shoe)$/.test(part)) return;
     if (/torso|arm/.test(part)) shirtMaterials.add(child.material);
     const geometry = child.geometry.clone();
     geometry.applyMatrix4(child.matrixWorld);
@@ -55,6 +207,11 @@ function attendantModel(root) {
     mesh.receiveShadow = true;
     group.add(mesh);
   }
+
+  // Add sharp, authentic Minecraft voxel face and GDG logo
+  group.add(createAttendantFaceMeshes());
+  group.add(createGdgLogoMeshes());
+
   group.scale.setScalar(0.7);
   group.position.set(0, 0.05, -0.18);
   return group;
