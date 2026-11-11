@@ -137,7 +137,7 @@ async function boot() {
   pageCharacterRenderer.setSize(innerWidth, innerHeight);
   pageCharacterRenderer.domElement.className = 'page-character-layer';
   pageCharacterRenderer.domElement.style.display = 'none';
-  document.body.append(pageCharacterRenderer.domElement);
+  $('#panel').append(pageCharacterRenderer.domElement);
   const resizePageCharacterRenderer = () => {
     pageCharacterRenderer.setPixelRatio(stage.renderer.getPixelRatio());
     pageCharacterRenderer.setSize(innerWidth, innerHeight);
@@ -331,28 +331,23 @@ async function boot() {
   const pageCharacterOffset = new THREE.Vector3();
   const pageCharacterTarget = new THREE.Vector3();
   const playerPosition = new THREE.Vector3();
-  const pageBackdrop = document.createElement('div');
-  pageBackdrop.className = 'page-backdrop';
-  pageBackdrop.hidden = true;
-  document.body.append(pageBackdrop);
-  pageBackdrop.addEventListener('click', closePage);
   const pageCharacterObjects = [];
   avatar.root.traverse(object => pageCharacterObjects.push(object));
   let pageCharacterProgress = 0;
+  let panelRect = { left: 0, top: 0, width: 0, height: 0, bottom: 0 };
+  function updatePanelRect() {
+    panelRect = panel.getBoundingClientRect();
+  }
   function layoutPageComposition() {
     if (!pageCharacterStations.has(panel.dataset.station)) return;
-    if (innerWidth <= 900) { panel.style.left = ''; return; }
+    if (innerWidth <= 900) { panel.style.left = ''; updatePanelRect(); return; }
     const width = panel.getBoundingClientRect().width;
     const depth = 3.6;
     const halfHeight = Math.tan(stage.camera.fov * Math.PI / 360);
     const characterWidth = 0.72 * innerHeight / (2 * halfHeight * depth);
     const overlap = width * 0.16;
     panel.style.left = `${Math.round(innerWidth / 2 - (width + overlap - characterWidth) / 2)}px`;
-  }
-  function showPanel() {
-    if (!panel.open) panel.show();
-    panel.setAttribute('aria-modal', 'true');
-    pageBackdrop.hidden = false;
+    updatePanelRect();
   }
   function openPage(id) {
     if (id === 'portal') { openPortal(); return; }
@@ -389,7 +384,7 @@ async function boot() {
     document.body.classList.add('reading');
     document.body.classList.toggle('page-reading', pageCharacterStations.has(id));
     if (!pageCharacterStations.has(id)) pageCharacterProgress = 0;
-    showPanel();
+    if (!panel.open) panel.showModal();
     layoutPageComposition();
     input.clear();
     player.cancel();
@@ -413,7 +408,7 @@ async function boot() {
     mailboxForm.unmount();
     worldList.mount(body); workbench.mount(body); mailboxForm.mount(body);
     placePortalControls(panel);
-    showPanel();
+    if (!panel.open) panel.showModal();
     document.body.classList.add('reading');
     input.clear(); player.cancel(); marker.hide(); markSlot('portal');
     body.focus({ preventScroll: true }); sound.play('click');
@@ -445,19 +440,8 @@ async function boot() {
     openStation = null; markSlot(null);
     document.body.classList.remove('reading');
     document.body.classList.remove('page-reading');
-    panel.removeAttribute('aria-modal');
-    pageBackdrop.hidden = true;
     panel.style.left = '';
     pageCharacterProgress = 0;
-  });
-  panel.addEventListener('keydown', e => {
-    if (e.key !== 'Tab') return;
-    const controls = [...panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')]
-      .filter(el => el.getClientRects().length);
-    if (!controls.length) { e.preventDefault(); panel.focus(); return; }
-    const first = controls[0], last = controls[controls.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   // ---------- The prompt in the corner ----------
@@ -1014,7 +998,6 @@ async function boot() {
       const mobile = innerWidth <= 900;
       const depth = mobile ? 9 : 3.6;
       const halfHeight = Math.tan(stage.camera.fov * Math.PI / 360);
-      const panelRect = panel.getBoundingClientRect();
       const characterWidth = 0.72 * innerHeight / (2 * halfHeight * depth);
       const overlap = panelRect.width * 0.16;
       const centerX = mobile ? innerWidth / 2 : panelRect.left + overlap - characterWidth / 2;
@@ -1026,7 +1009,7 @@ async function boot() {
       playerPosition.set(player.pos.x, player.y, player.pos.z);
       avatar.root.position.lerpVectors(playerPosition, pageCharacterTarget, pageCharacterProgress);
       avatar.root.rotation.y = Math.atan2(stage.camera.position.x - avatar.root.position.x, stage.camera.position.z - avatar.root.position.z);
-      avatar.update(dt, { speed: 0, run: false, fly: -1, lookYaw: 0, lookPitch: 0 });
+      avatar.update(0, { speed: 0, run: false, fly: -1, lookYaw: 0, lookPitch: 0 });
       avatar.root.updateMatrixWorld(true);
     }
     stage.setClearance(rig.introActive ? stage.camera.position.distanceTo(player.pos) : 0);

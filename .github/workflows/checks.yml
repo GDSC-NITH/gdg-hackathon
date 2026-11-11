@@ -14,7 +14,7 @@ concurrency:
 jobs:
   checks:
     name: Checks
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
@@ -33,7 +33,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install chromium
+      - run: npx playwright install --with-deps chromium
       - run: node tools/pr-check.mjs
         env:
           PR_BASE: ${{ steps.source.outputs.result }}

@@ -44,7 +44,7 @@ jobs:
   inspect:
     needs: prepare
     if: needs.prepare.outputs.event != ''
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       report: ${{ steps.inspect.outputs.report }}
@@ -57,7 +57,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install chromium
+      - run: npx playwright install --with-deps chromium
       - run: node -e "require('node:fs').writeFileSync(process.env.RUNNER_TEMP + '/listing-event.json', process.env.LISTING_EVENT)"
         env:
           LISTING_EVENT: ${{ needs.prepare.outputs.event }}
