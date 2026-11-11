@@ -99,12 +99,16 @@ export function initChat() {
         signal: AbortSignal.timeout(20000),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || typeof data.reply !== 'string') throw new Error(data.error || 'bad response');
+      if (!res.ok || typeof data.reply !== 'string') {
+        throw new Error(data.error || (res.status === 404 ? 'Assistant endpoint not found' : 'bad response'));
+      }
       bubble('assistant', data.reply);
       history = [...history, { role: 'assistant', content: data.reply }].slice(-MAX_HISTORY);
       status.textContent = '';
-    } catch {
-      status.textContent = "Couldn't reach the assistant. Try again in a moment.";
+    } catch (err) {
+      status.textContent = err?.message && err.message !== 'bad response'
+        ? err.message
+        : "Couldn't reach the assistant. Try again in a moment.";
     } finally {
       pending = false;
       input.disabled = false;
