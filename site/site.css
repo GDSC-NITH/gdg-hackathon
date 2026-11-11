@@ -144,6 +144,29 @@ body.reading #siteTags, body.plain #siteTags { display: none; }
 #siteHint button { flex: none; width: 30px; height: 30px; border: 0; background: var(--btn); color: #fff; font-size: 18px; line-height: 1; box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .3), inset -2px -2px 0 rgba(0, 0, 0, .38); }
 body.reading #siteHint { display: none; }
 
+/* Page dialogs stay in the document stack so the same WebGL avatar can pass
+   over their left edge. The canvas is clipped to the avatar, not duplicated. */
+body.reading .page-backdrop {
+  position: fixed; inset: 0; z-index: 18; background: rgba(0, 0, 0, .55);
+}
+body.reading .page-backdrop[hidden] { display: none; }
+body.page-reading #world { z-index: 21; pointer-events: none; }
+body.page-reading #world canvas {
+  position: fixed; inset: 0; z-index: 21; pointer-events: none;
+  mask-image: none; -webkit-mask-image: none; transition: none; filter: none;
+}
+body.page-reading dialog#panel {
+  top: max(72px, calc((100dvh - 680px) / 2));
+  right: auto; bottom: max(72px, calc((100dvh - 680px) / 2));
+  left: calc(50% - 360px); width: min(720px, calc(100vw - 360px));
+  height: auto; margin: 0;
+}
+body.page-reading #panel .body.page {
+  padding: 26px 30px 28px calc(16% + 24px);
+  text-align: center;
+}
+body.page-reading #panel .body.page > p { max-width: 68ch; margin-left: auto; margin-right: auto; }
+
 /* ---------- Prev / Next inside a card ---------- */
 #panel .tour { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 #panel .tour[hidden] { display: none; }
@@ -205,6 +228,13 @@ body.reading #siteHint { display: none; }
   .site-tag::after { margin-left: -5px; border-width: 5px; }
   /* Phones keep the bottom for the Dock and the radar: the hint goes under the switches. */
   #siteHint { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h) + 56px); bottom: auto; font-size: 13px; }
+}
+@media (max-width: 900px) {
+  body.page-reading dialog#panel {
+    top: calc(var(--bar-h) + env(safe-area-inset-top) + 205px);
+    right: 12px; bottom: 12px; left: 12px; width: auto; height: auto;
+  }
+  body.page-reading #panel .body.page { padding: 18px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .site-tag { transition: none; animation: none; }

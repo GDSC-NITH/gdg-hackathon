@@ -306,6 +306,39 @@ async function boot() {
   popOut.className = 'pop-out'; popOut.target = '_blank'; popOut.rel = 'noopener'; popOut.textContent = '↗'; popOut.hidden = true;
   panel.querySelector('header .close').before(popOut);
   let openStation = null;
+  const pageCharacterStations = new Set(['tracks', 'schedule', 'prizes', 'sponsors', 'team', 'faq', 'venue', 'register']);
+  const pageCharacterOffset = new THREE.Vector3();
+  const pageCharacterTarget = new THREE.Vector3();
+  const playerPosition = new THREE.Vector3();
+  const characterMask = `url("data:image/svg+xml,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' +
+    '<path fill="white" d="M23 1H79L80 4V18L76 21H69V24H31V21H24L23 18V4Z ' +
+    'M38 22H62L64 25L76 27L91 32L98 38L100 43L99 60L94 63L81 64L77 66V82L79 90L83 96L81 100H57L51 91H48L42 100H19L17 96L21 90L23 82V66L19 64L7 63L1 60L0 43L2 38L9 32L24 27L36 25Z"/>' +
+    '</svg>',
+  )}")`;
+  const pageBackdrop = document.createElement('div');
+  pageBackdrop.className = 'page-backdrop';
+  pageBackdrop.hidden = true;
+  document.body.append(pageBackdrop);
+  pageBackdrop.addEventListener('click', closePage);
+  const characterBounds = Array.from({ length: 8 }, () => new THREE.Vector3());
+  const characterScreen = Array.from({ length: 8 }, () => new THREE.Vector3());
+  let pageCharacterProgress = 0;
+  function layoutPageComposition() {
+    if (!pageCharacterStations.has(panel.dataset.station)) return;
+    if (innerWidth <= 900) { panel.style.left = ''; return; }
+    const width = panel.getBoundingClientRect().width;
+    const depth = 3.6;
+    const halfHeight = Math.tan(stage.camera.fov * Math.PI / 360);
+    const characterWidth = 0.72 * innerHeight / (2 * halfHeight * depth);
+    const overlap = width * 0.16;
+    panel.style.left = `${Math.round(innerWidth / 2 - (width + overlap - characterWidth) / 2)}px`;
+  }
+  function showPanel() {
+    if (!panel.open) panel.show();
+    panel.setAttribute('aria-modal', 'true');
+    pageBackdrop.hidden = false;
+  }
   function openPage(id) {
     if (id === 'portal') { openPortal(); return; }
     if (!publicStations.some(s => s.id === id)) return;
@@ -337,9 +370,12 @@ async function boot() {
     workbench.mount(body);
     mailboxForm.mount(body);
     placePortalControls(panel);
-    if (!panel.open) panel.showModal();
     // On a phone the radar and switches step aside while a page is open.
     document.body.classList.add('reading');
+    document.body.classList.toggle('page-reading', pageCharacterStations.has(id));
+    if (!pageCharacterStations.has(id)) pageCharacterProgress = 0;
+    showPanel();
+    layoutPageComposition();
     input.clear();
     player.cancel();
     marker.hide();
@@ -351,6 +387,9 @@ async function boot() {
   function openPortal() {
     if (isTravelling() || portal?.busy) return;
     togglePhone(false); toggleWeatherMenu(false); minimap.toggleBig(false); rig.skipIntro();
+    document.body.classList.remove('page-reading');
+    pageCharacterProgress = 0;
+    panel.style.left = '';
     openStation = 'portal'; panel.dataset.station = 'portal'; panel.dataset.kind = '';
     $('#panelTitle').textContent = t('传送门', 'Portal');
     panel.querySelector('header .icon').style.backgroundImage = `url(${icon('portal').url})`;
@@ -359,7 +398,7 @@ async function boot() {
     mailboxForm.unmount();
     worldList.mount(body); workbench.mount(body); mailboxForm.mount(body);
     placePortalControls(panel);
-    if (!panel.open) panel.showModal();
+    showPanel();
     document.body.classList.add('reading');
     input.clear(); player.cancel(); marker.hide(); markSlot('portal');
     body.focus({ preventScroll: true }); sound.play('click');
@@ -390,6 +429,20 @@ async function boot() {
     panel.querySelector('.body iframe')?.remove();
     openStation = null; markSlot(null);
     document.body.classList.remove('reading');
+    document.body.classList.remove('page-reading');
+    panel.removeAttribute('aria-modal');
+    pageBackdrop.hidden = true;
+    panel.style.left = '';
+    pageCharacterProgress = 0;
+  });
+  panel.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const controls = [...panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+      .filter(el => el.getClientRects().length);
+    if (!controls.length) { e.preventDefault(); panel.focus(); return; }
+    const first = controls[0], last = controls[controls.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   // ---------- The prompt in the corner ----------
@@ -923,9 +976,63 @@ async function boot() {
 
     const move = paused || rig.introActive || portal?.busy ? { x: 0, z: 0, run: false, up: false, down: false } : input.read();
     const fp = rig.firstPerson && !rig.introActive;
+    const showPageCharacter = panel.open && pageCharacterStations.has(panel.dataset.station);
+    pageCharacterProgress = THREE.MathUtils.clamp(pageCharacterProgress + (showPageCharacter ? dt : -dt) / 0.3, 0, 1);
     player.update(dt, move, rig.yaw, fp);
     portal?.update(dt, player);
     rig.update(dt, player);
+    if (showPageCharacter || pageCharacterProgress > 0) {
+      stage.camera.updateMatrixWorld(true);
+      avatar.root.visible = true;
+      const mobile = innerWidth <= 900;
+      const depth = mobile ? 9 : 3.6;
+      const halfHeight = Math.tan(stage.camera.fov * Math.PI / 360);
+      const panelRect = panel.getBoundingClientRect();
+      const characterWidth = 0.72 * innerHeight / (2 * halfHeight * depth);
+      const overlap = panelRect.width * 0.16;
+      const centerX = mobile ? innerWidth / 2 : panelRect.left + overlap - characterWidth / 2;
+      const footY = mobile ? panelRect.top - 8 : panelRect.bottom - 24;
+      const ndcX = centerX / innerWidth * 2 - 1;
+      const ndcY = 1 - footY / innerHeight * 2;
+      pageCharacterOffset.set(ndcX * depth * halfHeight * stage.camera.aspect, ndcY * depth * halfHeight, -depth);
+      pageCharacterTarget.copy(pageCharacterOffset).applyMatrix4(stage.camera.matrixWorld);
+      playerPosition.set(player.pos.x, player.y, player.pos.z);
+      avatar.root.position.lerpVectors(playerPosition, pageCharacterTarget, pageCharacterProgress);
+      avatar.root.rotation.y = Math.atan2(stage.camera.position.x - avatar.root.position.x, stage.camera.position.z - avatar.root.position.z);
+      avatar.root.updateMatrixWorld(true);
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (let i = 0; i < characterBounds.length; i++) {
+        characterBounds[i].set(i & 1 ? 0.38 : -0.38, i & 2 ? 1.82 : 0, i & 4 ? 0.28 : -0.28);
+        characterScreen[i].copy(characterBounds[i]).applyMatrix4(avatar.root.matrixWorld).project(stage.camera);
+        const x = (characterScreen[i].x + 1) * innerWidth / 2;
+        const y = (1 - characterScreen[i].y) * innerHeight / 2;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      const left = Math.max(0, Math.floor(minX - 4)), right = Math.min(innerWidth, Math.ceil(maxX + 4));
+      const top = Math.max(0, Math.floor(minY - 4)), bottom = Math.min(innerHeight, Math.ceil(maxY + 4));
+      const width = right - left, height = bottom - top;
+      const canvas = stage.renderer.domElement;
+      canvas.style.maskImage = characterMask;
+      canvas.style.webkitMaskImage = characterMask;
+      canvas.style.maskSize = `${width}px ${height}px`;
+      canvas.style.webkitMaskSize = `${width}px ${height}px`;
+      canvas.style.maskPosition = `${left}px ${top}px`;
+      canvas.style.webkitMaskPosition = `${left}px ${top}px`;
+      canvas.style.maskRepeat = 'no-repeat';
+      canvas.style.webkitMaskRepeat = 'no-repeat';
+    } else {
+      const canvas = stage.renderer.domElement;
+      canvas.style.maskImage = '';
+      canvas.style.webkitMaskImage = '';
+      canvas.style.maskSize = '';
+      canvas.style.webkitMaskSize = '';
+      canvas.style.maskPosition = '';
+      canvas.style.webkitMaskPosition = '';
+      canvas.style.maskRepeat = '';
+      canvas.style.webkitMaskRepeat = '';
+    }
     stage.setClearance(rig.introActive ? stage.camera.position.distanceTo(player.pos) : 0);
     for (const pet of pets) pet.update(dt, stage.camera, player);
     aerial?.update(elapsed, stage.camera, screen);
@@ -944,8 +1051,8 @@ async function boot() {
     stage.update(elapsed);
     // Looking up through their own eyes from the pool's floor, as in first
     // person, their body is out of the way.
-    avatar.root.visible = !fp && rig.gazeAmount < 0.7;
-    avatar.blob.visible = !fp && !player.swimming;
+    if (!showPageCharacter) avatar.root.visible = !fp && rig.gazeAmount < 0.7;
+    avatar.blob.visible = !showPageCharacter && !fp && !player.swimming;
     crosshair.hidden = !fp;
     viewButton.setAttribute('aria-pressed', String(fp));
     syncFlyButton();
@@ -996,7 +1103,7 @@ async function boot() {
   }
   requestAnimationFrame(loop);
 
-  addEventListener('resize', () => stage.resize());
+  addEventListener('resize', () => { stage.resize(); if (panel.open) layoutPageComposition(); });
   // Handy when poking at it from the console.
   window.__home = {
     sound,
