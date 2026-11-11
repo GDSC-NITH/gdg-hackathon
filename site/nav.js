@@ -11,11 +11,17 @@ const stationOf = id => STATIONS.find(s => s.id === id);
 
 export function syncModeLinks() {
   const url = new URL(location.href);
-  if (isPlain()) url.searchParams.delete('plain');
-  else url.searchParams.set('plain', '');
+  if (isPlain()) {
+    url.searchParams.delete('plain');
+    url.searchParams.set('3d', '');
+  } else {
+    url.searchParams.delete('3d');
+    url.searchParams.set('plain', '');
+  }
   url.hash = '';
+  const searchStr = url.search.replace(/=(?=&|$)/g, '');
   for (const a of document.querySelectorAll('[data-mode]')) {
-    a.href = url.pathname + url.search.replace('plain=', 'plain');
+    a.href = url.pathname + searchStr;
     if (!('keepText' in a.dataset)) a.textContent = isPlain() ? '3D view' : 'Page view';
   }
 }

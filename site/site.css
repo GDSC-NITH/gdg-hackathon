@@ -182,18 +182,29 @@ body.reading #siteHint { display: none; }
   .site-nav .site-mode-link { display: block; }
   #corner { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h)); }
   #weatherMenu { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h) + 52px); }
-  body.hero-on #hero { align-items: flex-end; padding: calc(var(--bar-h) + 16px) 18px max(24px, env(safe-area-inset-bottom));
-    background: linear-gradient(0deg, var(--scrim) 0, rgba(12, 14, 12, .62) 62%, rgba(12, 14, 12, .1) 100%); }
-  .hero-tag { font-size: 16px; }
-  .hero-count div { min-width: 0; flex: 1; }
+  body.hero-on #hero {
+    align-items: flex-start;
+    padding: calc(var(--bar-h) + env(safe-area-inset-top) + 26px) 18px max(24px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, var(--scrim) 0, rgba(12, 14, 12, .8) 60%, rgba(12, 14, 12, .25) 100%);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hero-eyebrow { margin-bottom: 12px; font-size: 14px; }
+  .hero-logo { margin-bottom: 16px; max-width: 360px; }
+  .hero-tag { font-size: 16px; margin-bottom: 18px; line-height: 1.45; }
+  .hero-facts { gap: 8px; margin-bottom: 18px; }
+  .hero-facts li { padding: 8px 12px; font-size: 13px; }
+  .hero-facts b { font-size: 16px; }
+  .hero-count { margin-bottom: 18px; gap: 6px; }
+  .hero-count div { min-width: 0; flex: 1; padding: 8px 6px 6px; }
   .hero-count b { font-size: 20px; }
-  .hero-actions .mc-button { flex: 1; }
+  .hero-actions { margin-bottom: 14px; gap: 10px; }
+  .hero-actions .mc-button { flex: 1; min-height: 44px; padding: 0 16px; font-size: 15px; white-space: nowrap; }
   .site-tag { gap: 6px; font-size: 13px; padding: 5px 9px 5px 6px; }
   .site-tag i { width: 18px; height: 18px; }
   .site-tag::after { margin-left: -5px; border-width: 5px; }
   /* Phones keep the bottom for the Dock and the radar: the hint goes under the switches. */
   #siteHint { top: calc(max(12px, env(safe-area-inset-top)) + var(--bar-h) + 56px); bottom: auto; font-size: 13px; }
-  .hero-actions .mc-button { padding: 0 12px; white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
   .site-tag { transition: none; animation: none; }
