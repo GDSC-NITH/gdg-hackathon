@@ -2,10 +2,13 @@ dist/
 .DS_Store
 node_modules
 backend/mailbox/.wrangler/
+.env
 tools/.check/
 tools/.serve-url
 .impeccable/
 .release/
+__pycache__/
+*.pyc
 *.glb
 !assets/**/*.glb
 !assets/*.glb

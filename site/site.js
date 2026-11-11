@@ -6,6 +6,7 @@ import { showHero, hideHero, initHero, enableHeroExplore, updateHeroProgress } f
 import { initHint, showHint } from './hint.js';
 import { initNav, syncModeLinks, setupNavLinks } from './nav.js';
 import { initTags } from './tags.js';
+import { initChat } from './chat.js';
 
 const $ = s => document.querySelector(s);
 const body = document.body;
@@ -18,6 +19,7 @@ initHero({
   onDismiss: showHint,
 });
 initHint();
+initChat();
 
 if (!isPlain()) {
   // Clear any leftover hash (e.g. from previous card visits) so it doesn't trigger auto-flight on reload

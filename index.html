@@ -356,6 +356,10 @@ dialog#panel[data-station] .body.page::before {
 <link rel="stylesheet" href="site/page.css">
 </head>
 <body>
+<!-- #agentChatPanel lives outside this wrapper so it stays pinned to the real
+     right edge of the viewport as a pure overlay — opening it never touches
+     anything in here. -->
+<div id="appShift">
 <!-- Website layer (site/site.js): top bar, hero, name tags, first-visit hint. -->
 <header id="siteBar">
   <a class="site-logo" href="#welcome" data-go="welcome"><img src="assets/favicon.png" alt="" width="28" height="28"><span>Labyrinth</span></a>
@@ -389,6 +393,13 @@ dialog#panel[data-station] .body.page::before {
 
 <div id="siteTags"></div>
 <div id="siteHint" role="status" hidden><span></span><button type="button" aria-label="Got it">×</button></div>
+
+<div id="agentChat" hidden>
+  <button id="agentChatToggle" type="button" aria-expanded="false" aria-controls="agentChatPanel">
+    <img id="agentChatIcon" src="" alt="" width="48" height="48">
+    <span class="sr">Chat with Labyrinth</span>
+  </button>
+</div>
 
 <main id="world" aria-label="Labyrinth"></main>
 <div id="loading"><div class="bar"><i></i></div></div>
@@ -840,6 +851,23 @@ dialog#panel[data-station] .body.page::before {
     <p><strong>Labyrinth</strong> · Organised by Google Developer Groups on Campus, NIT Hamirpur</p>
     <p><a href="?" data-mode data-keep-text>Open the 3D island</a><a href="#register">Register</a><a href="#mailbox">Contact</a></p>
   </footer>
+</section>
+</div><!-- /#appShift -->
+
+<section id="agentChatPanel" aria-label="Chat with Labyrinth" aria-hidden="true">
+  <header>
+    <div class="agent-chat-title">
+      <img id="agentChatPanelIcon" src="" alt="" width="40" height="40">
+      <h2>Labyrinth</h2>
+    </div>
+    <button type="button" class="agent-chat-close" aria-label="Close">×</button>
+  </header>
+  <div class="agent-chat-log" role="log" aria-live="polite"></div>
+  <form class="agent-chat-form">
+    <input type="text" name="message" maxlength="500" autocomplete="off" placeholder="Ask about tracks, schedule, prizes…" aria-label="Your question">
+    <button class="mc-button" type="submit">Send</button>
+  </form>
+  <p class="agent-chat-status" role="status" aria-live="polite"></p>
 </section>
 
 <!-- file:// cannot load the world modules. -->
