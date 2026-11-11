@@ -50,7 +50,7 @@ export const HACKATHON_CONTEXT = `
 
 ## Organizing crew
 - Lead organisers: Harsh Bhushan Pathak, Daksh, Divyansh.
-- Technical leads: Saurabh Chauhan, Prashant Bahuguna.
+- Technical leads: Saurabh Chauhan, Prashant Bahuguna, Pradyuman Sharma.
 - Student coordinator: Parthivi Pradhan.
 - Design lead: Kshitij Chauhan.
 
