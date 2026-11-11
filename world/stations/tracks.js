@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-const MODEL_URL = 'assets/models/gdg_tracks.glb';
+const MODEL_URL = new URL('../../assets/models/gdg_tracks%20(2).glb', import.meta.url).href;
 const MODEL_SCALE = 0.42;
 const modelMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
