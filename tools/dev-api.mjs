@@ -5,7 +5,7 @@
 // not part of the Vercel build.
 import { createServer } from 'node:http';
 import { readFileSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -18,7 +18,7 @@ if (existsSync(envPath)) {
   }
 }
 
-const { default: handler } = await import(path.join(root, 'api', 'chat.js'));
+const { default: handler } = await import(pathToFileURL(path.join(root, 'api', 'chat.js')).href);
 
 const server = createServer(async (req, httpRes) => {
   const chunks = [];
