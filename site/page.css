@@ -960,6 +960,7 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
   body.plain .pv-redstone-gutter {
     display: none;
   }
+ 
 }
 @media (max-width: 720px), (max-height: 520px) {
   body.plain #hero {
@@ -967,6 +968,7 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
     min-height: 0;
     padding: 28px max(12px, env(safe-area-inset-right)) 48px max(12px, env(safe-area-inset-left));
   }
+   body.plain .hero-card{margin: auto;}
   body.plain #hero::before {
     inset: 0;
     height: 100%;

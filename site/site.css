@@ -382,6 +382,7 @@ body.hero-on #agentChatPanel, body.reading #agentChatPanel { display: none; }
   #agentChatToggle { width: 56px; height: 56px; }
   #agentChatToggle img { width: 36px; height: 36px; }
   #agentChatPanel { width: 100vw; }
+  .hero-card { margin: auto;}
 }
 @media (max-width: 560px) {
   #agentChat {
