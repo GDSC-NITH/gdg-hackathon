@@ -1,262 +1,471 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#7fb2e8">
-<!-- The world draws its own day and night. -->
-<meta name="color-scheme" content="only light">
-<meta name="darkreader-lock">
-<title>Labyrinth Hackathon — Organised by GDG NIT Hamirpur</title>
-<meta name="description" content="Labyrinth hackathon Organised by GDG NIT Hamirpur. 36-hour in-person hackathon.">
-<meta name="author" content="Prashant">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Labyrinth Hackathon">
-<meta property="og:description" content="Labyrinth hackathon Organised by GDG NIT Hamirpur.">
-<meta property="og:image" content="assets/og.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="assets/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Loaded without blocking: a render-blocking stylesheet also holds back the module scripts, so the 3D world would wait on Google Fonts. -->
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet"></noscript>
-<script>
-// On mobile devices, default to the 2D page view unless 3D is explicitly requested (?3d)
-(function() {
-  const params = new URLSearchParams(location.search);
-  if (params.has('plain') || params.has('3d') || navigator.webdriver) return;
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820);
-  if (isMobile) {
-    params.set('plain', '');
-    const search = params.toString().replace(/=(?=&|$)/g, '');
-    location.replace(location.pathname + (search ? '?' + search : '') + location.hash);
-  }
-})();
-</script>
-<link rel="stylesheet" href="engine/style.css">
-<style>
-/* Minecraft GUI Panel Card Background */
-dialog#panel {
-  width: min(780px, calc(100vw - 40px));
-}
-dialog#panel::backdrop {
-  background: rgba(0, 0, 0, 0.55) !important;
-  backdrop-filter: blur(2px);
-}
-#panel .body.page {
-  background: var(--gui, #c4c2bc);
-  border: 8px solid transparent;
-  border-image: var(--mc-frame) 4 fill / 8px;
-  padding: 24px 28px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-color: #89877f transparent;
-  scrollbar-width: thin;
-  max-height: min(580px, calc(100dvh - 160px));
-  box-shadow: 0 0 0 2px var(--line, #111), 0 12px 36px rgba(0, 0, 0, 0.45);
-  color: var(--ink);
-}
-@media (max-width: 720px), (max-height: 520px) {
-  #panel .body.page {
-    padding: 16px 14px;
-    max-height: calc(100dvh - 120px);
-  }
-}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#7fb2e8">
+  <!-- The world draws its own day and night. -->
+  <meta name="color-scheme" content="only light">
+  <meta name="darkreader-lock">
+  <title>Labyrinth Hackathon — Organised by GDG NIT Hamirpur</title>
+  <meta name="description" content="Labyrinth hackathon Organised by GDG NIT Hamirpur. 24-hour in-person hackathon.">
+  <meta name="author" content="Prashant">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Labyrinth Hackathon">
+  <meta property="og:description" content="Labyrinth hackathon Organised by GDG NIT Hamirpur.">
+  <meta property="og:image" content="assets/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Loaded without blocking: a render-blocking stylesheet also holds back the module scripts, so the 3D world would wait on Google Fonts. -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap"
+      rel="stylesheet">
+  </noscript>
+  <script>
+    // On mobile devices, default to the 2D page view unless 3D is explicitly requested (?3d)
+    (function () {
+      const params = new URLSearchParams(location.search);
+      if (params.has('plain') || params.has('3d') || navigator.webdriver) return;
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820);
+      if (isMobile) {
+        params.set('plain', '');
+        const search = params.toString().replace(/=(?=&|$)/g, '');
+        location.replace(location.pathname + (search ? '?' + search : '') + location.hash);
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="engine/style.css">
+  <style>
+    /* Minecraft GUI Panel Card Background */
+    dialog#panel {
+      width: min(780px, calc(100vw - 40px));
+    }
 
-/* Card inner components */
-.hack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 14px 0; }
-.hack-stat {
-  padding: 12px;
-  background: color-mix(in srgb, var(--ink) 8%, transparent);
-  border: 2px solid color-mix(in srgb, var(--ink) 14%, transparent);
-  border-radius: 4px;
-  text-align: center;
-}
-.hack-stat .val { display: block; font: 700 22px/1.2 var(--text); color: #2e7d32; text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4); }
-body.night .hack-stat .val { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); }
-.hack-stat .lbl { font: 500 12px/1.2 var(--text); color: var(--ink-soft); }
+    dialog#panel::backdrop {
+      background: rgba(0, 0, 0, 0.55) !important;
+      backdrop-filter: blur(2px);
+    }
 
-.track-card {
-  margin-bottom: 14px;
-  padding: 14px;
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
-  border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent);
-  border-radius: 4px;
-}
-.track-tag { display: inline-block; padding: 2px 8px; font-size: 11px; font-weight: 700; background: #2f5b46; color: #fff; border-radius: 4px; margin-bottom: 6px; }
+    #panel .body.page {
+      background: var(--gui, #c4c2bc);
+      border: 8px solid transparent;
+      border-image: var(--mc-frame) 4 fill / 8px;
+      padding: 24px 28px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-color: #89877f transparent;
+      scrollbar-width: thin;
+      max-height: min(580px, calc(100dvh - 160px));
+      box-shadow: 0 0 0 2px var(--line, #111), 0 12px 36px rgba(0, 0, 0, 0.45);
+      color: var(--ink);
+    }
 
-.schedule-item {
-  display: grid;
-  grid-template-columns: 85px 1fr;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
-}
-.schedule-time { font-weight: 700; font-size: 14px; color: #2e7d32; }
-body.night .schedule-time { color: #4cd137; }
+    @media (max-width: 720px),
+    (max-height: 520px) {
+      #panel .body.page {
+        padding: 16px 14px;
+        max-height: calc(100dvh - 120px);
+      }
+    }
 
-.prize-tier {
-  margin: 10px 0;
-  padding: 12px 14px;
-  border-left: 5px solid #f1c40f;
-  background: color-mix(in srgb, var(--ink) 7%, transparent);
-  border-radius: 0 4px 4px 0;
-}
-.prize-tier.gold { border-left-color: #f1c40f; }
-.prize-tier.silver { border-left-color: #95a5a6; }
-.prize-tier.bronze { border-left-color: #e67e22; }
-.prize-amount {
-  float: right;
-  font-weight: 700;
-  font-size: 19px;
-  color: #2e7d32;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
-}
-body.night .prize-amount { color: #4cd137; text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); }
+    dialog#panel::backdrop {
+      background: rgba(0, 0, 0, 0.55) !important;
+      backdrop-filter: blur(2px);
+    }
 
-#panel :is(.page-card-header, .faq-card-header) {
-  display: none !important;
-}
-.faq-box {
-  margin: 0;
-  position: relative;
-}
-.faq-box details {
-  display: block;
-}
-.faq-box summary {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 50px;
-  padding: 6px 8px 6px 16px;
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
-  outline: none;
-  background: linear-gradient(180deg, #dfdcd5 0%, #cbc6bc 100%);
-  border: 2px solid #25221d;
-  box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
-  transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.faq-box summary::-webkit-details-marker {
-  display: none;
-}
-.faq-box summary:hover {
-  background: linear-gradient(180deg, #e8e5de 0%, #d4cfc5 100%);
-}
-.faq-box summary:active {
-  transform: translateY(1px);
-}
-.faq-q-text {
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.35;
-  color: #27231e;
-  padding-right: 12px;
-}
-.faq-toggle {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(180deg, #59554e 0%, #46423b 100%);
-  border: 2px solid #211e19;
-  box-shadow: inset 1px 1px 0 #807c73, inset -1px -1px 0 #282520;
-  color: #f1ede4;
-  font-family: var(--text);
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 1;
-  text-shadow: 1px 1px 0 #1b1814;
-  transition: background 0.15s ease;
-}
-.faq-toggle::before {
-  content: "+";
-  display: block;
-  margin-top: -2px;
-}
-.faq-box details[open] .faq-toggle::before {
-  content: "−";
-}
-.faq-box details[open] .faq-toggle {
-  background: linear-gradient(180deg, #4d5c48 0%, #364432 100%);
-}
-/* Golden Highlight State (Featured & Active/Hover) */
-.faq-box.is-featured summary,
-.faq-box summary:focus-visible {
-  background: linear-gradient(180deg, #eedfb9 0%, #dac89d 100%);
-  border-color: #b58d24;
-  box-shadow: inset 2px 2px 0 #fbeeaf, inset -2px -2px 0 #8c6913;
-}
-.faq-box.is-featured summary .faq-toggle,
-.faq-box summary:focus-visible .faq-toggle {
-  border-color: #8c6913;
-  background: linear-gradient(180deg, #6c5a32 0%, #544422 100%);
-  box-shadow: inset 1px 1px 0 #9e854e, inset -1px -1px 0 #332711;
-  color: #fff2c4;
-}
-/* Corner selection brackets for Minecraft UI */
-.faq-box.is-featured summary::after,
-.faq-box summary:hover::after,
-.faq-box summary:focus-visible::after {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  pointer-events: none;
-  background:
-    linear-gradient(#d4af37, #d4af37) top left / 4px 4px no-repeat,
-    linear-gradient(#d4af37, #d4af37) top right / 4px 4px no-repeat,
-    linear-gradient(#d4af37, #d4af37) bottom left / 4px 4px no-repeat,
-    linear-gradient(#d4af37, #d4af37) bottom right / 4px 4px no-repeat;
-}
-/* Answer well */
-.faq-answer {
-  background: #bebaa0;
-  background: color-mix(in srgb, var(--gui, #c4c2bc) 88%, #000);
-  border: 2px solid #25221d;
-  border-top: none;
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.28), inset -2px -2px 0 rgba(255, 255, 255, 0.25);
-  padding: 14px 16px;
-  animation: pv-rise 0.22s ease-out;
-}
-.faq-answer p {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.6;
-  color: #27231e;
-}
+    #panel .body.page {
+      background: var(--gui, #c4c2bc);
+      border: 8px solid transparent;
+      border-image: var(--mc-frame) 4 fill / 8px;
+      padding: 24px 28px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-color: #89877f transparent;
+      scrollbar-width: thin;
+      max-height: min(580px, calc(100dvh - 160px));
+      box-shadow: 0 0 0 2px var(--line, #111), 0 12px 36px rgba(0, 0, 0, 0.45);
+      color: var(--ink);
+    }
 
-/* Team roles and travel notes */
-.crew, .travel { display: grid; gap: 10px; margin-top: 14px; }
-.crew-role, .travel-item {
-  padding: 12px 14px;
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
-  border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent);
-  border-radius: 4px;
-}
-.page .crew-label { margin: 0 0 4px; font: 700 12px/1.3 var(--text); letter-spacing: .6px; text-transform: uppercase; color: #2e7d32; }
-body.night .page .crew-label { color: #4cd137; }
-.crew-role h3, .travel-item h3 { margin: 0; }
-.travel-item h3 { margin-bottom: 4px; }
-.page .travel-item p { margin: 0; }
-.venue-address { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-.page .venue-address p { margin: 0; }
+    @media (max-width: 720px),
+    (max-height: 520px) {
+      #panel .body.page {
+        padding: 16px 14px;
+        max-height: calc(100dvh - 120px);
+      }
+    }
 
-/* Hide external portals, language switch, BetterMapIt, and Homecraft map badges */
-#portalButton, #portalReturn, .hc-controls, .hc-control, .lang-switch, button.lang-switch, #panel .lang-switch { display: none !important; }
-#minimap .badge, #minimap .badge.credit, #minimap .badge.made, .badge.credit, .badge.made, a.badge {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
+    /* Card inner components */
+    .hack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
 
-/* ==========================================================================
+    .hack-stat {
+      padding: 12px;
+      background: color-mix(in srgb, var(--ink) 8%, transparent);
+      border: 2px solid color-mix(in srgb, var(--ink) 14%, transparent);
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    /* Team roles and travel notes */
+    .crew,
+    .travel {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .crew-role,
+    .travel-item {
+      padding: 12px 14px;
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+      border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      border-radius: 4px;
+    }
+
+    .page .crew-label {
+      margin: 0 0 4px;
+      font: 700 12px/1.3 var(--text);
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #2e7d32;
+    }
+
+    body.night .page .crew-label {
+      color: #4cd137;
+    }
+
+    .page .crew-team {
+      margin: 4px 0 0;
+      font: 400 11px/1.3 var(--text);
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: #666;
+    }
+
+    .crew-role h3,
+    .travel-item h3 {
+      margin: 0;
+    }
+
+    .travel-item h3 {
+      margin-bottom: 4px;
+    }
+
+    .page .travel-item p {
+      margin: 0;
+    }
+
+    .venue-address {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .page .venue-address p {
+      margin: 0;
+    }
+
+    body.night .hack-stat .val {
+      color: #4cd137;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .hack-stat .lbl {
+      font: 500 12px/1.2 var(--text);
+      color: var(--ink-soft);
+    }
+
+    .track-card {
+      margin-bottom: 14px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+      border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      border-radius: 4px;
+    }
+
+    .track-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #2f5b46;
+      color: #fff;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .schedule-item {
+      display: grid;
+      grid-template-columns: 85px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    }
+
+    .schedule-time {
+      font-weight: 700;
+      font-size: 14px;
+      color: #2e7d32;
+    }
+
+    body.night .schedule-time {
+      color: #4cd137;
+    }
+
+    .prize-tier {
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-left: 5px solid #f1c40f;
+      background: color-mix(in srgb, var(--ink) 7%, transparent);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .prize-tier.gold {
+      border-left-color: #f1c40f;
+    }
+
+    .prize-tier.silver {
+      border-left-color: #95a5a6;
+    }
+
+    .prize-tier.bronze {
+      border-left-color: #e67e22;
+    }
+
+    .prize-amount {
+      float: right;
+      font-weight: 700;
+      font-size: 19px;
+      color: #2e7d32;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    body.night .prize-amount {
+      color: #4cd137;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    #panel :is(.page-card-header, .faq-card-header) {
+      display: none !important;
+    }
+
+    .faq-box {
+      margin: 0;
+      position: relative;
+    }
+
+    .faq-box details {
+      display: block;
+    }
+
+    .faq-box summary {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 50px;
+      padding: 6px 8px 6px 16px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      outline: none;
+      background: linear-gradient(180deg, #dfdcd5 0%, #cbc6bc 100%);
+      border: 2px solid #25221d;
+      box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #7b766c;
+      transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .faq-box summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-box summary:hover {
+      background: linear-gradient(180deg, #e8e5de 0%, #d4cfc5 100%);
+    }
+
+    .faq-box summary:active {
+      transform: translateY(1px);
+    }
+
+    .faq-q-text {
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.35;
+      color: #27231e;
+      padding-right: 12px;
+    }
+
+    .faq-toggle {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(180deg, #59554e 0%, #46423b 100%);
+      border: 2px solid #211e19;
+      box-shadow: inset 1px 1px 0 #807c73, inset -1px -1px 0 #282520;
+      color: #f1ede4;
+      font-family: var(--text);
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1;
+      text-shadow: 1px 1px 0 #1b1814;
+      transition: background 0.15s ease;
+    }
+
+    .faq-toggle::before {
+      content: "+";
+      display: block;
+      margin-top: -2px;
+    }
+
+    .faq-box details[open] .faq-toggle::before {
+      content: "−";
+    }
+
+    .faq-box details[open] .faq-toggle {
+      background: linear-gradient(180deg, #4d5c48 0%, #364432 100%);
+    }
+
+    /* Golden Highlight State (Featured & Active/Hover) */
+    .faq-box.is-featured summary,
+    .faq-box summary:focus-visible {
+      background: linear-gradient(180deg, #eedfb9 0%, #dac89d 100%);
+      border-color: #b58d24;
+      box-shadow: inset 2px 2px 0 #fbeeaf, inset -2px -2px 0 #8c6913;
+    }
+
+    .faq-box.is-featured summary .faq-toggle,
+    .faq-box summary:focus-visible .faq-toggle {
+      border-color: #8c6913;
+      background: linear-gradient(180deg, #6c5a32 0%, #544422 100%);
+      box-shadow: inset 1px 1px 0 #9e854e, inset -1px -1px 0 #332711;
+      color: #fff2c4;
+    }
+
+    /* Corner selection brackets for Minecraft UI */
+    .faq-box.is-featured summary::after,
+    .faq-box summary:hover::after,
+    .faq-box summary:focus-visible::after {
+      content: "";
+      position: absolute;
+      inset: -5px;
+      pointer-events: none;
+      background:
+        linear-gradient(#d4af37, #d4af37) top left / 4px 4px no-repeat,
+        linear-gradient(#d4af37, #d4af37) top right / 4px 4px no-repeat,
+        linear-gradient(#d4af37, #d4af37) bottom left / 4px 4px no-repeat,
+        linear-gradient(#d4af37, #d4af37) bottom right / 4px 4px no-repeat;
+    }
+
+    /* Answer well */
+    .faq-answer {
+      background: #bebaa0;
+      background: color-mix(in srgb, var(--gui, #c4c2bc) 88%, #000);
+      border: 2px solid #25221d;
+      border-top: none;
+      box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.28), inset -2px -2px 0 rgba(255, 255, 255, 0.25);
+      padding: 14px 16px;
+      animation: pv-rise 0.22s ease-out;
+    }
+
+    .faq-answer p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #27231e;
+    }
+
+    /* Team roles and travel notes */
+    .crew,
+    .travel {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .crew-role,
+    .travel-item {
+      padding: 12px 14px;
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+      border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      border-radius: 4px;
+    }
+
+    .page .crew-label {
+      margin: 0 0 4px;
+      font: 700 12px/1.3 var(--text);
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #2e7d32;
+    }
+
+    body.night .page .crew-label {
+      color: #4cd137;
+    }
+
+    .crew-role h3,
+    .travel-item h3 {
+      margin: 0;
+    }
+
+    .travel-item h3 {
+      margin-bottom: 4px;
+    }
+
+    .page .travel-item p {
+      margin: 0;
+    }
+
+    .venue-address {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .page .venue-address p {
+      margin: 0;
+    }
+
+    /* Hide external portals, language switch, BetterMapIt, and Homecraft map badges */
+    #portalButton,
+    #portalReturn,
+    .hc-controls,
+    .hc-control,
+    .lang-switch,
+    button.lang-switch,
+    #panel .lang-switch {
+      display: none !important;
+    }
+
+    #minimap .badge,
+    #minimap .badge.credit,
+    #minimap .badge.made,
+    .badge.credit,
+    .badge.made,
+    a.badge {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    /* ==========================================================================
    Station Identity Cues — 3D panel only
    Adds a narrow accent strip and a compact location placard to each opened
    card. Scoped entirely to dialog#panel so the page-view (body.plain) is
@@ -272,426 +481,564 @@ body.night .page .crew-label { color: #4cd137; }
      animation is suppressed.
    ========================================================================== */
 
-/* --- Per-station tokens --- */
-dialog#panel[data-station="welcome"]  { --st-color: #6fa544; --st-icon: "🏠"; --st-label: "Spawn Point · Welcome Board"; }
-dialog#panel[data-station="tracks"]   { --st-color: #0984e3; --st-icon: "⚔"; --st-label: "Quest Board · Challenge Tracks"; }
-dialog#panel[data-station="schedule"] { --st-color: #dc2626; --st-icon: "⏱"; --st-label: "Redstone Clock · 36-Hour Timeline"; }
-dialog#panel[data-station="prizes"]   { --st-color: #d4af37; --st-icon: "🏆"; --st-label: "Loot Chest · Prizes & Swag"; }
-dialog#panel[data-station="sponsors"] { --st-color: #8e44ad; --st-icon: "🏪"; --st-label: "Trading Hall · Partners"; }
-dialog#panel[data-station="team"]     { --st-color: #e74c3c; --st-icon: "📋"; --st-label: "Notice Board · Organising Crew"; }
-dialog#panel[data-station="faq"]      { --st-color: #2f5b46; --st-icon: "📖"; --st-label: "Guidebook · FAQ & Rules"; }
-dialog#panel[data-station="venue"]    { --st-color: #3498db; --st-icon: "🗺"; --st-label: "Map Table · Venue & Travel"; }
-dialog#panel[data-station="register"] { --st-color: #3c8527; --st-icon: "🔮"; --st-label: "Sign-up Portal · Register"; }
-dialog#panel[data-station="mailbox"]  { --st-color: #7b6f5a; --st-icon: "✉"; --st-label: "Mailbox · Contact & Inquiries"; }
+    /* --- Per-station tokens --- */
+    dialog#panel[data-station="welcome"] {
+      --st-color: #6fa544;
+      --st-icon: "🏠";
+      --st-label: "Spawn Point · Welcome Board";
+    }
 
-/* --- Accent strip on the panel body --- */
-/* A 4px colored top border drawn with box-shadow so it sits inside the
+    dialog#panel[data-station="tracks"] {
+      --st-color: #0984e3;
+      --st-icon: "⚔";
+      --st-label: "Quest Board · Challenge Tracks";
+    }
+
+    dialog#panel[data-station="schedule"] {
+      --st-color: #dc2626;
+      --st-icon: "⏱";
+      --st-label: "Redstone Clock · 24-Hour Timeline";
+    }
+
+    dialog#panel[data-station="prizes"] {
+      --st-color: #d4af37;
+      --st-icon: "🏆";
+      --st-label: "Loot Chest · Prizes & Swag";
+    }
+
+    dialog#panel[data-station="sponsors"] {
+      --st-color: #8e44ad;
+      --st-icon: "🏪";
+      --st-label: "Trading Hall · Partners";
+    }
+
+    dialog#panel[data-station="team"] {
+      --st-color: #e74c3c;
+      --st-icon: "📋";
+      --st-label: "Notice Board · Organising Crew";
+    }
+
+    dialog#panel[data-station="faq"] {
+      --st-color: #2f5b46;
+      --st-icon: "📖";
+      --st-label: "Guidebook · FAQ & Rules";
+    }
+
+    dialog#panel[data-station="venue"] {
+      --st-color: #3498db;
+      --st-icon: "🗺";
+      --st-label: "Map Table · Venue & Travel";
+    }
+
+    dialog#panel[data-station="register"] {
+      --st-color: #3c8527;
+      --st-icon: "🔮";
+      --st-label: "Sign-up Portal · Register";
+    }
+
+    dialog#panel[data-station="mailbox"] {
+      --st-color: #7b6f5a;
+      --st-icon: "✉";
+      --st-label: "Mailbox · Contact & Inquiries";
+    }
+
+    dialog#panel[data-station="tracks"] {
+      --st-color: #0984e3;
+      --st-icon: "⚔";
+      --st-label: "Quest Board · Challenge Tracks";
+    }
+
+    dialog#panel[data-station="schedule"] {
+      --st-color: #dc2626;
+      --st-icon: "⏱";
+      --st-label: "Redstone Clock · 36-Hour Timeline";
+    }
+
+    dialog#panel[data-station="prizes"] {
+      --st-color: #d4af37;
+      --st-icon: "🏆";
+      --st-label: "Loot Chest · Prizes & Swag";
+    }
+
+    dialog#panel[data-station="sponsors"] {
+      --st-color: #8e44ad;
+      --st-icon: "🏪";
+      --st-label: "Trading Hall · Partners";
+    }
+
+    dialog#panel[data-station="team"] {
+      --st-color: #e74c3c;
+      --st-icon: "📋";
+      --st-label: "Notice Board · Organising Crew";
+    }
+
+    dialog#panel[data-station="faq"] {
+      --st-color: #2f5b46;
+      --st-icon: "📖";
+      --st-label: "Guidebook · FAQ & Rules";
+    }
+
+    dialog#panel[data-station="venue"] {
+      --st-color: #3498db;
+      --st-icon: "🗺";
+      --st-label: "Map Table · Venue & Travel";
+    }
+
+    dialog#panel[data-station="register"] {
+      --st-color: #3c8527;
+      --st-icon: "🔮";
+      --st-label: "Sign-up Portal · Register";
+    }
+
+    dialog#panel[data-station="mailbox"] {
+      --st-color: #7b6f5a;
+      --st-icon: "✉";
+      --st-label: "Mailbox · Contact & Inquiries";
+    }
+
+    /* --- Accent strip on the panel body --- */
+    /* A 4px colored top border drawn with box-shadow so it sits inside the
    existing border-image frame without shifting layout. Only appears when a
    station token is set. Layered under the frame bevel. */
-dialog#panel[data-station] .body.page {
-  box-shadow:
-    0 0 0 2px var(--line, #111),
-    0 12px 36px rgba(0, 0, 0, 0.45),
-    inset 0 4px 0 0 var(--st-color, transparent);
-}
+    dialog#panel[data-station] .body.page {
+      box-shadow:
+        0 0 0 2px var(--line, #111),
+        0 12px 36px rgba(0, 0, 0, 0.45),
+        inset 0 4px 0 0 var(--st-color, transparent);
+    }
 
-/* --- Location placard --- */
-/* A compact "you are here" strip at the very top of the scrollable content.
+    /* --- Location placard --- */
+    /* A compact "you are here" strip at the very top of the scrollable content.
    Uses ::before so no DOM changes are needed. Hidden by default; only shown
    when --st-label and --st-icon are defined (i.e. a known station is open).
    Not shown in body.plain (page view has its own headers). */
-dialog#panel[data-station] .body.page::before {
-  content: var(--st-icon, "") "  " var(--st-label, "");
-  display: block;
-  /* Readable Minecraft-style placard */
-  margin: -4px -4px 18px;
-  padding: 10px 16px 10px 14px;
-  background: rgba(22, 19, 14, 0.9);
-  border: 2px solid #000;
-  border-top: none;
-  box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.12),
-    inset -2px -2px 0 rgba(0, 0, 0, 0.55),
-    0 3px 0 rgba(0, 0, 0, 0.35);
-  /* Readable pixelated label text */
-  font-family: 'Silkscreen', 'Press Start 2P', 'Minecraft', monospace, sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.5;
-  letter-spacing: 0.4px;
-  color: rgba(240, 234, 220, 0.95);
-  text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0, 0, 0, 0.4);
-  /* Left accent bar matching the station color */
-  border-left: 6px solid var(--st-color, #888);
-  /* Fade in with the panel */
-  animation: st-placard-in 0.28s ease-out backwards;
-  animation-delay: 0.1s;
-}
+    dialog#panel[data-station] .body.page::before {
+      content: var(--st-icon, "") "  " var(--st-label, "");
+      display: block;
+      /* Readable Minecraft-style placard */
+      margin: -4px -4px 18px;
+      padding: 10px 16px 10px 14px;
+      background: rgba(22, 19, 14, 0.9);
+      border: 2px solid #000;
+      border-top: none;
+      box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.12),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.55),
+        0 3px 0 rgba(0, 0, 0, 0.35);
+      /* Readable pixelated label text */
+      font-family: 'Silkscreen', 'Press Start 2P', 'Minecraft', monospace, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+      letter-spacing: 0.4px;
+      color: rgba(240, 234, 220, 0.95);
+      text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0, 0, 0, 0.4);
+      /* Left accent bar matching the station color */
+      border-left: 6px solid var(--st-color, #888);
+      /* Fade in with the panel */
+      animation: st-placard-in 0.28s ease-out backwards;
+      animation-delay: 0.1s;
+    }
 
-@keyframes st-placard-in {
-  from { opacity: 0; transform: translateY(-6px); }
-}
+    @keyframes st-placard-in {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+    }
 
-@media (prefers-reduced-motion: reduce) {
-  dialog#panel[data-station] .body.page::before {
-    animation: none;
-  }
-}
+    @media (prefers-reduced-motion: reduce) {
+      dialog#panel[data-station] .body.page::before {
+        animation: none;
+      }
+    }
 
-/* Mobile: scale down gracefully on small screens */
-@media (max-width: 720px), (max-height: 520px) {
-  dialog#panel[data-station] .body.page::before {
-    font-size: 11px;
-    padding: 8px 12px 8px 10px;
-    margin-bottom: 14px;
-  }
-}
-</style>
-<script type="importmap">{"imports":{
+    /* Mobile: scale down gracefully on small screens */
+    @media (max-width: 720px),
+    (max-height: 520px) {
+      dialog#panel[data-station] .body.page::before {
+        font-size: 11px;
+        padding: 8px 12px 8px 10px;
+        margin-bottom: 14px;
+      }
+    }
+  </style>
+  <script type="importmap">{"imports":{
   "three":"./vendor/three/three.module.min.js",
   "three/addons/":"./vendor/three/addons/",
   "@engine/":"./engine/",
   "@world/":"./world/",
   "@config":"./home.config.js"
 }}</script>
-<link rel="stylesheet" href="site/site.css">
-<link rel="stylesheet" href="site/page.css">
+  <link rel="stylesheet" href="site/site.css">
+  <link rel="stylesheet" href="site/page.css">
 </head>
+
 <body>
-<!-- #agentChatPanel lives outside this wrapper so it stays pinned to the real
+  <!-- #agentChatPanel lives outside this wrapper so it stays pinned to the real
      right edge of the viewport as a pure overlay — opening it never touches
      anything in here. -->
-<div id="appShift">
-<!-- Website layer (site/site.js): top bar, hero, name tags, first-visit hint. -->
-<header id="siteBar">
-  <a class="site-logo" href="#welcome" data-go="welcome"><img src="assets/favicon.png" alt="" width="28" height="28"><span>Labyrinth</span></a>
-  <nav class="site-nav" id="siteNav" aria-label="Sections"></nav>
-  <div class="site-actions">
-    <a class="site-mode" href="?plain" data-mode>Page view</a>
-    <a class="site-cta" href="#register" data-go="register">Register</a>
-    <button class="site-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="siteNav">☰</button>
-  </div>
-</header>
-
-<!-- The landing hero. data-starts / data-ends drive the countdown (ISO 8601 with offset). -->
-<section id="hero" aria-labelledby="heroTitle" data-starts="2027-01-17T09:00:00+05:30" data-ends="2027-01-18T18:00:00+05:30">
-  <div class="hero-card">
-    <p class="hero-eyebrow">GDG on Campus · NIT Hamirpur presents</p>
-    <h1 id="heroTitle"><span class="sr">Labyrinth</span><canvas class="hero-logo" data-text="LABYRINTH" aria-hidden="true"></canvas></h1>
-    <p class="hero-tag">A  24 hour overnight hackathon. Find your way through the maze, build something real.</p>
-    <ul class="hero-facts">
-      <li><b>Jan 16-17</b>2027</li>
-      <li><b>NIT Hamirpur</b>New Lecture Hall</li>
-      <li><b>24 hours</b>of building</li>
-      <li><b>₹1,50,000</b>prize pool</li>
-    </ul>
-    <div class="hero-count" role="timer" aria-label="Time until hacking starts"></div>
-    <div class="hero-actions">
-      <button class="mc-button cta hero-go" type="button" disabled>Loading the island…</button>
-      <a class="mc-button" href="#register" data-go="register">Register</a>
-    </div>
-  </div>
-</section>
-
-<div id="siteTags"></div>
-<div id="siteHint" role="status" hidden><span></span><button type="button" aria-label="Got it">×</button></div>
-
-<div id="agentChat" hidden>
-  <button id="agentChatToggle" type="button" aria-expanded="false" aria-controls="agentChatPanel">
-    <img id="agentChatIcon" src="" alt="" width="48" height="48">
-    <span class="sr">Chat with Labyrinth</span>
-  </button>
-</div>
-
-<main id="world" aria-label="Labyrinth"></main>
-<div id="loading"><div class="bar"><i></i></div></div>
-
-<section id="pages">
-  <h1 class="plain-title">Labyrinth</h1>
-
-  <!-- 1. Welcome Station -->
-  <article class="page" id="welcome" data-station="welcome" data-icon="scroll">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Welcome to Labyrinth</h2>
-        <span class="card-badge">WELCOME</span>
+  <div id="appShift">
+    <!-- Website layer (site/site.js): top bar, hero, name tags, first-visit hint. -->
+    <header id="siteBar">
+      <a class="site-logo" href="#welcome" data-go="welcome"><img src="assets/favicon.png" alt="" width="28"
+          height="28"><span>Labyrinth</span></a>
+      <nav class="site-nav" id="siteNav" aria-label="Sections"></nav>
+      <div class="site-actions">
+        <a class="site-mode" href="?plain" data-mode>Page view</a>
+        <a class="site-cta" href="#register" data-go="register">Register</a>
+        <button class="site-menu" type="button" aria-label="Menu" aria-expanded="false"
+          aria-controls="siteNav">☰</button>
       </div>
-    </div>
-    <p><strong>Labyrinth hackathon Organised by GDG NIT Hamirpur.</strong></p>
-    <p>Join 300+ builders, creators, and hackers for 36 hours of high-energy creation and innovation. Lead Organisers: Harsh Bhushan Pathak, Daksh and Divyansh.</p>
+    </header>
 
-    <div class="hack-grid">
-      <div class="hack-stat"><span class="val">₹1,50,000</span><span class="lbl">Prize Pool</span></div>
-      <div class="hack-stat"><span class="val">300+</span><span class="lbl">Hackers</span></div>
-      <div class="hack-stat"><span class="val">4</span><span class="lbl">Tracks</span></div>
-      <div class="hack-stat"><span class="val">36h</span><span class="lbl">Duration</span></div>
-    </div>
-
-    <p class="aside">📅 <strong>Jan 17, 09:00 — Jan 18, 18:00 IST, 2027</strong><br>📍 <strong>New Lecture Hall</strong>, NIT Hamirpur, Himachal Pradesh</p>
-
-    <div class="page-foot" style="margin-top:16px; display:flex; gap:10px;">
-      <a class="mc-button" href="#register" data-go="register">Register Now</a>
-      <a class="mc-button" href="#tracks" data-go="tracks">Explore Tracks</a>
-    </div>
-  </article>
-
-  <!-- 2. Tracks Station -->
-  <article class="page" id="tracks" data-station="tracks" data-icon="works">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Challenge Tracks</h2>
-        <span class="card-badge">TRACKS</span>
-      </div>
-    </div>
-    <p>Choose one of the 4 challenge tracks to forge your project during the hackathon:</p>
-
-    <div class="track-card">
-      <span class="track-tag" style="background:#0984e3;">Gemini Developer Ecosystem</span>
-      <h3>1. Autonomous AI & Agents</h3>
-      <p>Build agentic workflows, multi-agent swarms, self-healing systems, coding assistants, and autonomous reasoning systems.</p>
-    </div>
-
-    <div class="track-card">
-      <span class="track-tag" style="background:#8e44ad;">Polygon Labs</span>
-      <h3>2. Decentralized Systems</h3>
-      <p>Pioneer cryptographic applications, verifiable computation, decentralized attestations, zero-knowledge proofs, and peer-to-peer data meshes.</p>
-    </div>
-
-    <div class="track-card">
-      <span class="track-tag" style="background:#d35400;">Spatial Computing</span>
-      <h3>3. Interactive 3D & Spatial Web</h3>
-      <p>Create next-generation WebGL/WebGPU browser worlds, procedural 3D environments, physics simulations, and collaborative spatial UI tools.</p>
-    </div>
-
-    <div class="track-card">
-      <span class="track-tag" style="background:#27ae60;">Community</span>
-      <h3>4. Open Innovation</h3>
-      <p>High-impact software tackling sustainability, education, healthcare accessibility, civic tech, or developer productivity tools.</p>
-    </div>
-  </article>
-
-  <!-- 3. Schedule Station -->
-  <article class="page" id="schedule" data-station="schedule" data-icon="camera">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>36-Hour Timeline</h2>
-        <span class="card-badge">SCHEDULE</span>
-      </div>
-    </div>
-    <p>All times in Indian Standard Time (IST):</p>
-
-    <div class="schedule-item">
-      <div class="schedule-time">Jan 16<br>09:00</div>
-      <div><strong>Check-in & Welcome Breakfast</strong><br><span class="aside">Main Atrium — Badge collection, coffee & light bites</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">10:00</div>
-      <div><strong>Opening Ceremony & Keynote</strong><br><span class="aside">Main Stage — Rules briefing, track reveals, and sponsor spotlights</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">11:30</div>
-      <div><strong>Hacking Commences & Team Matching</strong><br><span class="aside">Hacker Arenas A & B — Coding kicks off!</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">12:00</div>
-      <div><strong>Lunch Break</strong><br><span class="aside">Dining Hall — Hot meals and networking</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">15:00</div>
-      <div><strong>Workshop: Modern WebGL & 3D Web</strong><br><span class="aside">Workshop Hall — Hands-on session with lead mentors</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">Jan 17<br>00:00</div>
-      <div><strong>Midnight Energy Boost & Mini Games</strong><br><span class="aside">Recreation Lounge — Snacks, trivia, and rapid prizes</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">14:00</div>
-      <div><strong>Hacking Deadline & Submissions</strong><br><span class="aside">Portal Submissions close sharp at 14:00</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">15:00</div>
-      <div><strong>Project Demos & Judging Expo</strong><br><span class="aside">Showcase Floor — Live demos before judging panel</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">16:00</div>
-      <div><strong>Closing Ceremony &amp; Awards</strong><br><span class="aside">Main Stage — Trophy presentations &amp; wrap-up</span></div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-time">18:00</div>
-      <div><strong>Dinner &amp; Hacker Farewell</strong><br><span class="aside">Dining Hall — Hot dinner, networking &amp; departure</span></div>
-    </div>
-  </article>
-
-  <!-- 4. Prizes Station -->
-  <article class="page" id="prizes" data-station="prizes" data-icon="honors">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Prizes &amp; Swag</h2>
-        <span class="card-badge">PRIZES</span>
-      </div>
-    </div>
-    <p>A total prize pool of <strong>₹1,50,000</strong> plus sponsor bounty perks and developer swag:</p>
-
-    <div class="prize-tier gold">
-      <span class="prize-amount">₹75,000</span>
-      <h3>🥇 First Place (Overall Winner)</h3>
-      <p>Winner Trophy, direct fast-track sponsor interviews, and high-tier hardware perks.</p>
-    </div>
-
-    <div class="prize-tier silver">
-      <span class="prize-amount">₹45,000</span>
-      <h3>🥈 Second Place (Runner Up)</h3>
-      <p>Runner-up Trophy, sponsor cloud credits, and accelerator mentorship sessions.</p>
-    </div>
-
-    <div class="prize-tier bronze">
-      <span class="prize-amount">₹30,000</span>
-      <h3>🥉 Third Place</h3>
-      <p>Third Place Plaque and developer tooling credits.</p>
-    </div>
-
-    <div class="prize-tier">
-      <span class="prize-amount">₹15,000</span>
-      <h3>🌟 Best All-Beginner Team</h3>
-      <p>Awarded to the top-ranking project built entirely by first-time hackathon attendees.</p>
-    </div>
-
-    <div class="prize-tier">
-      <span class="prize-amount">₹15,000</span>
-      <h3>🎨 Excellence in UI/UX &amp; Craft</h3>
-      <p>Recognizing the most intuitive, polished, and delightful user experience.</p>
-    </div>
-
-    <div class="swag-box">
-      <h3 style="margin:0 0 6px;">Swag for All Hackers</h3>
-      <p style="margin:0;">Every attendee receives a limited-edition Embroidered Labyrinth Hoodie, Holographic Sticker Pack, Stainless Steel Bottle, and NFC Participant Passport.</p>
-    </div>
-  </article>
-
-  <!-- 5. Sponsors Station -->
-  <article class="page" id="sponsors" data-station="sponsors" data-icon="cap">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Partners &amp; Sponsors</h2>
-        <span class="card-badge">SPONSORS</span>
-      </div>
-    </div>
-    <p>Labyrinth is powered by industry leaders across developer tooling and AI:</p>
-
-    <ul class="store">
-      <li>
-        <div class="listing">
-          <div style="font-size:28px; width:64px; text-align:center;">✨</div>
-          <div>
-            <h3>Gemini Developer Ecosystem</h3>
-            <p>Title Partner — Multimodal AI models, reasoning APIs, and agent infrastructure.</p>
-          </div>
-          <a class="mc-button get" href="https://ai.google.dev" target="_blank" rel="noopener">Visit ↗</a>
+    <!-- The landing hero. data-starts / data-ends drive the countdown (ISO 8601 with offset). -->
+    <section id="hero" aria-labelledby="heroTitle" data-starts="2027-01-16T09:00:00+05:30"
+      data-ends="2027-01-17T18:00:00+05:30">
+      <div class="hero-card">
+        <p class="hero-eyebrow">GDG on Campus · NIT Hamirpur presents</p>
+        <h1 id="heroTitle"><span class="sr">Labyrinth</span><canvas class="hero-logo" data-text="LABYRINTH"
+            aria-hidden="true"></canvas></h1>
+        <p class="hero-tag">A 24 hour overnight hackathon. Find your way through the maze, build something real.</p>
+        <ul class="hero-facts">
+          <li><b>Jan 16-17</b>2027</li>
+          <li><b>NIT Hamirpur</b>New Lecture Hall</li>
+          <li><b>24 hours</b>of building</li>
+          <li><b>₹1,50,000</b>prize pool</li>
+        </ul>
+        <div class="hero-count" role="timer" aria-label="Time until hacking starts"></div>
+        <div class="hero-actions">
+          <button class="mc-button cta hero-go" type="button" disabled>Loading the island…</button>
+          <a class="mc-button" href="#register" data-go="register">Register</a>
         </div>
-      </li>
-      <li>
-        <div class="listing">
-          <div style="font-size:28px; width:64px; text-align:center;">🔷</div>
-          <div>
-            <h3>Polygon Labs</h3>
-            <p>Diamond Partner — Scalable blockchain protocols and zero-knowledge infrastructure.</p>
-          </div>
-          <a class="mc-button get" href="https://polygon.technology" target="_blank" rel="noopener">Visit ↗</a>
-        </div>
-      </li>
-      <li>
-        <div class="listing">
-          <div style="font-size:28px; width:64px; text-align:center;">⚡</div>
-          <div>
-            <h3>Supabase</h3>
-            <p>Gold Partner — Open-source Firebase alternative with instant Postgres & Auth.</p>
-          </div>
-          <a class="mc-button get" href="https://supabase.com" target="_blank" rel="noopener">Visit ↗</a>
-        </div>
-      </li>
-      <li>
-        <div class="listing">
-          <div style="font-size:28px; width:64px; text-align:center;">✉️</div>
-          <div>
-            <h3>Resend</h3>
-            <p>Silver Partner — Email platform designed specifically for software engineers.</p>
-          </div>
-          <a class="mc-button get" href="https://resend.com" target="_blank" rel="noopener">Visit ↗</a>
-        </div>
-      </li>
-    </ul>
-  </article>
+      </div>
+    </section>
 
-  <!-- 6. Team Station -->
-  <article class="page" id="team" data-station="team" data-icon="heart">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Organizing Crew</h2>
-        <span class="card-badge">TEAM</span>
-      </div>
-    </div>
-    <p>Labyrinth is organised by Google Developer Groups on Campus, NIT Hamirpur.</p>
+    <div id="siteTags"></div>
+    <div id="siteHint" role="status" hidden><span></span><button type="button" aria-label="Got it">×</button></div>
 
-    <div class="crew">
-      <div class="crew-role">
-        <p class="crew-label">Lead Organisers</p>
-        <h3>Harsh Bhushan Pathak · Daksh · Divyansh</h3>
-      </div>
-      <div class="crew-role">
-        <p class="crew-label">Technical Leads</p>
-        <h3>Saurabh Chauhan · Prashant Bahuguna · Pradyuman Sharma</h3>
-      </div>
-      <div class="crew-role">
-        <p class="crew-label">Student Coordinator</p>
-        <h3>Parthivi Pradhan</h3>
-      </div>
-      <div class="crew-role">
-        <p class="crew-label">Design Lead</p>
-        <h3>Kshitij Chauhan</h3>
-      </div>
-    </div>
-  </article>
-
-  <!-- 7. FAQ Station -->
-  <article class="page" id="faq" data-station="faq" data-icon="writing">
-    <div class="page-card-header faq-card-header">
-      <div class="header-left faq-header-left">
-        <i class="page-card-icon faq-book-icon" aria-hidden="true"></i>
-        <h2>FAQ &amp; Rules</h2>
-        <span class="card-badge faq-badge">FAQ</span>
-      </div>
+    <div id="agentChat" hidden>
+      <button id="agentChatToggle" type="button" aria-expanded="false" aria-controls="agentChatPanel">
+        <img id="agentChatIcon" src="" alt="" width="48" height="48">
+        <span class="sr">Chat with Labyrinth</span>
+      </button>
     </div>
 
-    <div class="faq-grid">
-      <div class="faq-box">
-        <details>
-          <summary>
-            <span class="faq-q-text">Is there a registration fee?</span>
-            <span class="faq-toggle" aria-hidden="true"></span>
-          </summary>
-          <div class="faq-answer">
-            <p>No. Labyrinth is completely free. Meals, snacks and swag during the event are covered.</p>
-          </div>
-        </details>
-      </div>
+    <main id="world" aria-label="Labyrinth"></main>
+    <div id="loading">
+      <div class="bar"><i></i></div>
+    </div>
 
-      <div class="faq-box">
-        <details>
-          <summary>
-            <span class="faq-q-text">What is the team size?</span>
-            <span class="faq-toggle" aria-hidden="true"></span>
-          </summary>
-          <div class="faq-answer">
-            <p>Teams of 2 to 4 members. Each team names one team leader when registering.</p>
+    <section id="pages">
+      <h1 class="plain-title">Labyrinth</h1>
+
+      <!-- 1. Welcome Station -->
+      <article class="page" id="welcome" data-station="welcome" data-icon="scroll">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Welcome to Labyrinth</h2>
+            <span class="card-badge">WELCOME</span>
           </div>
-        </details>
-      </div>
+        </div>
+        <p><strong>Labyrinth hackathon Organised by GDG NIT Hamirpur.</strong></p>
+        <p>Join 300+ builders, creators, and hackers for 24 hours of high-energy creation and innovation. Lead
+          Organisers: Harsh Bhushan Pathak, Daksh and Divyansh.</p>
+
+        <div class="hack-grid">
+          <div class="hack-stat"><span class="val">₹1,50,000</span><span class="lbl">Prize Pool</span></div>
+          <div class="hack-stat"><span class="val">300+</span><span class="lbl">Hackers</span></div>
+          <div class="hack-stat"><span class="val">4</span><span class="lbl">Tracks</span></div>
+          <div class="hack-stat"><span class="val">24h</span><span class="lbl">Duration</span></div>
+        </div>
+
+        <p class="aside">📅 <strong>Jan 16, 09:00 — Jan 17, 18:00 IST, 2027</strong><br>📍 <strong>New Lecture
+            Hall</strong>, NIT Hamirpur, Himachal Pradesh</p>
+
+        <div class="page-foot" style="margin-top:16px; display:flex; gap:10px;">
+          <a class="mc-button" href="#register" data-go="register">Register Now</a>
+          <a class="mc-button" href="#tracks" data-go="tracks">Explore Tracks</a>
+        </div>
+      </article>
+
+      <!-- 2. Tracks Station -->
+      <article class="page" id="tracks" data-station="tracks" data-icon="works">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Challenge Tracks</h2>
+            <span class="card-badge">TRACKS</span>
+          </div>
+        </div>
+        <p>Choose one of the 4 challenge tracks to forge your project during the hackathon:</p>
+
+        <div class="track-card">
+          <span class="track-tag" style="background:#0984e3;">Gemini Developer Ecosystem</span>
+          <h3>1. Autonomous AI & Agents</h3>
+          <p>Build agentic workflows, multi-agent swarms, self-healing systems, coding assistants, and autonomous
+            reasoning systems.</p>
+        </div>
+
+        <div class="track-card">
+          <span class="track-tag" style="background:#8e44ad;">Polygon Labs</span>
+          <h3>2. Decentralized Systems</h3>
+          <p>Pioneer cryptographic applications, verifiable computation, decentralized attestations, zero-knowledge
+            proofs, and peer-to-peer data meshes.</p>
+        </div>
+
+        <div class="track-card">
+          <span class="track-tag" style="background:#d35400;">Spatial Computing</span>
+          <h3>3. Interactive 3D & Spatial Web</h3>
+          <p>Create next-generation WebGL/WebGPU browser worlds, procedural 3D environments, physics simulations, and
+            collaborative spatial UI tools.</p>
+        </div>
+
+        <div class="track-card">
+          <span class="track-tag" style="background:#27ae60;">Community</span>
+          <h3>4. Open Innovation</h3>
+          <p>High-impact software tackling sustainability, education, healthcare accessibility, civic tech, or developer
+            productivity tools.</p>
+        </div>
+      </article>
+
+      <!-- 3. Schedule Station -->
+      <article class="page" id="schedule" data-station="schedule" data-icon="camera">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>24-Hour Timeline</h2>
+            <span class="card-badge">SCHEDULE</span>
+          </div>
+        </div>
+        <p>All times in Indian Standard Time (IST):</p>
+
+        <div class="schedule-item">
+          <div class="schedule-time">Jan 16<br>09:00</div>
+          <div><strong>Check-in & Welcome Breakfast</strong><br><span class="aside">Main Atrium — Badge collection,
+              coffee & light bites</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">10:00</div>
+          <div><strong>Opening Ceremony & Keynote</strong><br><span class="aside">Main Stage — Rules briefing, track
+              reveals, and sponsor spotlights</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">11:30</div>
+          <div><strong>Hacking Commences & Team Matching</strong><br><span class="aside">Hacker Arenas A & B — Coding
+              kicks off!</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">12:00</div>
+          <div><strong>Lunch Break</strong><br><span class="aside">Dining Hall — Hot meals and networking</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">15:00</div>
+          <div><strong>Workshop: Modern WebGL & 3D Web</strong><br><span class="aside">Workshop Hall — Hands-on session
+              with lead mentors</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">Jan 17<br>00:00</div>
+          <div><strong>Midnight Energy Boost & Mini Games</strong><br><span class="aside">Recreation Lounge — Snacks,
+              trivia, and rapid prizes</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">14:00</div>
+          <div><strong>Hacking Deadline & Submissions</strong><br><span class="aside">Portal Submissions close sharp at
+              14:00</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">15:00</div>
+          <div><strong>Project Demos & Judging Expo</strong><br><span class="aside">Showcase Floor — Live demos before
+              judging panel</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">16:00</div>
+          <div><strong>Closing Ceremony &amp; Awards</strong><br><span class="aside">Main Stage — Trophy presentations
+              &amp; wrap-up</span></div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-time">18:00</div>
+          <div><strong>Dinner &amp; Hacker Farewell</strong><br><span class="aside">Dining Hall — Hot dinner, networking
+              &amp; departure</span></div>
+        </div>
+      </article>
+
+      <!-- 4. Prizes Station -->
+      <article class="page" id="prizes" data-station="prizes" data-icon="honors">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Prizes &amp; Swag</h2>
+            <span class="card-badge">PRIZES</span>
+          </div>
+        </div>
+        <p>A total prize pool of <strong>₹1,50,000</strong> plus sponsor bounty perks and developer swag:</p>
+
+        <div class="prize-tier gold">
+          <span class="prize-amount">₹75,000</span>
+          <h3>🥇 First Place (Overall Winner)</h3>
+          <p>Winner Trophy, direct fast-track sponsor interviews, and high-tier hardware perks.</p>
+        </div>
+
+        <div class="prize-tier silver">
+          <span class="prize-amount">₹45,000</span>
+          <h3>🥈 Second Place (Runner Up)</h3>
+          <p>Runner-up Trophy, sponsor cloud credits, and accelerator mentorship sessions.</p>
+        </div>
+
+        <div class="prize-tier bronze">
+          <span class="prize-amount">₹30,000</span>
+          <h3>🥉 Third Place</h3>
+          <p>Third Place Plaque and developer tooling credits.</p>
+        </div>
+
+        <div class="prize-tier">
+          <span class="prize-amount">₹15,000</span>
+          <h3>🌟 Best All-Beginner Team</h3>
+          <p>Awarded to the top-ranking project built entirely by first-time hackathon attendees.</p>
+        </div>
+
+        <div class="prize-tier">
+          <span class="prize-amount">₹15,000</span>
+          <h3>🎨 Excellence in UI/UX &amp; Craft</h3>
+          <p>Recognizing the most intuitive, polished, and delightful user experience.</p>
+        </div>
+
+        <div class="swag-box">
+          <h3 style="margin:0 0 6px;">Swag for All Hackers</h3>
+          <p style="margin:0;">Every attendee receives a limited-edition Embroidered Labyrinth Hoodie, Holographic
+            Sticker Pack, Stainless Steel Bottle, and NFC Participant Passport.</p>
+        </div>
+      </article>
+
+      <!-- 5. Sponsors Station -->
+      <article class="page" id="sponsors" data-station="sponsors" data-icon="cap">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Partners &amp; Sponsors</h2>
+            <span class="card-badge">SPONSORS</span>
+          </div>
+        </div>
+        <p>Labyrinth is powered by industry leaders across developer tooling and AI:</p>
+
+        <ul class="store">
+          <li>
+            <div class="listing">
+              <div style="font-size:28px; width:64px; text-align:center;">✨</div>
+              <div>
+                <h3>Gemini Developer Ecosystem</h3>
+                <p>Title Partner — Multimodal AI models, reasoning APIs, and agent infrastructure.</p>
+              </div>
+              <a class="mc-button get" href="https://ai.google.dev" target="_blank" rel="noopener">Visit ↗</a>
+            </div>
+          </li>
+          <li>
+            <div class="listing">
+              <div style="font-size:28px; width:64px; text-align:center;">🔷</div>
+              <div>
+                <h3>Polygon Labs</h3>
+                <p>Diamond Partner — Scalable blockchain protocols and zero-knowledge infrastructure.</p>
+              </div>
+              <a class="mc-button get" href="https://polygon.technology" target="_blank" rel="noopener">Visit ↗</a>
+            </div>
+          </li>
+          <li>
+            <div class="listing">
+              <div style="font-size:28px; width:64px; text-align:center;">⚡</div>
+              <div>
+                <h3>Supabase</h3>
+                <p>Gold Partner — Open-source Firebase alternative with instant Postgres & Auth.</p>
+              </div>
+              <a class="mc-button get" href="https://supabase.com" target="_blank" rel="noopener">Visit ↗</a>
+            </div>
+          </li>
+          <li>
+            <div class="listing">
+              <div style="font-size:28px; width:64px; text-align:center;">✉️</div>
+              <div>
+                <h3>Resend</h3>
+                <p>Silver Partner — Email platform designed specifically for software engineers.</p>
+              </div>
+              <a class="mc-button get" href="https://resend.com" target="_blank" rel="noopener">Visit ↗</a>
+            </div>
+          </li>
+        </ul>
+      </article>
+
+      <!-- 6. Team Station -->
+      <article class="page" id="team" data-station="team" data-icon="heart">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Organizing Crew</h2>
+            <span class="card-badge">TEAM</span>
+          </div>
+        </div>
+        <p>Labyrinth is organised by Google Developer Groups on Campus, NIT Hamirpur.</p>
+
+        <div class="crew">
+          <div class="crew-role">
+            <p class="crew-label">Lead Organisers</p>
+            <h3>Team</h3>
+          </div>
+          <div class="crew-role">
+            <p class="crew-label">Technical Leads</p>
+            <h3>Team</h3>
+          </div>
+          <div class="crew-role">
+            <p class="crew-label">Student Coordinator</p>
+            <h3>Team</h3>
+          </div>
+          <div class="crew-role">
+            <p class="crew-label">Design Lead</p>
+            <h3>Team</h3>
+          </div>
+        </div>
+      </article>
+
+      <!-- 7. FAQ Station -->
+      <article class="page" id="faq" data-station="faq" data-icon="writing">
+        <div class="page-card-header faq-card-header">
+          <div class="header-left faq-header-left">
+            <i class="page-card-icon faq-book-icon" aria-hidden="true"></i>
+            <h2>FAQ &amp; Rules</h2>
+            <span class="card-badge faq-badge">FAQ</span>
+          </div>
+        </div>
+
+        <div class="faq-grid">
+          <div class="faq-box">
+            <details>
+              <summary>
+                <span class="faq-q-text">Is there a registration fee?</span>
+                <span class="faq-toggle" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-answer">
+                <p>No. Labyrinth is completely free. Meals, snacks and swag during the event are covered.</p>
+              </div>
+            </details>
+          </div>
+
+          <div class="crew">
+            <div class="crew-role">
+              <p class="crew-label">Lead Organisers</p>
+              <h3>Team</h3>
+            </div>
+            <div class="crew-role">
+              <p class="crew-label">Technical Leads</p>
+              <h3>Team</h3>
+            </div>
+            <div class="crew-role">
+              <p class="crew-label">Student Coordinator</p>
+              <h3>Team</h3>
+            </div>
+            <div class="crew-role">
+              <p class="crew-label">Design Lead</p>
+              <h3>Team</h3>
+            </div>
+          </div>
+      </article>
 
       <div class="faq-box">
         <details>
@@ -700,7 +1047,8 @@ dialog#panel[data-station] .body.page::before {
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
           <div class="faq-answer">
-            <p>Any college student with a valid student ID. Students from all branches and years are welcome, including first-time hackers.</p>
+            <p>Any college student with a valid student ID. Students from all branches and years are welcome,
+              including first-time hackers.</p>
           </div>
         </details>
       </div>
@@ -724,7 +1072,8 @@ dialog#panel[data-station] .body.page::before {
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
           <div class="faq-answer">
-            <p>No. All code and designs must be made during the 36 hours. Open-source libraries, public APIs and starter templates are allowed.</p>
+            <p>No. All code and designs must be made during the 36 hours. Open-source libraries, public APIs and
+              starter templates are allowed.</p>
           </div>
         </details>
       </div>
@@ -736,7 +1085,8 @@ dialog#panel[data-station] .body.page::before {
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
           <div class="faq-answer">
-            <p>Your laptop, charger, student ID, any hardware you plan to use, and a water bottle. Bring a blanket if you plan to rest overnight.</p>
+            <p>Your laptop, charger, student ID, any hardware you plan to use, and a water bottle. Bring a blanket
+              if you plan to rest overnight.</p>
           </div>
         </details>
       </div>
@@ -748,7 +1098,8 @@ dialog#panel[data-station] .body.page::before {
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
           <div class="faq-answer">
-            <p>Meals and snacks are provided throughout the hackathon. The venue stays open overnight for hacking.</p>
+            <p>Meals and snacks are provided throughout the hackathon. The venue stays open overnight for hacking.
+            </p>
           </div>
         </details>
       </div>
@@ -756,138 +1107,170 @@ dialog#panel[data-station] .body.page::before {
       <div class="faq-box">
         <details>
           <summary>
-            <span class="faq-q-text">How are projects judged?</span>
+            <span class="faq-q-text">Can we work on an existing project?</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
           <div class="faq-answer">
-            <p>On innovation, technical complexity, design and usability, and impact. Teams demo to the judging panel at the end.</p>
+            <p>No. All code and designs must be made during the 24 hours. Open-source libraries, public APIs and starter
+              templates are allowed.</p>
           </div>
-        </details>
       </div>
-    </div>
-  </article>
+      </article>
 
-  <!-- 8. Venue Station -->
-  <article class="page" id="venue" data-station="venue" data-icon="map">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Venue &amp; Travel Guide</h2>
-        <span class="card-badge">VENUE</span>
-      </div>
-    </div>
-    <div class="venue-address">
-      <p><strong>New Lecture Hall</strong><br>National Institute of Technology Hamirpur, Hamirpur, Himachal Pradesh 177005</p>
-      <a class="mc-button" href="https://maps.app.goo.gl/J43i28goaCsLP1qV8" target="_blank" rel="noopener">NIT Hamirpur on Google Maps ↗</a>
-    </div>
+      <!-- 8. Venue Station -->
+      <article class="page" id="venue" data-station="venue" data-icon="map">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Venue &amp; Travel Guide</h2>
+            <span class="card-badge">VENUE</span>
+          </div>
+        </div>
+        <div class="venue-address">
+          <p><strong>New Lecture Hall</strong><br>National Institute of Technology Hamirpur, Hamirpur, Himachal Pradesh
+            177005</p>
+          <a class="mc-button" href="https://maps.app.goo.gl/J43i28goaCsLP1qV8" target="_blank" rel="noopener">NIT
+            Hamirpur on Google Maps ↗</a>
+        </div>
 
-    <div class="travel">
-      <div class="travel-item">
-        <h3>🚌 By road</h3>
-        <p>Hamirpur is connected by HRTC and private buses from Chandigarh, Delhi, Shimla and Dharamshala. The campus is a short auto ride from Hamirpur bus stand.</p>
-      </div>
-      <div class="travel-item">
-        <h3>🚆 By train</h3>
-        <p>The nearest railway station is Una Himachal, about 80 km away. Buses and taxis run from Una to Hamirpur.</p>
-      </div>
-      <div class="travel-item">
-        <h3>✈️ By air</h3>
-        <p>The nearest airport is Gaggal (Kangra), about 90 km away. Chandigarh airport is the nearest major airport.</p>
-      </div>
-      <div class="travel-item">
-        <h3>📍 On campus</h3>
-        <p>Check in at the New Lecture Hall on Jan 17 from 09:00. Volunteers will guide you from the main gate.</p>
-      </div>
-    </div>
-  </article>
+        <div class="travel">
+          <div class="travel-item">
+            <h3>🚌 By road</h3>
+            <p>Hamirpur is connected by HRTC and private buses from Chandigarh, Delhi, Shimla and Dharamshala. The
+              campus is a short auto ride from Hamirpur bus stand.</p>
+          </div>
+          <div class="travel-item">
+            <h3>🚆 By train</h3>
+            <p>The nearest railway station is Una Himachal, about 80 km away. Buses and taxis run from Una to Hamirpur.
+            </p>
+          </div>
+          <div class="travel-item">
+            <h3>✈️ By air</h3>
+            <p>The nearest airport is Gaggal (Kangra), about 90 km away. Chandigarh airport is the nearest major
+              airport.</p>
+          </div>
+          <div class="travel-item">
+            <h3>📍 On campus</h3>
+            <p>Check in at the New Lecture Hall on Jan 16 from 09:00. Volunteers will guide you from the main gate.</p>
+          </div>
+        </div>
+      </article>
 
-  <!-- 9. Register Station -->
-  <article class="page" id="register" data-station="register" data-icon="seal">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Register for Labyrinth</h2>
-        <span class="card-badge">REGISTER</span>
-      </div>
-    </div>
-    <p>Register your team for the Labyrinth hackathon! Fill out your details below:</p>
+      <!-- 9. Register Station -->
+      <article class="page" id="register" data-station="register" data-icon="seal">
+        <div class="page-card-header">
+          <div class="header-left">
+            <i class="page-card-icon" aria-hidden="true"></i>
+            <h2>Register for Labyrinth</h2>
+            <span class="card-badge">REGISTER</span>
+          </div>
+        </div>
+        <p>Register your team for the Labyrinth hackathon! Fill out your details below:</p>
 
-    <form class="signup" onsubmit="event.preventDefault(); alert('Registration submitted! You are confirmed for Labyrinth.');">
-      <input name="teamName" maxlength="80" required placeholder="Team Name" aria-label="Team Name (required)">
-      <input name="leaderEmail" type="email" maxlength="120" required placeholder="Team Leader Email" aria-label="Leader Email">
-      <input name="teamSize" type="number" min="2" max="4" value="4" required placeholder="Team Size (2 - 4)" aria-label="Team Size">
-      <select name="Track" id="Track" required aria-label="Select Track">
-        <option value="" disabled selected hidden>Select a track</option>
-        <option value="us">Autonomous AI & Agents</option>
-        <option value="ca">Decentralized Systems</option>
-        <option value="uk">Interactive 3D & Spatial Web</option>
-        <option value="in"> Open Innovation</option>
-      </select>
-      <textarea name="projectNotes" rows="4" maxlength="500" placeholder="Brief project idea or technology stack..." aria-label="Project Notes"></textarea>
-      <div class="mailbox-foot">
-        <button class="mc-button" type="submit">Submit Registration</button>
+        <form class="signup"
+          onsubmit="event.preventDefault(); alert('Registration submitted! You are confirmed for Labyrinth.');">
+          <input name="teamName" maxlength="80" required placeholder="Team Name" aria-label="Team Name (required)">
+          <input name="leaderEmail" type="email" maxlength="120" required placeholder="Team Leader Email"
+            aria-label="Leader Email">
+          <input name="teamSize" type="number" min="2" max="4" value="4" required placeholder="Team Size (2 - 4)"
+            aria-label="Team Size">
+          <select name="Track" id="Track" required aria-label="Select Track">
+            <option value="" disabled selected hidden>Select a track</option>
+            <option value="us">Autonomous AI & Agents</option>
+            <option value="ca">Decentralized Systems</option>
+            <option value="uk">Interactive 3D & Spatial Web</option>
+            <option value="in"> Open Innovation</option>
+          </select>
+          <textarea name="projectNotes" rows="4" maxlength="500" placeholder="Brief project idea or technology stack..."
+            aria-label="Project Notes"></textarea>
+          <div class="mailbox-foot">
+            <button class="mc-button" type="submit">Submit Registration</button>
+          </div>
+        </form>
+      </article>
+
+      <div class="travel">
+        <div class="travel-item">
+          <h3>🚌 By road</h3>
+          <p>Hamirpur is connected by HRTC and private buses from Chandigarh, Delhi, Shimla and Dharamshala. The campus
+            is a short auto ride from Hamirpur bus stand.</p>
+        </div>
+        <div class="travel-item">
+          <h3>🚆 By train</h3>
+          <p>The nearest railway station is Una Himachal, about 80 km away. Buses and taxis run from Una to Hamirpur.
+          </p>
+        </div>
+        <div class="travel-item">
+          <h3>✈️ By air</h3>
+          <p>The nearest airport is Gaggal (Kangra), about 90 km away. Chandigarh airport is the nearest major airport.
+          </p>
+        </div>
+        <div class="travel-item">
+          <h3>📍 On campus</h3>
+          <p>Check in at the New Lecture Hall on Jan 16 from 09:00. Volunteers will guide you from the main gate.</p>
+        </div>
       </div>
+      </article>
+
+      <footer class="pv-foot">
+        <p><strong>Labyrinth</strong> · Organised by Google Developer Groups on Campus, NIT Hamirpur</p>
+        <p><a href="?" data-mode data-keep-text>Open the 3D island</a><a href="#register">Register</a><a
+            href="#mailbox">Contact</a></p>
+      </footer>
+    </section>
+  </div><!-- /#appShift -->
+
+  <section id="agentChatPanel" aria-label="Chat with Labyrinth" aria-hidden="true">
+    <header>
+      <div class="agent-chat-title">
+        <img id="agentChatPanelIcon" src="" alt="" width="40" height="40">
+        <h2>Labyrinth</h2>
+      </div>
+      <button type="button" class="agent-chat-close" aria-label="Close">×</button>
+    </header>
+    <div class="agent-chat-log" role="log" aria-live="polite"></div>
+    <form class="agent-chat-form">
+      <input type="text" name="message" maxlength="500" autocomplete="off"
+        placeholder="Ask about tracks, schedule, prizes…" aria-label="Your question">
+      <button class="mc-button" type="submit">Send</button>
     </form>
-  </article>
+    <p class="agent-chat-status" role="status" aria-live="polite"></p>
+  </section>
 
-  <!-- 10. Mailbox Station -->
-  <article class="page" id="mailbox" data-station="mailbox" data-icon="mail">
-    <div class="page-card-header">
-      <div class="header-left">
-        <i class="page-card-icon" aria-hidden="true"></i>
-        <h2>Contact &amp; Inquiries</h2>
-        <span class="card-badge">CONTACT</span>
-      </div>
-    </div>
-    <form class="mailbox" method="post" enctype="text/plain">
-      <input name="subject" maxlength="80" required placeholder="Subject" aria-label="Subject (required)">
-      <textarea name="message" rows="6" maxlength="1000" required placeholder="Write something to the organisers..." aria-label="Write something"></textarea>
-      <input name="contact" maxlength="120" required autocomplete="email" placeholder="Your Email (required)" aria-label="How to reach you (required)">
-      <input class="trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="mailbox-foot"><button class="mc-button" type="submit" disabled>Send Message</button></div>
-      <p class="mailbox-status" role="status" aria-live="polite"></p>
-    </form>
-  </article>
+  <!-- file:// cannot load the world modules. -->
+  <script>
+    if (location.protocol === 'file:') {
+      const note = document.createElement('aside');
+      note.id = 'startupNotice';
+      note.innerHTML = '<h2>Open it through a local server</h2><p>Browsers don’t load the 3D world from a double-clicked file. In this folder, run <code>python tools/serve.py</code>. It picks a free port and opens the page. The address is also printed in the terminal.</p>';
+      document.getElementById('pages').before(note);
+      document.getElementById('loading')?.remove();
+      document.body.classList.add('plain');
+    }
+  </script>
+  <noscript>
+    <style>
+      #world,
+      #hud,
+      #loading {
+        display: none
+      }
 
-  <footer class="pv-foot">
-    <p><strong>Labyrinth</strong> · Organised by Google Developer Groups on Campus, NIT Hamirpur</p>
-    <p><a href="?" data-mode data-keep-text>Open the 3D island</a><a href="#register">Register</a><a href="#mailbox">Contact</a></p>
-  </footer>
-</section>
-</div><!-- /#appShift -->
-
-<section id="agentChatPanel" aria-label="Chat with Labyrinth" aria-hidden="true">
-  <header>
-    <div class="agent-chat-title">
-      <img id="agentChatPanelIcon" src="" alt="" width="40" height="40">
-      <h2>Labyrinth</h2>
-    </div>
-    <button type="button" class="agent-chat-close" aria-label="Close">×</button>
-  </header>
-  <div class="agent-chat-log" role="log" aria-live="polite"></div>
-  <form class="agent-chat-form">
-    <input type="text" name="message" maxlength="500" autocomplete="off" placeholder="Ask about tracks, schedule, prizes…" aria-label="Your question">
-    <button class="mc-button" type="submit">Send</button>
-  </form>
-  <p class="agent-chat-status" role="status" aria-live="polite"></p>
-</section>
-
-<!-- file:// cannot load the world modules. -->
-<script>
-if (location.protocol === 'file:') {
-  const note = document.createElement('aside');
-  note.id = 'startupNotice';
-  note.innerHTML = '<h2>Open it through a local server</h2><p>Browsers don’t load the 3D world from a double-clicked file. In this folder, run <code>python tools/serve.py</code>. It picks a free port and opens the page. The address is also printed in the terminal.</p>';
-  document.getElementById('pages').before(note);
-  document.getElementById('loading')?.remove();
-  document.body.classList.add('plain');
-}
-</script>
-<noscript><style>#world,#hud,#loading{display:none}#pages{display:block}</style></noscript>
-<!-- Hides the BetterMapIt and Homecraft badges on the radar. A CSS rule costs nothing per frame;
+      #pages {
+        display: block
+      }
+    </style>
+  </noscript>
+  <!-- Hides the BetterMapIt and Homecraft badges on the radar. A CSS rule costs nothing per frame;
      the previous MutationObserver re-queried the whole document on every DOM change. -->
-<style>#minimap .badge, a.badge { display: none !important; }</style>
-<script type="module" src="engine/main.js"></script>
-<script type="module" src="site/site.js"></script>
+  <style>
+    #minimap .badge,
+    a.badge {
+      display: none !important;
+    }
+  </style>
+  <script type="module" src="engine/main.js"></script>
+  <script type="module" src="site/site.js"></script>
 </body>
+
 </html>

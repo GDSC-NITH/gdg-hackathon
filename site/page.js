@@ -84,23 +84,23 @@ function decorate() {
   const items = schedule ? $$('.schedule-item', schedule) : [];
   if (items.length) {
     const days = Object.assign(document.createElement('div'), { className: 'pv-days' });
-    
+
     // Top horizontal railway track spanning Day 1 and Day 2
     const topBar = Object.assign(document.createElement('div'), { className: 'pv-timeline-top' });
     topBar.setAttribute('aria-hidden', 'true');
     topBar.innerHTML = `
       <div class="pv-top-track-inner">
         <i class="pv-prop-torch" title="Redstone Torch"></i>
-        <div class="pv-top-badge d1">DAY 1 - JAN 17</div>
+        <div class="pv-top-badge d1">DAY 1 - JAN 16</div>
         <div class="pv-rail-h"><i class="pv-minecart" title="Minecart"></i></div>
-        <div class="pv-top-badge d2">DAY 2 - JAN 18</div>
+        <div class="pv-top-badge d2">DAY 2 - JAN 17</div>
         <div class="pv-rail-h-end"><i class="pv-redstone-dot"></i></div>
       </div>
     `;
     days.append(topBar);
 
     const bodyGrid = Object.assign(document.createElement('div'), { className: 'pv-timeline-body' });
-    
+
     // Left redstone wiring gutter
     const gutterLeft = Object.assign(document.createElement('div'), { className: 'pv-redstone-gutter left' });
     gutterLeft.setAttribute('aria-hidden', 'true');
