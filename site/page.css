@@ -948,6 +948,468 @@ body.pv-motion [data-reveal].is-in { animation: pv-rise .5s cubic-bezier(.2, .7,
 body.pv-motion .faq-box details[open] > p { animation: pv-rise .28s ease; }
 body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s ease; }
 
+/* ---------- Retro Arcade HUD Countdown ---------- */
+body.plain .hero-count {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 24px;
+}
+body.plain .hero-count div {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 8px 8px;
+  background: rgba(14, 18, 26, 0.88);
+  border: 2px solid #2d3748;
+  border-radius: 4px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 11px;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: transform 0.18s ease;
+}
+body.plain .hero-count div:hover {
+  transform: translateY(-2px);
+  border-color: #55e6c1;
+}
+body.plain .hero-count b {
+  display: block;
+  font-family: 'Press Start 2P', 'Minecraft', monospace;
+  font-size: 22px;
+  color: #00d2d3;
+  text-shadow: 0 0 10px rgba(0, 210, 211, 0.6), 2px 2px 0 #000;
+  margin-bottom: 4px;
+}
+
+/* Section Level Badges */
+body.plain .pv-stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #55e6c1;
+  background: rgba(9, 132, 227, 0.15);
+  border: 1px solid rgba(85, 230, 193, 0.4);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(85, 230, 193, 0.2);
+  text-shadow: 0 0 4px rgba(85, 230, 193, 0.6);
+  margin-bottom: 4px;
+}
+
+/* Smooth Scroll Margin for Sections in Continuous Flow */
+body.plain #pages > .page {
+  scroll-margin-top: calc(var(--bar-h) + 68px);
+}
+
+/* Hack-o-Matic 3000 Interactive Workbench */
+body.plain .pv-crafting-station {
+  margin: 24px 0 18px;
+  padding: 18px 20px;
+  background: linear-gradient(180deg, #2b2620 0%, #1e1a16 100%);
+  border: 2px solid #5a493a;
+  box-shadow: inset 2px 2px 0 #7b6653, inset -2px -2px 0 #120e0a, 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: #ede7dc;
+  border-radius: 4px;
+}
+body.plain .pv-craft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 2px solid #3c3228;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+body.plain .pv-craft-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+body.plain .pv-craft-badge {
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffd32a;
+  background: rgba(255, 211, 42, 0.15);
+  border: 1px solid rgba(255, 211, 42, 0.5);
+  padding: 3px 7px;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(255, 211, 42, 0.3);
+}
+body.plain .pv-craft-title,
+body.plain .pv-crafting-station h3 {
+  margin: 0;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 17px;
+  color: #f5eedb !important;
+  text-shadow: 2px 2px 0 #000;
+}
+body.plain .pv-craft-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 11px;
+  color: #2ed573;
+  text-shadow: 0 0 6px rgba(46, 213, 115, 0.5);
+}
+body.plain .pv-craft-status .pv-dot {
+  width: 8px;
+  height: 8px;
+  background: #2ed573;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #2ed573;
+  animation: pv-blink 1.2s infinite ease-in-out;
+}
+@keyframes pv-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+body.plain .pv-craft-subtitle,
+body.plain .pv-crafting-station p {
+  font-size: 13px;
+  color: #e2ddd5 !important;
+  margin: 0 0 14px;
+}
+body.plain .pv-craft-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+body.plain .pv-craft-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 6px;
+  background: #3e372e;
+  border: 2px solid #231e19;
+  box-shadow: inset 2px 2px 0 #5f5446, inset -2px -2px 0 #1a1612;
+  color: #f1ede4;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+body.plain .pv-craft-slot:hover {
+  background: #50473b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 2px 2px 0 #706352, inset -2px -2px 0 #1a1612;
+}
+body.plain .pv-craft-slot.active {
+  background: #614e30;
+  border-color: #ffd32a;
+  box-shadow: 0 0 12px rgba(255, 211, 42, 0.4), inset 2px 2px 0 #a38549, inset -2px -2px 0 #2e2413;
+  transform: translateY(-1px);
+}
+body.plain .pv-slot-icon {
+  font-size: 20px;
+}
+body.plain .pv-slot-name {
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+body.plain .pv-slot-buff {
+  font-size: 10px;
+  color: #2ed573;
+  font-weight: 600;
+  white-space: nowrap;
+}
+body.plain .pv-craft-output {
+  margin-top: 10px;
+}
+body.plain .pv-crafted-banner {
+  padding: 12px 14px;
+  background: #1b1612;
+  border: 2px solid #4a3a29;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+  border-left: 4px solid #ffd32a;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+body.plain .pv-crafted-banner.pulse {
+  animation: pv-craft-flash 0.35s ease;
+}
+@keyframes pv-craft-flash {
+  0% { background: #382c19; }
+  100% { background: #1b1612; }
+}
+body.plain .pv-crafted-tag {
+  display: inline-block;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 9px;
+  color: #ffd32a;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+body.plain .pv-crafted-name {
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+body.plain .pv-crafted-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #e2ddd5 !important;
+}
+
+/* FAQ Category Filter Pills */
+body.plain .pv-faq-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+body.plain .pv-faq-filter {
+  padding: 6px 12px;
+  background: #dedbd4;
+  border: 2px solid #25221d;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #7b766c;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #27221c;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+body.plain .pv-faq-filter:hover {
+  background: #eae7e0;
+  transform: translateY(-1px);
+}
+body.plain .pv-faq-filter.active {
+  background: #473e36;
+  color: #f5eedb;
+  border-color: #ffd32a;
+  box-shadow: 0 0 8px rgba(255, 211, 42, 0.3), inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 #1b1712;
+}
+
+/* Scroll-Synchronized Minecraft Character Runner Track */
+body.plain .pv-runner-track {
+  position: relative;
+  width: 100%;
+  margin: 12px 0 20px;
+  height: 64px;
+  background: rgba(18, 14, 11, 0.7);
+  border: 2px solid #453729;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+body.plain .pv-rail-line {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  right: 14px;
+  height: 8px;
+  transform: translateY(-50%);
+  background: url("../assets/branding/rail-h.svg") center / 20px 8px repeat-x;
+  border-radius: 2px;
+}
+body.plain .pv-rail-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.4), #ef4444);
+  box-shadow: 0 0 10px #ef4444;
+  transition: width 0.1s linear;
+}
+body.plain .pv-minecraft-character {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  width: 36px;
+  height: 44px;
+  pointer-events: none;
+  z-index: 5;
+  transition: transform 0.1s linear;
+  will-change: transform;
+}
+body.plain .mc-char-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+body.plain .mc-head {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  background: #d8a074;
+  border: 2px solid #5a3d24;
+  box-shadow: inset 2px 2px 0 #e4b893;
+}
+body.plain .mc-face {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  width: 4px;
+  height: 4px;
+  background: #25221d;
+  box-shadow: -6px 0 0 #25221d;
+}
+body.plain .mc-torso {
+  position: absolute;
+  top: 16px;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  background: #0984e3;
+  border: 2px solid #06528d;
+  box-shadow: inset 1px 1px 0 #4da9ff;
+}
+body.plain .mc-gdg-logo {
+  position: absolute;
+  inset: 2px;
+  background: radial-gradient(circle, #ffd32a 30%, transparent 70%);
+}
+body.plain .mc-arm {
+  position: absolute;
+  top: 16px;
+  width: 6px;
+  height: 15px;
+  background: #d8a074;
+  border: 1px solid #5a3d24;
+  transform-origin: top center;
+}
+body.plain .mc-arm-left {
+  left: 3px;
+  background: #0984e3;
+}
+body.plain .mc-arm-right {
+  right: 3px;
+  background: #0984e3;
+}
+body.plain .mc-leg {
+  position: absolute;
+  top: 32px;
+  width: 7px;
+  height: 12px;
+  background: #2d3436;
+  border: 1px solid #1e2224;
+  transform-origin: top center;
+}
+body.plain .mc-leg-left {
+  left: 10px;
+}
+body.plain .mc-leg-right {
+  right: 10px;
+}
+
+/* Running Sprint Keyframe Animations */
+body.plain .pv-minecraft-character.is-running .mc-arm-left {
+  animation: mc-swing 0.3s infinite alternate ease-in-out;
+}
+body.plain .pv-minecraft-character.is-running .mc-arm-right {
+  animation: mc-swing 0.3s infinite alternate-reverse ease-in-out;
+}
+body.plain .pv-minecraft-character.is-running .mc-leg-left {
+  animation: mc-swing 0.3s infinite alternate-reverse ease-in-out;
+}
+body.plain .pv-minecraft-character.is-running .mc-leg-right {
+  animation: mc-swing 0.3s infinite alternate ease-in-out;
+}
+@keyframes mc-swing {
+  0% { transform: rotate(-32deg); }
+  100% { transform: rotate(32deg); }
+}
+
+/* Redstone Particle Dust Sparks */
+body.plain .mc-dust-emitter {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  pointer-events: none;
+}
+body.plain .mc-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  border-radius: 50%;
+  animation: mc-particle-fly 0.5s ease-out forwards;
+}
+@keyframes mc-particle-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+/* Milestone Reached Flash on Schedule Items */
+body.plain .schedule-item.milestone-reached {
+  border-color: #ffd32a !important;
+  box-shadow: 0 0 14px rgba(255, 211, 42, 0.4), inset 2px 2px 0 #ffffff !important;
+}
+
+/* Team Member Cards with Retro Gamer Badges */
+body.plain .crew-role {
+  position: relative;
+  overflow: hidden;
+}
+body.plain .crew-role::before {
+  content: "PLAYER READY";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'Minecraft', 'Silkscreen', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: #2ed573;
+  background: rgba(46, 213, 115, 0.12);
+  border: 1px solid rgba(46, 213, 115, 0.4);
+  padding: 2px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+/* Gold/Silver/Bronze Prize Podium Styling */
+body.plain .prize-tier.gold {
+  border-color: #d4af37 !important;
+  background: linear-gradient(180deg, #f7f3e8 0%, #ede3ca 100%) !important;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.35), inset 2px 2px 0 #ffffff !important;
+}
+body.plain .prize-tier.gold .prize-amount {
+  color: #996515 !important;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.6);
+}
+body.plain .prize-tier.silver {
+  border-color: #a8b0b8 !important;
+  box-shadow: 0 0 12px rgba(168, 176, 184, 0.25), inset 2px 2px 0 #ffffff !important;
+}
+body.plain .prize-tier.bronze {
+  border-color: #cd7f32 !important;
+  box-shadow: 0 0 12px rgba(205, 127, 50, 0.25), inset 2px 2px 0 #ffffff !important;
+}
+
+/* Active Tab Floating Glow in Tabbar */
+body.plain .pv-tab[aria-selected="true"] {
+  color: #ffffff;
+  background: #3c342a;
+  box-shadow: 0 0 0 2px #000, inset 2px 2px 0 #5c5040, inset -2px -3px 0 #1c1813, inset 0 -4px 0 #ffd32a;
+  transform: translateY(-2px);
+}
+body.plain .pv-tab[aria-selected="true"] i {
+  filter: drop-shadow(0 0 6px rgba(255, 211, 42, 0.8));
+}
+
 /* ---------- Narrow screens ---------- */
 @media (max-width: 900px) {
   body.plain .hack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1000,6 +1462,10 @@ body.pv-motion .faq-box details[open] summary::after { animation: pv-pop .3s eas
   }
   body.plain .hack-grid { gap: 10px; }
   body.plain .hack-stat .val { font-size: clamp(14px, 1.8cqw, 18px); }
+  body.plain .pv-craft-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.plain .pv-runner-track { height: 56px; }
+  body.plain .hero-count div { padding: 8px 4px 6px; }
+  body.plain .hero-count b { font-size: 18px; }
   body.plain :is(#tracks, #faq .faq-grid, #sponsors .store, .crew, .travel, .signup, .pv-days) { grid-template-columns: minmax(0, 1fr); }
   body.plain #prizes > .prize-tier { grid-column: 1 / -1; }
   body.plain .prize-amount { font-size: 24px; }
