@@ -49,9 +49,13 @@ export function initPageView() {
     loaded.then(() => setTimeout(startRunner, 300));
     return;
   }
-  // Loading screen: wait for the fonts, the page's files, the hero video and the
-  // runner, at most 10 seconds, then reveal the page and play the hero intro.
-  revealWhen([document.fonts?.ready, loaded, hero.video, startRunner()], 10000).then(() => {
+  // Loading screen: wait for what is on screen first (the fonts, the hero video and
+  // the runner), at most 6 seconds, then reveal the page and play the hero intro.
+  // On a slow connection the video is not waited for: the poster shows and the
+  // video fades in once it plays.
+  const conn = navigator.connection || {};
+  const slow = /(^|-)(2g|3g)$/.test(conn.effectiveType || '') || (conn.downlink && conn.downlink < 1.5);
+  revealWhen([document.fonts?.ready, slow ? null : hero.video, startRunner()], 6000).then(() => {
     const html = document.documentElement;
     html.style.setProperty('--pct', '100');
     dispatchEvent(new Event('resize'));
