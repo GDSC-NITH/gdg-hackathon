@@ -161,7 +161,7 @@ export function initHero(root) {
   // Pointer parallax (desktop): the layers move by depth, the wordmark tilts towards the cursor.
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const mark = hero.querySelector('.pv-wordmark canvas');
-  const layers = [[hero.querySelector('.pv-eyebrow'), 10], [hero.querySelector('.pv-hero-tag'), 7], [hero.querySelector('.pv-chips'), 12], [hero.querySelector('.pv-count'), 9]];
+  const layers = [[hero.querySelector('.pv-eyebrow'), 10], [hero.querySelector('.pv-count'), 9], [hero.querySelector('.pv-hero-cta'), 6]];
   let px = 0, py = 0, tpx = 0, tpy = 0;
   if (fine) hero.addEventListener('pointermove', e => { tpx = e.clientX / innerWidth - 0.5; tpy = e.clientY / innerHeight - 0.5; });
   hero.addEventListener('pointerleave', () => { tpx = tpy = 0; });

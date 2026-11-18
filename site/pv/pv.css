@@ -233,7 +233,7 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 .pv-menu.open a, .pv-menu.open .pv-btn { opacity: 1; transform: none; }
 
 /* ---------- Hero ---------- */
-.pv-hero { position: relative; min-height: 100vh; min-height: 100svh; padding: calc(var(--bar) + 12px + clamp(40px, 9vh, 96px)) 0 clamp(80px, 12vh, 120px); overflow: hidden; display: grid; place-items: center; isolation: isolate; }
+.pv-hero { position: relative; min-height: 100vh; min-height: 100svh; padding: calc(var(--bar) + 20px) 0 92px; overflow: hidden; display: grid; place-items: center; isolation: isolate; }
 .pv-hero-media {
   position: absolute; inset: 0; z-index: -2; transform-origin: 50% 34%; will-change: transform;
   /* A touch more colour and contrast than the raw clip; hero.js dims it on scroll. */
@@ -256,23 +256,13 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 }
 .pv-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 0 0 rgba(255, 90, 31, .7); animation: pv-ping 2s infinite; flex: none; }
 @keyframes pv-ping { 0% { box-shadow: 0 0 0 0 rgba(255, 90, 31, .7); } 70% { box-shadow: 0 0 0 10px rgba(255, 90, 31, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 90, 31, 0); } }
-.pv-wordmark { margin: clamp(18px, 3.5vh, 30px) 0 clamp(14px, 2.6vh, 24px); line-height: 0; }
+.pv-wordmark { margin: clamp(18px, 3.5vh, 30px) 0 clamp(24px, 4.4vh, 40px); line-height: 0; }
 .pv-wordmark canvas {
   width: min(700px, 78vw); height: auto; image-rendering: pixelated; image-rendering: crisp-edges;
   filter: drop-shadow(0 0 30px rgba(255, 90, 31, .5)) drop-shadow(0 18px 30px rgba(0, 0, 0, .85));
   animation: pv-breathe 5s ease-in-out 2s infinite;
 }
 @keyframes pv-breathe { 50% { filter: drop-shadow(0 0 46px rgba(255, 110, 40, .75)) drop-shadow(0 18px 30px rgba(0, 0, 0, .85)); } }
-.pv-hero-tag { margin: 0 auto 26px; max-width: 600px; color: #f1e3d8; font: 500 clamp(16px, 2vw, 20px)/1.55 var(--f-body); text-shadow: 0 2px 14px #000; }
-.pv-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 22px; padding: 0; list-style: none; }
-.pv-chips li {
-  min-width: 128px; padding: 10px 16px; border-radius: 14px; text-align: left;
-  background: rgba(16, 9, 7, .62); border: 1px solid var(--line); backdrop-filter: blur(8px);
-  transition: transform .3s var(--ease), border-color .3s;
-}
-.pv-chips li:hover { transform: translateY(-3px); border-color: var(--line2); }
-.pv-chips b { display: block; font: 600 16px/1.25 var(--f-pixel); color: var(--gold); }
-.pv-chips span { font-size: 12px; color: var(--muted); }
 .pv-count { display: flex; justify-content: center; gap: 10px; margin: 0 0 28px; }
 .pv-unit {
   width: 86px; padding: 12px 0 9px; border-radius: 14px; text-align: center; overflow: hidden;
@@ -298,11 +288,8 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 .pv-intro { opacity: 0; }
 .pv-hero.is-ready .pv-intro { animation: pv-up 1s var(--ease) both; }
 .pv-hero.is-ready .pv-eyebrow { animation-delay: .1s; }
-.pv-hero.is-ready .pv-hero-tag { animation-delay: .9s; }
-.pv-hero.is-ready .pv-chips { animation: none; opacity: 1; }
-.pv-hero.is-ready .pv-chips li { animation: pv-up .9s var(--ease) both; animation-delay: calc(1.05s + var(--i) * .08s); }
-.pv-hero.is-ready .pv-count { animation-delay: 1.35s; }
-.pv-hero.is-ready .pv-hero-cta { animation-delay: 1.5s; }
+.pv-hero.is-ready .pv-count { animation-delay: .9s; }
+.pv-hero.is-ready .pv-hero-cta { animation-delay: 1.05s; }
 .pv-hero.is-ready .pv-cue { animation: pv-fade 1s 2s both; }
 
 /* Portrait screens get the vertical loop (hero.js picks the same one by aspect ratio). */
@@ -981,18 +968,16 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
   .pv-event .pv-event-text { -webkit-line-clamp: 2; }
 }
 
-/* ---------- Phones ---------- */@media (max-width: 760px) {
+/* ---------- Phones ---------- */
+@media (max-width: 760px) {
   body.pv-on { --bar: 58px; }
   .pv-bar { top: 8px; width: calc(100% - 16px); padding: 0 6px 0 12px; border-radius: 16px; }
   .pv-brand span { font-size: 16px; }
   .pv-hide-sm { display: none; }
-  .pv-hero { padding-top: calc(var(--bar) + 8px + clamp(28px, 6vh, 56px)); }
+  .pv-hero { padding-top: calc(var(--bar) + 14px); padding-bottom: 12px; }
   .pv-hero-inner { padding-bottom: 8px; }
   .pv-eyebrow { font-size: 10px; letter-spacing: .1em; padding: 7px 12px; }
   .pv-wordmark canvas { width: 84vw; }
-  .pv-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .pv-chips li { min-width: 0; padding: 9px 12px; }
-  .pv-chips b { font-size: 16px; }
   .pv-count { gap: 6px; margin-bottom: 20px; }
   .pv-unit { width: auto; flex: 1; max-width: 80px; padding: 10px 0 7px; }
   .pv-unit b { font-size: 22px; }
@@ -1077,7 +1062,6 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 }
 @media (max-width: 379px) {
   .pv-unit b { font-size: 20px; }
-  .pv-chips b { font-size: 14px; }
   .pv-h { font-size: 26px; }
 }
 /* Phone held sideways: keep it simple. */

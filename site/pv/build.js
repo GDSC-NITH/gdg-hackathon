@@ -87,8 +87,6 @@ function heroHTML(c) {
     <div class="pv-hero-inner">
       <p class="pv-eyebrow pv-intro"><i class="pv-dot"></i><span data-scramble>${esc(c.eyebrow || 'GDG on Campus · NIT Hamirpur presents')}</span></p>
       <h1 class="pv-wordmark" id="pvTitle"><span class="sr">Labyrinth</span><canvas aria-hidden="true"></canvas></h1>
-      <p class="pv-hero-tag pv-intro">${esc(c.tag)}</p>
-      <ul class="pv-chips pv-intro">${c.facts.map((f, i) => `<li style="--i:${i}"><b>${esc(f.b)}</b><span>${esc(f.t)}</span></li>`).join('')}</ul>
       <div class="pv-count pv-intro" role="timer" aria-label="Time until hacking starts" data-starts="${esc(c.starts)}" data-ends="${esc(c.ends)}"></div>
       <div class="pv-hero-cta pv-intro">
         <a class="pv-btn pv-btn-fire" href="#contact" data-to="contact"><span>Register now</span><b aria-hidden="true">→</b></a>
