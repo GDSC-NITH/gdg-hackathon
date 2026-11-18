@@ -20,24 +20,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Loaded without blocking: a render-blocking stylesheet also holds back the module scripts, so the 3D world would wait on Google Fonts. -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap"
     rel="stylesheet" media="print" onload="this.media='all'">
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap"
       rel="stylesheet">
   </noscript>
   <script>
-    // On mobile devices, default to the 2D page view unless 3D is explicitly requested (?3d)
+    // The single-page site (page view) is the landing page on every device; the
+    // 3D world opens with ?3d ("Explore our world"). Automated checks keep 3D.
     (function () {
       const params = new URLSearchParams(location.search);
-      if (params.has('plain') || params.has('3d') || navigator.webdriver) return;
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820);
-      if (isMobile) {
-        params.set('plain', '');
-        const search = params.toString().replace(/=(?=&|$)/g, '');
-        location.replace(location.pathname + (search ? '?' + search : '') + location.hash);
+      // pv-boot shows the hero poster until site/page.js has built the page view.
+      if (params.has('plain')) {
+        document.documentElement.classList.add('pv-boot');
+        // The hero poster first; the page view's modules follow the import map below.
+        const poster = Object.assign(document.createElement('link'), { rel: 'preload', as: 'image', href: `assets/hero/bg-${matchMedia('(max-aspect-ratio: 4/5)').matches ? 'tall' : 'wide'}.webp` });
+        poster.setAttribute('fetchpriority', 'high');
+        document.head.append(poster);
+        return;
       }
+      if (params.has('3d') || navigator.webdriver) return;
+      params.set('plain', '');
+      const search = params.toString().replace(/=(?=&|$)/g, '');
+      location.replace(location.pathname + (search ? '?' + search : '') + location.hash);
     })();
   </script>
   <link rel="stylesheet" href="engine/style.css">
@@ -670,8 +676,20 @@
   "@world/":"./world/",
   "@config":"./home.config.js"
 }}</script>
+  <script>
+    // Page view only: fetch its own modules ahead of the 3D engine (after the import map, which must come first).
+    if (document.documentElement.classList.contains('pv-boot')) {
+      for (const href of ['site/pv/start.js', 'site/page.js', 'site/pv/build.js', 'site/pv/data.js', 'site/pv/fx.js',
+        'site/pv/scroll.js', 'site/pv/hero.js', 'site/pv/sections.js', 'site/pv/embers.js', 'engine/config.js',
+        'home.config.js', 'engine/world/pixel-text.js']) {
+        const l = Object.assign(document.createElement('link'), { rel: 'modulepreload', href });
+        l.setAttribute('fetchpriority', 'high');
+        document.head.append(l);
+      }
+    }
+  </script>
   <link rel="stylesheet" href="site/site.css">
-  <link rel="stylesheet" href="site/page.css">
+  <link rel="stylesheet" href="site/pv/pv.css">
 </head>
 
 <body>
@@ -1215,6 +1233,7 @@
       display: none !important;
     }
   </style>
+  <script type="module" src="site/pv/start.js" async></script>
   <script type="module" src="engine/main.js"></script>
   <script type="module" src="site/site.js"></script>
 </body>

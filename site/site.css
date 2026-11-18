@@ -392,3 +392,19 @@ body.hero-on #agentChatPanel, body.reading #agentChatPanel { display: none; }
 @media (prefers-reduced-motion: reduce) {
   #agentChatPanel, #appShift { transition: none; }
 }
+
+/* The registration form in the 3D view's Register card uses the mailbox field
+   treatment without submitting through the mailbox. (Moved here unchanged from
+   the retired site/page.css; the page view styles its own copy in site/pv/pv.css.) */
+body:not(.pv-on) .signup {
+  position: relative; display: grid; gap: 12px; padding: 14px;
+  border: 8px solid transparent; border-image: var(--mc-frame) 4 fill / 8px;
+}
+body:not(.pv-on) .signup :is(input, select, textarea) {
+  width: 100%; padding: 10px 12px; border: 0; border-radius: 0;
+  font: 400 16px/1.5 var(--text); color: var(--ink); background: var(--field);
+  box-shadow: 0 0 0 2px var(--field-edge);
+}
+body:not(.pv-on) .signup textarea { min-height: 120px; resize: none; }
+body:not(.pv-on) .signup :is(input, select, textarea)::placeholder { color: var(--field-hint); }
+body:not(.pv-on) .signup :is(input, select, textarea):focus { outline: none; box-shadow: 0 0 0 2px var(--ink); }
