@@ -1,5 +1,6 @@
 // Drifting embers and ash over the whole page: one small 2D canvas, about
-// 50 particles on desktop and 22 on phones. Off when motion is reduced.
+// 50 particles on desktop; on phones 16 particles at 1x pixels, redrawn at 30 fps.
+// Off when motion is reduced.
 import { onFrame, state, reduced } from './scroll.js';
 
 export function initEmbers(root) {
@@ -10,8 +11,8 @@ export function initEmbers(root) {
   root.append(canvas);
   const ctx = canvas.getContext('2d');
   const small = Math.min(innerWidth, innerHeight) < 700;
-  const N = small ? 22 : 50;
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  const N = small ? 16 : 50;
+  const dpr = small ? 1 : Math.min(devicePixelRatio || 1, 1.5);
   let w = 0, h = 0;
   const size = () => {
     w = innerWidth; h = innerHeight;
@@ -33,9 +34,10 @@ export function initEmbers(root) {
     p.ash = Math.random() < 0.25;
     return p;
   }
-  let lastY = 0;
+  let lastY = 0, acc = 0;
   onFrame(dt => {
     if (document.hidden) return;
+    if (small) { acc += dt; if (acc < 1 / 31) return; dt = acc; acc = 0; }
     const scrollDy = state.y - lastY; lastY = state.y;
     ctx.clearRect(0, 0, w, h);
     for (const p of P) {

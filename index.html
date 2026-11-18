@@ -686,6 +686,9 @@
         l.setAttribute('fetchpriority', 'high');
         document.head.append(l);
       }
+    } else {
+      // 3D world: fetch the engine as early as the parser would have found it.
+      for (const href of ['engine/main.js', 'site/site.js']) document.head.append(Object.assign(document.createElement('link'), { rel: 'modulepreload', href }));
     }
   </script>
   <link rel="stylesheet" href="site/site.css">
@@ -1234,8 +1237,14 @@
     }
   </style>
   <script type="module" src="site/pv/start.js" async></script>
-  <script type="module" src="engine/main.js"></script>
-  <script type="module" src="site/site.js"></script>
+  <!-- The 3D engine and its website layer load only for the 3D world, in the same order as before.
+     The page view (?plain) runs from site/pv/start.js alone, so phones skip about 60 engine files. -->
+  <script type="module">
+    if (!document.documentElement.classList.contains('pv-boot')) {
+      try { await import('./engine/main.js'); } catch (err) { console.error('3D engine failed to load:', err); }
+      await import('./site/site.js');
+    }
+  </script>
 </body>
 
 </html>

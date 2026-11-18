@@ -14,7 +14,7 @@
 // runner can pass behind the trophy and sink into the crater.
 import * as THREE from 'three';
 import { createAvatar } from '@engine/world/avatar.js';
-import { onFrame, state, reduced } from './scroll.js';
+import { onFrame, onRead, state, reduced } from './scroll.js';
 import { signals } from './sections.js';
 
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -48,7 +48,8 @@ export async function initMascot(root, { skin = '' } = {}) {
     return null;
   }
   root.append(canvas);
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 1.25 : 1.6));
+  // Phones draw the full-screen runner layer at 1x pixels: the blocky model still reads cleanly.
+  renderer.setPixelRatio(small ? 1 : Math.min(devicePixelRatio || 1, 1.6));
   renderer.localClippingEnabled = true;
   renderer.setClearColor(0x000000, 0);
 
@@ -350,8 +351,8 @@ export async function initMascot(root, { skin = '' } = {}) {
   let squash = 0, squashV = 0, roll = 0, blinkT = 2.5, blinking = 0;
   const kick = v => { squashV += v; };
 
+  onRead(layout);
   function direct(dt) {
-    layout();
     const y = scrollY;
     let i = 0;
     while (i < act.length - 1 && y > act[i + 1].hold[0]) i++;
@@ -548,7 +549,7 @@ export async function initMascot(root, { skin = '' } = {}) {
   const dbg = { slot: '', travel: '', far: false, k: 0 };
 
   // ---------- Frame ----------
-  let lastVis = true;
+  let lastVis = true, shaken = false;
   const pm = new THREE.Matrix4(), pq = new THREE.Quaternion(), ps = new THREE.Vector3(), pe = new THREE.Euler();
   onFrame(dt => {
     t += dt;
@@ -642,7 +643,8 @@ export async function initMascot(root, { skin = '' } = {}) {
 
     // Shake with the crater's burst (sections.js sets signals.shake).
     const sh = signals.shake;
-    canvas.style.translate = sh > 0.02 ? `${((Math.random() - 0.5) * 10 * sh).toFixed(1)}px ${((Math.random() - 0.5) * 8 * sh).toFixed(1)}px` : '';
+    if (sh > 0.02) { canvas.style.translate = `${((Math.random() - 0.5) * 10 * sh).toFixed(1)}px ${((Math.random() - 0.5) * 8 * sh).toFixed(1)}px`; shaken = true; }
+    else if (shaken) { canvas.style.translate = ''; shaken = false; }
     const draw = visible || trophy.visible || crater.visible || any;
     if (draw || lastVis) renderer.render(scene, camera);
     lastVis = draw;

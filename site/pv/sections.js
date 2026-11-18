@@ -100,15 +100,17 @@ function timeline(root) {
     fill.style.transform = `scaleY(${p})`;
     // The glowing head of the lava rides the end of the fill.
     tip.style.transform = `translate3d(-50%, ${(p * sec.offsetHeight).toFixed(1)}px, 0)`;
-    floor.style.backgroundPositionY = `${p * 2400}px`;
+    floor.style.transform = `rotateX(74deg) translate3d(0, ${((p * 2400) % 90).toFixed(1)}px, 0)`;
   });
+  const boxes = [];
   onFrame(() => {
     const r = sec.getBoundingClientRect();
     if (r.bottom < 0 || r.top > state.vh) { signals.tlSide = 0; return; }
     const mid = state.vh * (wide() ? 0.55 : 0.6);
     let best = null, bd = 1e9;
-    for (const it of items) {
-      const b = it.getBoundingClientRect();
+    for (let i = 0; i < items.length; i++) boxes[i] = items[i].getBoundingClientRect();
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i], b = boxes[i];
       const c = b.top + b.height / 2;
       const d = Math.abs(c - mid);
       if (d < bd) { bd = d; best = it; }
@@ -215,7 +217,12 @@ function past(root) {
     const room = ledge.getBoundingClientRect().top - rail.getBoundingClientRect().bottom - 12;
     runSlot?.style.setProperty('--run-h', `${Math.round(clamp(room, 64, 215))}px`);
   };
+  // Card centres relative to the rail's left edge at translate 0 (no rect reads while scrolling).
+  let centres = [], railX = 0, railOn = false;
+  new IntersectionObserver(([e]) => { railOn = e.isIntersecting; }).observe(sec);
   const size = () => {
+    const r0 = rail.getBoundingClientRect().left;
+    centres = cards.map(c => r0 + c.offsetLeft + c.offsetWidth / 2);
     fit();
     if (flat() || reduced) { sec.style.height = ''; list.style.transform = ''; dist = 0; return; }
     dist = Math.max(0, list.scrollWidth - rail.clientWidth);
@@ -229,22 +236,25 @@ function past(root) {
     if (!dist) return;
     const tx = -dist * p;
     list.style.transform = `translate3d(${tx}px,0,0)`;
+    railX = tx;
     cards.forEach((c, i) => {
-      const r = c.getBoundingClientRect();
-      const mid = (r.left + r.width / 2) / state.vw - 0.5;
-      c.style.setProperty('--d', mid.toFixed(3));
+      const mid = (centres[i] + tx) / state.vw - 0.5;
+      if (Math.abs((c._d ?? 9) - mid) > 0.002) { c._d = mid; c.style.setProperty('--d', mid.toFixed(3)); }
     });
-    count.textContent = String(Math.min(cards.length, 1 + Math.round(p * (cards.length - 1)))).padStart(2, '0');
+    const n = String(Math.min(cards.length, 1 + Math.round(p * (cards.length - 1)))).padStart(2, '0');
+    if (count.textContent !== n) count.textContent = n; // only on change: a text write forces layout
   });
   onFrame(dt => {
-    const tx = dist ? new DOMMatrixReadOnly(getComputedStyle(list).transform).m41 : -rail.scrollLeft;
+    if (!railOn && Math.abs(signals.railV) < 1) return;
+    const tx = dist ? railX : -rail.scrollLeft;
     const v = (tx - lastX) / Math.max(dt, 0.001);
     lastX = tx;
     signals.railV += (v - signals.railV) * Math.min(1, dt * 8);
   });
   rail.addEventListener('scroll', () => {
     const i = Math.round(rail.scrollLeft / Math.max(1, rail.scrollWidth - rail.clientWidth) * (cards.length - 1));
-    count.textContent = String(i + 1).padStart(2, '0');
+    const n = String(i + 1).padStart(2, '0');
+    if (count.textContent !== n) count.textContent = n;
   }, { passive: true });
 }
 
@@ -337,6 +347,7 @@ function voidFooter(root) {
   if (!sec) return;
   const stage = $('.pv-void-stage', sec);
   const over = $('.pv-void-over', sec);
+  let shook = false;
   // The copy shows only once the runner has fallen into the crater and gone,
   // even when a fast scroll gets ahead of the fall.
   let want = false, shown = false;
@@ -351,7 +362,8 @@ function voidFooter(root) {
     const flash = reduced ? 0 : Math.max(0, 1 - Math.abs(p - 0.32) * 11);
     signals.shake = flash;
     stage.style.setProperty('--flash', flash.toFixed(3));
-    stage.style.translate = flash > 0.02 ? `${((Math.random() - 0.5) * 10 * flash).toFixed(1)}px ${((Math.random() - 0.5) * 8 * flash).toFixed(1)}px` : '';
+    if (flash > 0.02) { stage.style.translate = `${((Math.random() - 0.5) * 10 * flash).toFixed(1)}px ${((Math.random() - 0.5) * 8 * flash).toFixed(1)}px`; shook = true; }
+    else if (shook) { stage.style.translate = ''; shook = false; }
     stage.classList.toggle('is-open', p > 0.12);
     stage.classList.toggle('is-done', p > 0.45 || reduced);
     want = p > 0.45 || reduced;
@@ -427,6 +439,15 @@ function drift(root) {
   });
 }
 
+// Looping decorations pause while their section is off screen (.pv-off in pv.css).
+function pauseOffscreen(root) {
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) e.target.classList.toggle('pv-off', !e.isIntersecting);
+  }, { rootMargin: '20% 0px' });
+  for (const el of root.querySelectorAll('[data-sect]')) io.observe(el);
+}
+
 export function initSections(root) {
+  pauseOffscreen(root);
   bar(root); timeline(root); partners(root); awards(root); crew(root); past(root); marquees(root); quests(root); contact(root); voidFooter(root); drift(root);
 }

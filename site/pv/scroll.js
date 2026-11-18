@@ -9,7 +9,7 @@
 
 const state = { y: 0, vy: 0, vh: innerHeight, vw: innerWidth, dir: 0, docH: 1 };
 const tracks = [];
-const frames = new Set();
+const frames = new Set(), reads = new Set();
 let last = performance.now(), lastY = scrollY, running = false, idle = 0;
 
 export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -34,10 +34,13 @@ export function track(el, cb, { margin = 1 } = {}) {
 }
 
 export function onFrame(cb) { frames.add(cb); kick(); return () => frames.delete(cb); }
+// onRead(cb): cb() at the start of every frame, before tracks and onFrame callbacks write styles.
+export function onRead(cb) { reads.add(cb); kick(); return () => reads.delete(cb); }
 
 function tick(now) {
   const dt = Math.min(0.05, (now - last) / 1000 || 0.016);
   last = now;
+  for (const f of reads) f();
   const y = scrollY;
   const dy = y - lastY; lastY = y;
   state.y = y;

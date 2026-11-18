@@ -82,8 +82,10 @@ const slot = (name, pose, face = 'front', extra = '') =>
 function heroHTML(c) {
   return `
   <section class="pv-hero" id="top" data-sect="top" aria-labelledby="pvTitle">
-    <div class="pv-hero-media" aria-hidden="true"><video muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback tabindex="-1"></video></div>
-    <div class="pv-hero-shade" aria-hidden="true"></div>
+    <div class="pv-hero-bg" aria-hidden="true">
+      <div class="pv-hero-media"><video muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback tabindex="-1"></video></div>
+      <div class="pv-hero-shade"></div>
+    </div>
     <div class="pv-hero-inner">
       <p class="pv-eyebrow pv-intro"><i class="pv-dot"></i><span data-scramble>${esc(c.eyebrow || 'GDG on Campus · NIT Hamirpur presents')}</span></p>
       <h1 class="pv-wordmark" id="pvTitle"><span class="sr">Labyrinth</span><canvas aria-hidden="true"></canvas></h1>

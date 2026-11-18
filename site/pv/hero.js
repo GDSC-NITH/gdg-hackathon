@@ -5,14 +5,18 @@ import { onFrame, reduced, state } from './scroll.js';
 const TALL = '(max-aspect-ratio: 4/5)';
 
 // ---------- Background loop ----------
-// The poster (CSS) shows first. The video is fetched after the page has
-// loaded, only when it can autoplay without costing a slow or saving visitor.
-function startVideo(hero) {
+// The poster (CSS) shows first. The video is skipped for reduced motion and
+// for visitors saving data or on 2G. Returns a promise that settles once the
+// video plays, or straight away when it is skipped or refused (the loading
+// screen waits on it). `now` starts it at once; otherwise after page load.
+function startVideo(hero, now) {
   const video = hero.querySelector('video');
   const media = hero.querySelector('.pv-hero-media');
-  if (!video) return;
+  let settle;
+  const ready = new Promise(r => { settle = r; });
+  if (!video) { settle(); return ready; }
   const conn = navigator.connection || {};
-  if (reduced || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) return;
+  if (reduced || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) { settle(); return ready; }
 
   const tall = matchMedia(TALL);
   let variant = '';
@@ -24,8 +28,9 @@ function startVideo(hero) {
     video.load();
     play();
   };
-  const play = () => video.play()?.catch(() => {});
-  video.addEventListener('playing', () => media.classList.add('is-playing'), { once: true });
+  // A refused play() (autoplay blocked until a gesture) settles too: the poster stays.
+  const play = () => { const p = video.play(); if (p) p.catch(() => settle()); };
+  video.addEventListener('playing', () => { media.classList.add('is-playing'); settle(); }, { once: true });
   tall.addEventListener?.('change', load);
 
   // Pause off-screen and in background tabs.
@@ -36,8 +41,28 @@ function startVideo(hero) {
   }).observe(hero);
   document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); else if (visible) play(); });
 
-  const go = () => (window.requestIdleCallback || (f => setTimeout(f, 200)))(load, { timeout: 1500 });
-  if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
+  // Keep the loop running. Phones can stop a muted loop: power saving pauses it,
+  // the jump back to the start stalls, or autoplay waits for a gesture. While the
+  // hero is on screen, check once a second and restart it if it has stopped.
+  let lastT = -1, still = 0;
+  video.addEventListener('ended', () => { video.currentTime = 0; play(); });
+  setInterval(() => {
+    if (!variant || !visible || document.hidden || video.readyState < 2) return;
+    if (video.paused) { play(); return; }
+    if (video.currentTime === lastT) {
+      if (++still >= 2) { still = 0; video.currentTime = (video.currentTime + 0.05) % (video.duration || 1); play(); }
+    } else still = 0;
+    lastT = video.currentTime;
+  }, 1000);
+  // Autoplay refused (iPhone Low Power Mode): the first touch or scroll starts it.
+  for (const type of ['touchstart', 'pointerdown', 'scroll']) addEventListener(type, () => { if (variant && visible && video.paused) play(); }, { passive: true, once: true });
+
+  if (now) load();
+  else {
+    const go = () => (window.requestIdleCallback || (f => setTimeout(f, 200)))(load, { timeout: 1500 });
+    if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
+  }
+  return ready;
 }
 
 // ---------- Wordmark ----------
@@ -90,15 +115,15 @@ function wordmark(canvas, text = 'LABYRINTH') {
     ctx.globalAlpha = 1;
   }
 
-  if (reduced) { draw(99); return; }
-  const start = performance.now();
+  if (reduced) { draw(99); return () => {}; }
+  let start = 0;
   const intro = now => {
     const t = (now - start) / 1000;
     draw(t);
     if (t < 1.4) requestAnimationFrame(intro);
     else { draw(99); setTimeout(sweep, 2200); }
   };
-  requestAnimationFrame(intro);
+  return () => { if (start) return; start = performance.now(); requestAnimationFrame(intro); };
 
   function sweep() {
     if (document.hidden || state.y > state.vh) { setTimeout(sweep, 3000); return; }
@@ -144,15 +169,21 @@ function countdown(el) {
   tick();
 }
 
-export function initHero(root) {
+// Returns { video, start }: video settles when the background loop plays (or is
+// skipped); start() plays the hero's intro. With `now`, the video loads at once.
+export function initHero(root, { now = false } = {}) {
   const hero = root.querySelector('.pv-hero');
-  if (!hero) return;
-  startVideo(hero);
-  wordmark(hero.querySelector('.pv-wordmark canvas'));
+  if (!hero) return { video: Promise.resolve(), start() {} };
+  const video = startVideo(hero, now);
+  const mark = wordmark(hero.querySelector('.pv-wordmark canvas'));
   const count = hero.querySelector('.pv-count');
   if (count) countdown(count);
-  requestAnimationFrame(() => hero.classList.add('is-ready'));
+  const start = () => { mark(); requestAnimationFrame(() => hero.classList.add('is-ready')); };
+  initParallax(hero);
+  return { video, start };
+}
 
+function initParallax(hero) {
   // Scrolling away flies the camera into the vanishing point.
   const media = hero.querySelector('.pv-hero-media');
   const inner = hero.querySelector('.pv-hero-inner');
@@ -165,16 +196,19 @@ export function initHero(root) {
   let px = 0, py = 0, tpx = 0, tpy = 0;
   if (fine) hero.addEventListener('pointermove', e => { tpx = e.clientX / innerWidth - 0.5; tpy = e.clientY / innerHeight - 0.5; });
   hero.addEventListener('pointerleave', () => { tpx = tpy = 0; });
-  let shown = -1, k = 0, spx = 9, spy = 9;
+  let shown = -1, k = 0, spx = 9, spy = 9, heroH = hero.offsetHeight;
+  addEventListener('resize', () => { heroH = hero.offsetHeight; });
   onFrame(dt => {
-    const target = Math.min(1, Math.max(0, state.y / Math.max(1, hero.offsetHeight)));
+    if (state.y > heroH * 1.2 && shown > 0.99) return;
+    const target = Math.min(1, Math.max(0, state.y / Math.max(1, heroH)));
     k += (target - k) * Math.min(1, dt * 10);
     px += (tpx - px) * Math.min(1, dt * 5); py += (tpy - py) * Math.min(1, dt * 5);
     const moved = Math.abs(k - shown) > 0.0005 || Math.abs(px - spx) + Math.abs(py - spy) > 0.0008;
     if (!moved || k > 1.01) return;
     shown = k; spx = px; spy = py;
     media.style.transform = `scale(${1.04 + k * 0.35}) translate3d(${(px * -16).toFixed(2)}px, ${(py * -10).toFixed(2)}px, 0)`;
-    media.style.filter = k > 0.002 ? `saturate(1.22) contrast(1.08) brightness(${(1.06 - k * 0.6).toFixed(3)})` : '';
+    // Dims as it flies away: a dark layer's opacity (a changing filter re-processed the whole video every frame).
+    media.style.setProperty('--dim', (k * 0.57).toFixed(3));
     inner.style.transform = `translate3d(0, ${k * -18}vh, 0) scale(${1 - k * 0.08})`;
     inner.style.opacity = String(Math.max(0, 1 - k * 1.6));
     if (mark) mark.style.transform = `perspective(900px) rotateX(${(py * -9).toFixed(2)}deg) rotateY(${(px * 12).toFixed(2)}deg) translate3d(${(px * 14).toFixed(1)}px, ${(py * 8).toFixed(1)}px, 0)`;
