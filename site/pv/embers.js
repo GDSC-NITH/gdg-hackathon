@@ -4,7 +4,8 @@
 import { onFrame, state, reduced } from './scroll.js';
 
 export function initEmbers(root) {
-  if (reduced) return;
+  // Off on phones: a full-screen layer redrawn every frame, and the hero video carries its own embers.
+  if (reduced || matchMedia('(hover: none) and (max-width: 760px)').matches) return;
   const canvas = document.createElement('canvas');
   canvas.className = 'pv-embers';
   canvas.setAttribute('aria-hidden', 'true');

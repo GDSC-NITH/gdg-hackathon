@@ -182,13 +182,13 @@ body.pv-on a, body.pv-on button, body.pv-on summary, body.pv-on [data-to] { curs
 
 /* ---------- Reveal motion ---------- */
 body.pv-on:not(.pv-still) [data-r]:not(.in) { opacity: 0; }
-body.pv-on [data-r].in { animation: pv-up .9s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms); }
+body.pv-on [data-r].in { animation: pv-up .9s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 90ms); }
 body.pv-on [data-r="fade"].in { animation-name: pv-fade; }
 body.pv-on [data-r="scale"].in { animation-name: pv-scale; animation-timing-function: var(--spring); }
 body.pv-on [data-r="fade"].in i { animation: pv-line 1s .2s var(--ease) both; }
 body.pv-on [data-split]:not(.in) .pv-ch { opacity: 0; }
 body.pv-on [data-split].in { animation: none; opacity: 1; }
-body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; animation-delay: calc(var(--c) * 28ms); }
+body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) backwards; animation-delay: calc(var(--c) * 28ms); }
 @keyframes pv-up { from { opacity: 0; transform: translate3d(0, 34px, 0); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes pv-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pv-scale { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
@@ -562,7 +562,7 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
   transition: transform .4s var(--ease), border-color .3s, box-shadow .3s;
 }
 .pv-player:hover { transform: translateY(-6px) rotate(-1deg); border-color: var(--lava); box-shadow: 0 20px 40px -18px rgba(255, 90, 31, .6); }
-.pv-player canvas, .pv-player img { display: block; width: 100%; aspect-ratio: 1; image-rendering: pixelated; object-fit: cover; background: #241410; }
+.pv-player canvas, .pv-player img { display: block; width: 100%; height: auto; aspect-ratio: 1; image-rendering: pixelated; object-fit: cover; background: #241410; }
 .pv-player-tag { position: absolute; top: 10px; left: 10px; z-index: 1; padding: 4px 8px; border-radius: 6px; background: rgba(10, 6, 5, .8); font: 400 9px/1 var(--f-label); letter-spacing: .14em; text-transform: uppercase; color: var(--soul); }
 .pv-player.is-tba canvas { filter: grayscale(1) brightness(.5); }
 .pv-player.is-tba .pv-player-tag { color: var(--dim); }
@@ -746,6 +746,15 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 
 /* Off-screen sections pause their looping decorations, so only what is visible animates. */
 .pv-off, .pv-off *, .pv-off *::before, .pv-off *::after { animation-play-state: paused !important; }
+/* They also drop transforms and layer hints, so the browser keeps no composited layers for them:
+   phones slow down with every layer. Runner slots keep theirs, since the runner reads their positions. */
+.pv-off *:not(.pv-slot), .pv-off *:not(.pv-slot)::before, .pv-off *:not(.pv-slot)::after { transform: none !important; will-change: auto !important; }
+/* A paused animation still keeps its layer, so off-screen loops are detached outright. Reveals are left
+   alone so they do not replay; 3D flip cards flatten while away. */
+.pv-off *:not([data-r], .pv-ch, .pv-intro, .pv-slot), .pv-off *::before, .pv-off *::after { animation: none !important; }
+.pv-off * { transform-style: flat !important; backface-visibility: visible !important; }
+/* The card tilt follows a mouse; on touch screens cards stay flat (a 3D transform gives each its own layer). */
+@media (hover: none) { .pv-card { transform: none; } }
 
 /* ---------- The void (footer) ---------- */
 /* No z-index here: the copy overlay must stack above the runner canvas (z 30) while the floor and rays stay below it. */
@@ -910,7 +919,8 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
 .pv-tl-ring::before { background: conic-gradient(from 0deg, transparent 0 58%, rgba(255, 138, 61, .15) 66%, var(--lava) 82%, #fff3d6 88%, var(--gold) 92%, transparent 100%); animation-duration: 3.6s; animation-play-state: paused; }
-.pv-tl-item.is-active .pv-tl-ring { opacity: 1; }
+.pv-tl-item:not(.is-active) .pv-tl-ring { display: none; }
+.pv-tl-item.is-active .pv-tl-ring { opacity: 1; animation: pv-fade .5s backwards; }
 .pv-tl-item.is-active .pv-tl-ring::before { animation-play-state: running; }
 
 /* A spark runs along the branch into the card as it lights. */
@@ -1218,4 +1228,16 @@ body.pv-on .counted { animation: pv-count-pop .75s var(--spring); }
   body.pv-on [data-r], .pv-intro, .pv-prize, .pv-partners .pv-logo, .pv-tl-card, .pv-void-copy { opacity: 1 !important; transform: none !important; }
   .pv-awards-pin, .pv-void-pin { height: auto; }
   .pv-stage { position: relative; height: auto; min-height: 100vh; }
+}
+
+/* ---------- Touch screens: reveals without blur ----------
+   Animating a blur repaints the element on every frame, which phones feel while scrolling. The same
+   reveals run here with movement and fade only. (Later @keyframes of the same name win when this applies.) */
+@media (hover: none) {
+  @keyframes pv-up { from { opacity: 0; transform: translate3d(0, 34px, 0); } to { opacity: 1; transform: none; } }
+  @keyframes pv-char { from { opacity: 0; transform: translate3d(0, .7em, 0) rotateX(-80deg) scale(.9); } to { opacity: 1; transform: none; } }
+  @keyframes pv-flip { from { transform: translateY(-60%); opacity: 0; } }
+  .pv-tl-card, .pv-void-copy { filter: none; }
+  /* Timeline reveals: only movement and fade animate; colours and borders change at once. */
+  .pv-tl-item, .pv-tl-item *, .pv-tl-item *::before, .pv-tl-item *::after { transition-property: opacity, transform, translate, scale !important; }
 }

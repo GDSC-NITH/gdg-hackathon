@@ -1,7 +1,7 @@
 // Scroll choreography for each page-view section, and the signals the mascot
 // reads (which side the active timeline card is on, how fast the past-events
 // rail moves, the void's progress).
-import { track, onFrame, state, reduced, goTo, measure } from './scroll.js';
+import { track, onFrame, onRead, state, reduced, goTo, measure } from './scroll.js';
 import { portrait, countUp } from './fx.js';
 import { ALIASES } from './data.js';
 
@@ -95,20 +95,26 @@ function timeline(root) {
   if (!sec) return;
   const fill = $('.pv-tl-spine i', sec), tip = $('.pv-tl-spine b', sec), floor = $('.pv-tl-floor i', sec), now = $('.pv-tl-now b', sec);
   const items = $$('.pv-tl-item', sec);
-  let active = null;
+  let active = null, secH = sec.offsetHeight;
+  addEventListener('resize', () => { secH = sec.offsetHeight; });
   track(sec, p => {
     fill.style.transform = `scaleY(${p})`;
     // The glowing head of the lava rides the end of the fill.
-    tip.style.transform = `translate3d(-50%, ${(p * sec.offsetHeight).toFixed(1)}px, 0)`;
+    tip.style.transform = `translate3d(-50%, ${(p * secH).toFixed(1)}px, 0)`;
     floor.style.transform = `rotateX(74deg) translate3d(0, ${((p * 2400) % 90).toFixed(1)}px, 0)`;
   });
+  // Rects are read at the start of the frame (onRead), before anything writes styles.
   const boxes = [];
-  onFrame(() => {
+  let onScreen = false;
+  onRead(() => {
     const r = sec.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > state.vh) { signals.tlSide = 0; return; }
+    onScreen = r.bottom > 0 && r.top < state.vh;
+    if (onScreen) for (let i = 0; i < items.length; i++) boxes[i] = items[i].getBoundingClientRect();
+  });
+  onFrame(() => {
+    if (!onScreen) { signals.tlSide = 0; return; }
     const mid = state.vh * (wide() ? 0.55 : 0.6);
     let best = null, bd = 1e9;
-    for (let i = 0; i < items.length; i++) boxes[i] = items[i].getBoundingClientRect();
     for (let i = 0; i < items.length; i++) {
       const it = items[i], b = boxes[i];
       const c = b.top + b.height / 2;
@@ -159,7 +165,12 @@ function awards(root) {
 function crew(root) {
   const strip = $('.pv-film-strip', root), trackEl = $('.pv-film-track', root);
   if (!strip) return;
-  for (const c of $$('canvas[data-face]', strip)) portrait(c, c.dataset.face);
+  for (const c of $$('canvas[data-face]', strip)) {
+    portrait(c, c.dataset.face);
+    const img = new Image(); // no width/height attributes: the card's CSS sizes it
+    img.alt = ''; img.decoding = 'async'; img.src = c.toDataURL();
+    c.replaceWith(img); // an image needs no layer of its own; a canvas does
+  }
   let x = 0, drag = null, vx = 0, skew = 0, visible = false;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(strip);
   const third = () => trackEl.scrollWidth / 3;
@@ -443,7 +454,7 @@ function drift(root) {
 function pauseOffscreen(root) {
   const io = new IntersectionObserver(entries => {
     for (const e of entries) e.target.classList.toggle('pv-off', !e.isIntersecting);
-  }, { rootMargin: '20% 0px' });
+  }, { rootMargin: '60% 0px' });
   for (const el of root.querySelectorAll('[data-sect]')) io.observe(el);
 }
 

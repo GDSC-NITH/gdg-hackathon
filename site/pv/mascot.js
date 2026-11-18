@@ -257,6 +257,7 @@ export async function initMascot(root, { skin = '' } = {}) {
       const r = s.el.getBoundingClientRect();
       s.rect = r;
       if (!r.width || !r.height) continue;
+      if (s.mode === 'treadmill') s.parentRect = s.el.parentElement.getBoundingClientRect();
       act.push(s);
       if (s.sticky && s.pin) {
         const pr = s.pin.getBoundingClientRect();
@@ -299,7 +300,7 @@ export async function initMascot(root, { skin = '' } = {}) {
       out.z = Math.cos(th) * R * (narrow ? 0.6 : 0.9);
     } else if (s.mode === 'treadmill') {
       // Past events: runs the length of the ledge as the rail moves (left to right, back on the way up).
-      const L = s.el.parentElement.getBoundingClientRect();
+      const L = s.parentRect || s.rect;
       out.x = (L.left + L.width * (0.06 + local * 0.84) - vw / 2) / ppu;
     } else if (s.mode === 'hurdle') {
       const r = s.rect;
@@ -353,7 +354,7 @@ export async function initMascot(root, { skin = '' } = {}) {
 
   onRead(layout);
   function direct(dt) {
-    const y = scrollY;
+    const y = state.y; // read at the start of the frame; scrollY here would force a style pass
     let i = 0;
     while (i < act.length - 1 && y > act[i + 1].hold[0]) i++;
     const A = act[i], B = act[i + 1];
