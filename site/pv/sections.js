@@ -208,8 +208,15 @@ function past(root) {
   if (!sec) return;
   const rail = $('.pv-past-rail', sec), list = $('.pv-past-track', sec), count = $('.pv-past-count b', sec);
   const cards = $$('.pv-event', sec);
+  const ledge = $('.pv-ledge', sec), runSlot = $('.pv-slot-past', sec);
   let dist = 0, lastX = 0;
+  // The runner on the ledge gets the room between the cards and the ledge.
+  const fit = () => {
+    const room = ledge.getBoundingClientRect().top - rail.getBoundingClientRect().bottom - 12;
+    runSlot?.style.setProperty('--run-h', `${Math.round(clamp(room, 64, 215))}px`);
+  };
   const size = () => {
+    fit();
     if (flat() || reduced) { sec.style.height = ''; list.style.transform = ''; dist = 0; return; }
     dist = Math.max(0, list.scrollWidth - rail.clientWidth);
     sec.style.height = `${state.vh + dist * 1.15}px`;

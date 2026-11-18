@@ -538,7 +538,13 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 
 /* ---------- Past events (horizontal) ---------- */
 .pv-past { padding: 0; }
-.pv-past-stage { justify-content: center; gap: clamp(18px, 3vh, 30px); }
+.pv-past-stage {
+  /* Laid out from the top with the ledge at the bottom of the screen, so the runner on it is always in view.
+     Tall screens keep the block within about 840px, centred. */
+  justify-content: flex-start; gap: clamp(16px, 2.6vh, 30px);
+  padding-top: max(calc(var(--bar) + 20px), calc((100vh - 840px) / 2));
+  padding-bottom: max(clamp(46px, 7vh, 64px), calc((100vh - 840px) / 2));
+}
 .pv-past .pv-head { margin-bottom: 0; }
 .pv-past-rail { flex: none; overflow: hidden; padding: 10px 0 0; }
 .pv-past-track { display: flex; gap: 22px; margin: 0; padding: 0 var(--gut) 0 max(var(--gut), calc((100vw - var(--wrap)) / 2 + var(--gut))); list-style: none; width: max-content; will-change: transform; }
@@ -556,9 +562,10 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 .pv-event-art span { position: absolute; right: 14px; bottom: 6px; font: 700 60px/1 var(--f-pixel); color: rgba(255, 220, 180, .14); }
 .pv-event-art i.pv-event-icon { position: absolute; left: 18px; bottom: 16px; display: grid; place-items: center; width: 58px; height: 58px; border-radius: 16px; color: #1a0703; background: linear-gradient(135deg, #ffe2a8, var(--gold) 35%, var(--ember)); box-shadow: 0 0 30px rgba(255, 90, 31, .7), inset 0 1px 0 rgba(255, 255, 255, .6); animation: pv-bob 5s ease-in-out infinite; animation-delay: calc(var(--i) * -1.3s); }
 .pv-event-icon svg { width: 30px; height: 30px; }
-.pv-ledge { position: relative; height: 2px; margin: clamp(100px, calc(100vh - 640px), 250px) var(--gut) 0; background: linear-gradient(90deg, transparent, var(--lava) 15%, var(--lava) 85%, transparent); box-shadow: 0 0 18px var(--ember); }
-.pv-slot-past { position: absolute; left: 18%; bottom: 0; width: 160px; height: clamp(96px, calc(100vh - 665px), 215px); }
-.pv-past-count { position: absolute; left: max(var(--gut), calc((100vw - var(--wrap)) / 2 + var(--gut))); bottom: 6vh; margin: 0; font: 400 13px/1 var(--f-label); letter-spacing: .14em; color: var(--dim); }
+.pv-ledge { position: relative; flex: none; height: 2px; margin: auto var(--gut) 0; background: linear-gradient(90deg, transparent, var(--lava) 15%, var(--lava) 85%, transparent); box-shadow: 0 0 18px var(--ember); }
+/* Height is the room between the cards and the ledge (sections.js sets --run-h). */
+.pv-slot-past { position: absolute; left: 18%; bottom: 0; width: 160px; height: var(--run-h, 150px); }
+.pv-past-count { position: absolute; left: max(var(--gut), calc((100vw - var(--wrap)) / 2 + var(--gut))); bottom: clamp(14px, 2.4vh, 22px); margin: 0; font: 400 13px/1 var(--f-label); letter-spacing: .14em; color: var(--dim); }
 .pv-past-count b { font: 700 24px/1 var(--f-pixel); color: var(--gold); }
 
 /* ---------- Tracks fan ---------- */
@@ -977,7 +984,17 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
   .pv-backer { font-size: 13.5px; padding: 8px 14px 8px 8px; }
   .pv-backer b { width: 32px; height: 32px; font-size: 12px; }
 }
+/* Short desktop screens: a more compact heading and cards leave room for the runner on the ledge. */
+@media (max-height: 780px) and (min-width: 900px) {
+  .pv-past .pv-sub { display: none; }
+  .pv-past .pv-h { font-size: clamp(30px, 3.6vw, 44px); }
+  .pv-past .pv-event-art { height: 86px; margin-bottom: 12px; }
+  .pv-past .pv-event { padding: 16px 18px 18px; }
+  .pv-past .pv-event .pv-event-text { -webkit-line-clamp: 2; }
+  .pv-past .pv-event-stats { padding-top: 10px; }
+}
 @media (max-height: 700px) and (max-width: 899px) {
+  .pv-past .pv-sub { display: none; }
   .pv-event-art { height: 76px; }
   .pv-event .pv-event-text { -webkit-line-clamp: 2; }
 }
