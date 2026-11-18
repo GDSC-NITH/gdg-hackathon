@@ -981,8 +981,9 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
   .pv-count { gap: 6px; margin-bottom: 20px; }
   .pv-unit { width: auto; flex: 1; max-width: 80px; padding: 10px 0 7px; }
   .pv-unit b { font-size: 22px; }
-  .pv-hero-cta { flex-direction: column; align-items: stretch; }
-  .pv-hero-cta .pv-btn { width: 100%; }
+  /* Both buttons share one row on phones. */
+  .pv-hero-cta { flex-wrap: nowrap; gap: 8px; }
+  .pv-hero-cta .pv-btn { --h: 44px; flex: 1 1 0; min-width: 0; max-width: 190px; padding: 0 12px; gap: 6px; font-size: 14px; border-radius: 12px; white-space: nowrap; }
   .pv-cue { display: none; }
 
   .pv-about-grid { grid-template-columns: 1fr; gap: 8px; }
@@ -1062,7 +1063,11 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 }
 @media (max-width: 379px) {
   .pv-unit b { font-size: 20px; }
+  .pv-hero-cta .pv-btn { font-size: 13px; padding: 0 8px; }
   .pv-h { font-size: 26px; }
+}
+@media (max-width: 340px) {
+  .pv-hero-cta .pv-btn-ghost b { display: none; }
 }
 /* Phone held sideways: keep it simple. */
 @media (max-height: 500px) and (orientation: landscape) {
