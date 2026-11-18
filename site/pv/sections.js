@@ -13,7 +13,7 @@ const wide = () => matchMedia('(min-width: 900px) and (min-height: 560px)').matc
 // Short landscape phones: pinned stages are switched off there (see pv.css).
 const flat = () => matchMedia('(max-height: 500px) and (orientation: landscape)').matches;
 
-export const signals = { tlSide: 0, railV: 0, voidP: 0, awardsP: 0, questP: 0, shake: 0 };
+export const signals = { tlSide: 0, railV: 0, voidP: 0, awardsP: 0, questP: 0, shake: 0, runnerIn: false };
 
 // ---------- Bar, menu, progress, in-page links ----------
 function bar(root) {
@@ -330,6 +330,13 @@ function voidFooter(root) {
   if (!sec) return;
   const stage = $('.pv-void-stage', sec);
   const over = $('.pv-void-over', sec);
+  // The copy shows only once the runner has fallen into the crater and gone,
+  // even when a fast scroll gets ahead of the fall.
+  let want = false, shown = false;
+  onFrame(() => {
+    const show = want && (reduced || !signals.runnerIn);
+    if (show !== shown) { shown = show; over?.classList.toggle('is-done', show); }
+  });
   track($('.pv-void-pin', sec), p => {
     signals.voidP = p;
     stage.style.setProperty('--p', p.toFixed(4));
@@ -340,7 +347,7 @@ function voidFooter(root) {
     stage.style.translate = flash > 0.02 ? `${((Math.random() - 0.5) * 10 * flash).toFixed(1)}px ${((Math.random() - 0.5) * 8 * flash).toFixed(1)}px` : '';
     stage.classList.toggle('is-open', p > 0.12);
     stage.classList.toggle('is-done', p > 0.45 || reduced);
-    over?.classList.toggle('is-done', p > 0.45 || reduced);
+    want = p > 0.45 || reduced;
   });
 }
 

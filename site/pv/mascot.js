@@ -588,6 +588,7 @@ export async function initMascot(root, { skin = '' } = {}) {
 
     // Runner.
     runner.visible = visible;
+    signals.runnerIn = visible; // The footer copy waits until the runner has gone into the crater.
     if (visible) {
       runner.position.set(pos.x, pos.y, z);
       // Squash/stretch keeps the volume roughly constant; a slow breath when idle.
