@@ -329,6 +329,7 @@ function voidFooter(root) {
   const sec = $('.pv-void', root);
   if (!sec) return;
   const stage = $('.pv-void-stage', sec);
+  const over = $('.pv-void-over', sec);
   track($('.pv-void-pin', sec), p => {
     signals.voidP = p;
     stage.style.setProperty('--p', p.toFixed(4));
@@ -339,6 +340,7 @@ function voidFooter(root) {
     stage.style.translate = flash > 0.02 ? `${((Math.random() - 0.5) * 10 * flash).toFixed(1)}px ${((Math.random() - 0.5) * 8 * flash).toFixed(1)}px` : '';
     stage.classList.toggle('is-open', p > 0.12);
     stage.classList.toggle('is-done', p > 0.45 || reduced);
+    over?.classList.toggle('is-done', p > 0.45 || reduced);
   });
 }
 

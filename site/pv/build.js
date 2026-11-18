@@ -441,6 +441,8 @@ function voidHTML() {
       <div class="pv-rays" aria-hidden="true">${'<i></i>'.repeat(6)}</div>
       <i class="pv-void-flash" aria-hidden="true"></i>
       ${slot('crater', 'flail', 'front', 'data-sticky data-move="crater" data-travel="jump"')}
+    </div>
+    <div class="pv-void-over"><div class="pv-void-over-in">
       <div class="pv-void-copy">
         <p class="pv-kicker"><span>∞</span><i></i>The way in</p>
         <h2 class="pv-h">See you inside the Labyrinth</h2>
@@ -450,6 +452,7 @@ function voidHTML() {
         </div>
       </div>
     </div></div>
+    </div>
     <div class="pv-foot">
       <div class="pv-wrap pv-foot-grid">
         <p class="pv-foot-brand"><img src="assets/favicon.png" alt="" width="28" height="28"><b>Labyrinth</b><span>Organised by Google Developer Groups on Campus, NIT Hamirpur.</span></p>

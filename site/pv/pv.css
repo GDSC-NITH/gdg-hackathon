@@ -704,8 +704,9 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 .pv-slot-contact { width: 160px; height: clamp(150px, 24vh, 230px); margin: clamp(14px, 3vh, 28px) auto 0; }
 
 /* ---------- The void (footer) ---------- */
-.pv-void { position: relative; z-index: 2; }
-.pv-void-pin { height: 150vh; }
+/* No z-index here: the copy overlay must stack above the runner canvas (z 30) while the floor and rays stay below it. */
+.pv-void { position: relative; }
+.pv-void-pin { position: relative; height: 150vh; }
 .pv-void-stage { justify-content: flex-start; align-items: center; padding-top: calc(var(--bar) + 4vh); }
 .pv-void-floor { position: absolute; left: 50%; bottom: 0; width: 180vw; height: 56vh; transform: translateX(-50%); perspective: 380px; perspective-origin: 50% 0%; -webkit-mask-image: linear-gradient(to top, #000 20%, transparent 95%); mask-image: linear-gradient(to top, #000 20%, transparent 95%); }
 .pv-void-floor i {
@@ -725,8 +726,21 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 .pv-rays i:nth-child(1) { --n: 0; } .pv-rays i:nth-child(2) { --n: 1; } .pv-rays i:nth-child(3) { --n: 2; } .pv-rays i:nth-child(4) { --n: 3; } .pv-rays i:nth-child(5) { --n: 4; } .pv-rays i:nth-child(6) { --n: 5; }
 @keyframes pv-ray { from { opacity: .45; } to { opacity: 1; } }
 .pv-slot-crater { position: absolute; left: 50%; bottom: 16vh; width: min(640px, 80vw); height: min(30vh, 240px); transform: translateX(-50%); }
-.pv-void-copy { position: absolute; left: 0; right: 0; bottom: calc(16vh + min(30vh, 240px) + clamp(70px, 10vh, 100px)); z-index: 31; text-align: center; padding: 0 var(--gut); opacity: .28; transform: translateY(14px) scale(.97); filter: blur(1.5px); transition: opacity 1s var(--ease), transform 1.2s var(--ease), filter 1s var(--ease); pointer-events: none; }
-.pv-void-stage.is-done .pv-void-copy { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+.pv-void-over { position: absolute; inset: 0; z-index: 31; pointer-events: none; --hole: calc(16vh + min(30vh, 240px) * .45); }
+/* A screen-tall box whose middle is the crater's centre, so the copy centres in the hole. */
+.pv-void-over-in { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.pv-void-copy {
+  position: absolute; left: 0; right: 0; bottom: calc(var(--hole) - 50vh); height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 var(--gut); opacity: 0; transform: translateY(18px) scale(.94); filter: blur(3px);
+  transition: opacity 1s var(--ease), transform 1.2s var(--ease), filter 1s var(--ease); pointer-events: none;
+}
+.pv-void-over.is-done .pv-void-copy { opacity: 1; transform: none; filter: none; }
+.pv-void-over.is-done .pv-void-copy > * { pointer-events: auto; }
+.pv-void-copy .pv-h { filter: drop-shadow(0 4px 18px rgba(0, 0, 0, .85)); }
+/* A soft dark pool behind the text keeps it readable over the crater rocks. */
+.pv-void-copy { background: radial-gradient(ellipse min(48vw, 460px) clamp(90px, 16vh, 140px) at 50% 50%, rgba(8, 4, 3, .78), rgba(8, 4, 3, .4) 55%, transparent 100%); }
+.pv-void-copy .pv-kicker { text-shadow: 0 0 10px #000, 0 0 4px #000; }
 .pv-void-copy .pv-h { font-size: clamp(26px, 4vw, 48px); margin-bottom: 26px; }
 .pv-foot { position: relative; z-index: 31; padding: 34px 0 calc(28px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #080504; }
 .pv-foot-grid { display: grid; grid-template-columns: 1.2fr 2fr auto; gap: 24px; align-items: center; }
@@ -1058,7 +1072,7 @@ body.pv-on [data-split].in .pv-ch { animation: pv-char .8s var(--ease) both; ani
 
   .pv-void-pin { height: 140vh; }
   .pv-slot-crater { width: 92vw; bottom: 20vh; height: 22vh; }
-  .pv-void-copy { bottom: calc(20vh + 22vh + 3vh); }
+  .pv-void-over { --hole: calc(20vh + 22vh * .45); }
   .pv-foot-links { gap: 0 16px; }
 }
 @media (max-width: 379px) {
