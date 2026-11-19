@@ -1303,6 +1303,11 @@ body.pv-on [data-split].in .pv-ch {
   overflow: hidden;
 }
 
+.pv-tl-stage {
+  position: absolute;
+  inset: 0;
+}
+
 .pv-tl-floor {
   position: absolute;
   left: 50%;
@@ -3725,10 +3730,10 @@ body.pv-on [data-split].in .pv-ch {
 .pv-tl-big {
   position: absolute;
   right: 18px;
-  bottom: -20px;
+  bottom: 8px;
   z-index: -1;
   pointer-events: none;
-  font: 700 100px/1 var(--f-pixel);
+  font: 700 92px/1 var(--f-pixel);
   letter-spacing: -.05em;
   color: transparent;
   -webkit-text-stroke: 1px rgba(255, 160, 90, .15);
@@ -3997,9 +4002,9 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   .pv-tl-big {
-    font-size: 74px;
-    right: 12px;
-    bottom: 4px;
+    font-size: 64px;
+    right: 14px;
+    bottom: 12px;
   }
 
   .pv-tl-item[data-side] .pv-tl-edge {
@@ -4020,7 +4025,7 @@ body.pv-on [data-split].in .pv-ch {
     flex-wrap: wrap;
     align-items: center;
     gap: 4px 0;
-    padding-left: 36px;
+    padding-left: clamp(56px, 18vw, 76px);
     margin: 26px 0 10px;
   }
 
@@ -4047,7 +4052,7 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   .pv-tl-day-node {
-    left: 22px;
+    left: clamp(24px, 8vw, 34px);
   }
 }
 
@@ -4532,8 +4537,20 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   .pv-hero {
-    padding-top: calc(var(--bar) + 14px);
-    padding-bottom: 12px;
+    min-height: auto;
+    padding-top: calc(var(--bar) + 20px);
+    padding-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .pv-sec {
+    padding: clamp(36px, 6vh, 52px) 0;
+  }
+
+  .pv-about {
+    padding-top: 12px;
   }
 
   .pv-hero-inner {
@@ -4600,60 +4617,60 @@ body.pv-on [data-split].in .pv-ch {
 
   .pv-about-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 0;
   }
 
   .pv-slot-about {
-    height: 28vh;
-    height: 28svh;
+    height: clamp(130px, 18vh, 160px);
+    max-height: 160px;
     order: -1;
+    margin-bottom: 32px;
   }
 
   .pv-facts {
     grid-template-columns: 1fr 1fr;
   }
 
-  /* Timeline: the runner sits in a band at the top; cards scroll under it on one side of the spine. */
-  /* Timeline: the runner sits in a blended stage at the top; softly feathered in all 4 directions */
+  /* Timeline: runner sits on the left side, smoothly blended on all 4 sides; cards flow on the right */
   .pv-timeline {
     --lane: 0px;
   }
 
   .pv-tl-layer {
     z-index: 3;
+    pointer-events: none;
   }
 
   .pv-tl-sticky {
-    top: calc(var(--bar) + 8px);
-    height: 22vh;
-    height: 22svh;
-    background: linear-gradient(180deg, var(--bg) 0, var(--bg) 60%, rgba(11, 8, 7, 0));
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    pointer-events: none;
+    background: none;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
-  .pv-tl-floor {
-    height: 100%;
-    -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 80%);
-    mask-image: linear-gradient(to top, #000 10%, transparent 80%);
-  }
-
-  .pv-slot-timeline {
-    top: 4%;
-    height: 60%;
-    width: 28%;
-  }
-
-  .pv-tl-sticky {
-    top: calc(var(--bar) + 2px);
-    height: 24vh;
-    height: 24svh;
+  .pv-tl-stage {
+    position: absolute;
+    top: 0;
+    left: 2px;
+    width: clamp(74px, 22vw, 96px);
+    height: 18vh;
+    height: 18svh;
     background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(18, 12, 10, 0.75) 0%, rgba(18, 12, 10, 0.35) 45%, transparent 85%);
-    -webkit-mask-image: radial-gradient(ellipse 55% 48% at 50% 50%, #000 18%, rgba(0, 0, 0, 0.75) 45%, rgba(0, 0, 0, 0.2) 70%, transparent 95%);
-    mask-image: radial-gradient(ellipse 55% 48% at 50% 50%, #000 18%, rgba(0, 0, 0, 0.75) 45%, rgba(0, 0, 0, 0.2) 70%, transparent 95%);
+    -webkit-mask-image: radial-gradient(ellipse 55% 48% at 50% 50%, #000 20%, rgba(0, 0, 0, 0.75) 45%, transparent 92%);
+    mask-image: radial-gradient(ellipse 55% 48% at 50% 50%, #000 20%, rgba(0, 0, 0, 0.75) 45%, transparent 92%);
+    will-change: transform;
   }
 
   .pv-tl-floor {
     height: 100%;
-    width: 110vw;
+    width: 100%;
     left: 50%;
     transform: translateX(-50%);
     -webkit-mask-image: radial-gradient(ellipse 50% 45% at 50% 48%, #000 15%, rgba(0, 0, 0, 0.55) 45%, transparent 85%);
@@ -4661,9 +4678,12 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   .pv-slot-timeline {
+    position: absolute;
+    left: 50%;
     top: 6%;
-    height: 58%;
-    width: 28%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 64%;
   }
 
   .pv-tl-now {
@@ -4673,18 +4693,28 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   .pv-tl-spine {
-    left: 22px;
+    left: clamp(24px, 8vw, 34px);
+  }
+
+  .pv-tl-node {
+    left: clamp(24px, 8vw, 34px);
+  }
+
+  .pv-tl-branch {
+    left: clamp(24px, 8vw, 34px);
+    right: auto;
+    width: calc(clamp(56px, 18vw, 76px) - clamp(24px, 8vw, 34px));
+    transform-origin: left;
   }
 
   .pv-tl-list {
-    grid-template-columns: 36px minmax(0, 1fr);
-    padding: 25vh var(--gut) 30vh 0;
-    padding-top: 25svh;
-    row-gap: 14px;
+    grid-template-columns: clamp(56px, 18vw, 76px) minmax(0, 1fr);
+    padding: 12vh var(--gut) 24vh 0;
+    row-gap: 16px;
   }
 
   .pv-tl-item {
-    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-columns: clamp(56px, 18vw, 76px) minmax(0, 1fr);
     min-height: 0;
   }
 
@@ -4693,14 +4723,10 @@ body.pv-on [data-split].in .pv-ch {
     --dir: 1;
   }
 
-  .pv-tl-node {
-    left: 22px;
-  }
-
   .pv-tl-item[data-side] .pv-tl-branch {
-    left: 22px;
+    left: clamp(24px, 8vw, 34px);
     right: auto;
-    width: 14px;
+    width: calc(clamp(56px, 18vw, 76px) - clamp(24px, 8vw, 34px));
     transform-origin: left;
   }
 

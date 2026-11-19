@@ -90,10 +90,12 @@ function timeline(root) {
   const sec = $('.pv-tl', root);
   if (!sec) return;
   const fill = $('.pv-tl-spine i', sec), tip = $('.pv-tl-spine b', sec), floor = $('.pv-tl-floor i', sec), now = $('.pv-tl-now b', sec);
+  const tlStage = $('.pv-tl-stage', sec);
   const items = $$('.pv-tl-item', sec);
-  let active = null, secH = sec.offsetHeight;
+  let active = null, secH = sec.offsetHeight, currentP = 0, stageY = -1;
   addEventListener('resize', () => { secH = sec.offsetHeight; });
   track(sec, p => {
+    currentP = p;
     fill.style.transform = `scaleY(${p})`;
     // The glowing head of the lava rides the end of the fill.
     tip.style.transform = `translate3d(-50%, ${(p * secH).toFixed(1)}px, 0)`;
@@ -107,8 +109,8 @@ function timeline(root) {
     onScreen = r.bottom > 0 && r.top < state.vh;
     if (onScreen) for (let i = 0; i < items.length; i++) boxes[i] = items[i].getBoundingClientRect();
   });
-  onFrame(() => {
-    if (!onScreen) { signals.tlSide = 0; return; }
+  onFrame(dt => {
+    if (!onScreen) { signals.tlSide = 0; stageY = -1; return; }
     const mid = state.vh * (wide() ? 0.55 : 0.6);
     let best = null, bd = 1e9;
     for (let i = 0; i < items.length; i++) {
@@ -133,6 +135,22 @@ function timeline(root) {
         active.classList.add('is-active');
         now.textContent = active.dataset.time;
         signals.tlSide = active.dataset.side === 'l' ? -1 : 1;
+      }
+    }
+    if (tlStage) {
+      if (wide()) {
+        tlStage.style.transform = '';
+      } else {
+        const stageH = tlStage.offsetHeight || 120;
+        const minY = 64;
+        const maxY = Math.max(minY, state.vh - stageH - 24);
+        const targetY = minY + (maxY - minY) * clamp(currentP);
+        if (stageY < 0 || Math.abs(targetY - stageY) > state.vh * 0.7) {
+          stageY = targetY;
+        } else {
+          stageY += (targetY - stageY) * Math.min(1, (dt || 0.016) * 10);
+        }
+        tlStage.style.transform = `translate3d(0, ${stageY.toFixed(1)}px, 0)`;
       }
     }
   });
@@ -425,7 +443,7 @@ function marquees(root) {
 
 // ---------- Headings drift a little slower than the page (depth) ----------
 function drift(root) {
-  if (reduced) return;
+  if (reduced || !wide()) return;
   const heads = $$('.pv-head', root).filter(h => !h.closest('.pv-stage'));
   let tops = [];
   const cache = () => {

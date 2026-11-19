@@ -178,9 +178,11 @@ function timelineHTML(c) {
     <div class="pv-wrap">${head(2, 'Timeline', 'Run of the night', 'Twenty-four hours, one maze. All times in IST.', 'center')}</div>
     <div class="pv-tl">
       <div class="pv-tl-layer" aria-hidden="true"><div class="pv-tl-sticky">
-        <div class="pv-tl-floor"><i></i></div>
-        ${slot('timeline', 'run', 'front', 'data-travel="run" data-sticky data-enter="horizon"')}
-        <p class="pv-tl-now"><span>Now</span><b>—</b></p>
+        <div class="pv-tl-stage">
+          <div class="pv-tl-floor"><i></i></div>
+          ${slot('timeline', 'run', 'front', 'data-travel="run" data-sticky data-enter="horizon"')}
+          <p class="pv-tl-now"><span>Now</span><b>—</b></p>
+        </div>
       </div></div>
       <div class="pv-tl-spine" aria-hidden="true"><i></i><b></b></div>
       <ol class="pv-tl-list">${items}</ol>
