@@ -13,6 +13,14 @@ const wide = () => matchMedia('(min-width: 900px) and (min-height: 560px)').matc
 // Short landscape phones: pinned stages are switched off there (see pv.css).
 const flat = () => matchMedia('(max-height: 500px) and (orientation: landscape)').matches;
 
+// An element's scrollWidth, kept current by a ResizeObserver. Reading
+// scrollWidth inside a frame, after transforms were written, forced a layout.
+function widthOf(el) {
+  let w = el.scrollWidth;
+  new ResizeObserver(() => { w = el.scrollWidth; }).observe(el);
+  return () => w;
+}
+
 export const signals = { tlSide: 0, railV: 0, voidP: 0, awardsP: 0, questP: 0, shake: 0, runnerIn: false };
 
 // ---------- Bar, menu, progress, in-page links ----------
@@ -20,12 +28,13 @@ function bar(root) {
   const el = $('#pvBar', root), nav = $('.pv-nav', el), ink = $('.pv-nav-ink', el);
   const progress = $('.pv-progress i', root);
   const menu = $('#pvMenu', root), burger = $('.pv-burger', el);
-  let top = true;
+  let top = true, shownP = -1;
 
   onFrame(() => {
     const atTop = state.y < 40;
     if (atTop !== top) { top = atTop; el.classList.toggle('is-top', top); }
-    progress.style.transform = `scaleX(${clamp(state.y / state.docH)})`;
+    const p = clamp(state.y / state.docH);
+    if (Math.abs(p - shownP) > 0.0005) { shownP = p; progress.style.transform = `scaleX(${p.toFixed(4)})`; }
   });
 
   // Active section: the one that holds the middle of the screen.
@@ -92,13 +101,26 @@ function timeline(root) {
   const fill = $('.pv-tl-spine i', sec), tip = $('.pv-tl-spine b', sec), floor = $('.pv-tl-floor i', sec), now = $('.pv-tl-now b', sec);
   const tlStage = $('.pv-tl-stage', sec);
   const items = $$('.pv-tl-item', sec);
-  let active = null, secH = sec.offsetHeight, currentP = 0, stageY = -1;
-  addEventListener('resize', () => { secH = sec.offsetHeight; });
+  let active = null, secH = sec.offsetHeight, currentP = 0, stageY = -1, stageH = 120, isWide = wide();
+  addEventListener('resize', () => { secH = sec.offsetHeight; isWide = wide(); });
+  // Per-frame values go straight to the elements that show them, as plain
+  // (non-inherited) properties. Custom properties on the item restyled its
+  // whole subtree and restarted the card's transitions on every frame.
+  const parts = items.map(it => {
+    const card = $('.pv-tl-card', it);
+    const dim = document.createElement('i');
+    dim.className = 'pv-tl-dim';
+    dim.setAttribute('aria-hidden', 'true');
+    card.append(dim);
+    return { bar: $('.pv-tl-prog b', it), card, dim };
+  });
   track(sec, p => {
     currentP = p;
     fill.style.transform = `scaleY(${p})`;
     // The glowing head of the lava rides the end of the fill.
     tip.style.transform = `translate3d(-50%, ${(p * secH).toFixed(1)}px, 0)`;
+    // The grid repeats every 90 px, so sliding the plane by the remainder
+    // moves it like scrolling its background, without repainting the floor.
     floor.style.transform = `rotateX(74deg) translate3d(0, ${((p * 2400) % 90).toFixed(1)}px, 0)`;
   });
   // Rects are read at the start of the frame (onRead), before anything writes styles.
@@ -107,11 +129,13 @@ function timeline(root) {
   onRead(() => {
     const r = sec.getBoundingClientRect();
     onScreen = r.bottom > 0 && r.top < state.vh;
-    if (onScreen) for (let i = 0; i < items.length; i++) boxes[i] = items[i].getBoundingClientRect();
+    if (!onScreen) return;
+    for (let i = 0; i < items.length; i++) boxes[i] = items[i].getBoundingClientRect();
+    if (tlStage && !isWide) stageH = tlStage.offsetHeight || 120;
   });
   onFrame(dt => {
     if (!onScreen) { signals.tlSide = 0; stageY = -1; return; }
-    const mid = state.vh * (wide() ? 0.55 : 0.6);
+    const mid = state.vh * (isWide ? 0.55 : 0.6);
     let best = null, bd = 1e9;
     for (let i = 0; i < items.length; i++) {
       const it = items[i], b = boxes[i];
@@ -121,12 +145,17 @@ function timeline(root) {
       // Cards appear as they rise into view; the node lights once the runner reaches it.
       it.classList.toggle('is-past', b.top < state.vh * 0.82);
       it.classList.toggle('is-lit', c < mid + 10);
-      // --prog: how far the runner is through this event (its progress bar).
-      // --far: distance from the runner's line, for depth (dim and shrink a little).
+      // prog: how far the runner is through this event (its progress bar).
+      // far: distance from the runner's line, for depth (dim and shrink a little).
       const prog = clamp((mid - b.top) / Math.max(1, b.height + 22));
       const far = clamp(d / (state.vh * 0.55));
-      if (Math.abs((it._p ?? -1) - prog) > 0.004) { it._p = prog; it.style.setProperty('--prog', prog.toFixed(3)); }
-      if (Math.abs((it._f ?? -1) - far) > 0.01) { it._f = far; it.style.setProperty('--far', far.toFixed(2)); }
+      if (Math.abs((it._p ?? -1) - prog) > 0.004) { it._p = prog; parts[i].bar.style.transform = `scaleX(${prog.toFixed(3)})`; }
+      if (Math.abs((it._f ?? -1) - far) > 0.01) {
+        it._f = far;
+        // Cards further from the runner's line dim and shrink a little.
+        parts[i].dim.style.opacity = (far * 0.4).toFixed(3);
+        parts[i].card.style.scale = (1 - far * 0.05).toFixed(4);
+      }
     }
     if (best !== active) {
       active?.classList.remove('is-active');
@@ -138,19 +167,19 @@ function timeline(root) {
       }
     }
     if (tlStage) {
-      if (wide()) {
-        tlStage.style.transform = '';
+      if (isWide) {
+        if (stageY !== -2) { tlStage.style.transform = ''; stageY = -2; }
       } else {
-        const stageH = tlStage.offsetHeight || 120;
         const minY = 64;
         const maxY = Math.max(minY, state.vh - stageH - 24);
         const targetY = minY + (maxY - minY) * clamp(currentP);
+        const before = stageY;
         if (stageY < 0 || Math.abs(targetY - stageY) > state.vh * 0.7) {
           stageY = targetY;
         } else {
           stageY += (targetY - stageY) * Math.min(1, (dt || 0.016) * 10);
         }
-        tlStage.style.transform = `translate3d(0, ${stageY.toFixed(1)}px, 0)`;
+        if (Math.abs(stageY - before) > 0.05) tlStage.style.transform = `translate3d(0, ${stageY.toFixed(1)}px, 0)`;
       }
     }
   });
@@ -187,7 +216,8 @@ function crew(root) {
   }
   let x = 0, drag = null, vx = 0, skew = 0, visible = false;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(strip);
-  const third = () => trackEl.scrollWidth / 3;
+  const trackW = widthOf(trackEl);
+  const third = () => trackW() / 3;
   // Cards curve round like a rolling drum: each turns and recedes by its
   // distance from the middle of the strip (positions cached, no layout reads).
   const cards = $$('.pv-player', trackEl);
@@ -200,8 +230,8 @@ function crew(root) {
     if (reduced) return;
     for (let i = 0; i < cards.length; i++) {
       const d = clamp((x + offs[i] - half) / half, -1.4, 1.4);
-      cards[i].style.setProperty('--ry', `${(-d * 26).toFixed(2)}deg`);
-      cards[i].style.setProperty('--tz', `${(-Math.abs(d) * 70).toFixed(1)}px`);
+      // The transform itself: custom properties here restyled every card's canvas each frame.
+      cards[i].style.transform = `perspective(1100px) translateZ(${(-Math.abs(d) * 70).toFixed(1)}px) rotateY(${(-d * 26).toFixed(2)}deg)`;
     }
   };
   onFrame(dt => {
@@ -236,22 +266,31 @@ function past(root) {
   const rail = $('.pv-past-rail', sec), list = $('.pv-past-track', sec), count = $('.pv-past-count b', sec);
   const cards = $$('.pv-event', sec);
   const ledge = $('.pv-ledge', sec), runSlot = $('.pv-slot-past', sec);
-  let dist = 0, lastX = 0;
+  let dist = 0, lastX = 0, tx = 0, railX = 0, listLeft = 0;
+  // Card centres along the rail, measured on resize.
+  let centres = [];
+  const shown = cards.map(() => NaN);
+  const arts = cards.map(c => ({ num: $('.pv-event-art > span', c), icon: $('.pv-event-art > i', c) }));
+  const unturn = () => cards.forEach((c, i) => {
+    shown[i] = NaN; c.style.transform = '';
+    if (arts[i].num) arts[i].num.style.translate = '';
+    if (arts[i].icon) arts[i].icon.style.translate = '';
+  });
   // The runner on the ledge gets the room between the cards and the ledge.
   const fit = () => {
     const room = ledge.getBoundingClientRect().top - rail.getBoundingClientRect().bottom - 12;
     runSlot?.style.setProperty('--run-h', `${Math.round(clamp(room, 64, 215))}px`);
   };
-  // Card centres relative to the rail's left edge at translate 0 (no rect reads while scrolling).
-  let centres = [], railX = 0, railOn = false;
+  let railOn = false;
   new IntersectionObserver(([e]) => { railOn = e.isIntersecting; }).observe(sec);
   const size = () => {
-    const r0 = rail.getBoundingClientRect().left;
-    centres = cards.map(c => r0 + c.offsetLeft + c.offsetWidth / 2);
     fit();
-    if (flat() || reduced) { sec.style.height = ''; list.style.transform = ''; dist = 0; return; }
+    if (flat() || reduced) { sec.style.height = ''; list.style.transform = ''; dist = 0; unturn(); return; }
     dist = Math.max(0, list.scrollWidth - rail.clientWidth);
     sec.style.height = `${state.vh + dist * 1.15}px`;
+    const lr = list.getBoundingClientRect();
+    listLeft = lr.left - tx;
+    centres = cards.map(c => { const r = c.getBoundingClientRect(); return r.left - lr.left + r.width / 2; });
     measure();
   };
   addEventListener('resize', size);
@@ -259,21 +298,30 @@ function past(root) {
   setTimeout(size, 0);
   track(sec, p => {
     if (!dist) return;
-    const tx = -dist * p;
-    list.style.transform = `translate3d(${tx}px,0,0)`;
-    railX = tx;
+    tx = -dist * p;
+    list.style.transform = `translate3d(${tx.toFixed(1)}px,0,0)`;
+    // Where each card is on screen, from the cached centres (no layout reads).
     cards.forEach((c, i) => {
-      const mid = (centres[i] + tx) / state.vw - 0.5;
-      if (Math.abs((c._d ?? 9) - mid) > 0.002) { c._d = mid; c.style.setProperty('--d', mid.toFixed(3)); }
+      const mid = (listLeft + tx + (centres[i] || 0)) / state.vw - 0.5;
+      if (Number.isNaN(shown[i]) || Math.abs(mid - shown[i]) > 0.002) {
+        shown[i] = mid;
+        // The card turns towards the middle; its art moves against the rail (depth).
+        c.style.transform = `perspective(1100px) rotateY(${(mid * -8).toFixed(2)}deg) rotateX(var(--rx, 0deg))`;
+        if (arts[i].icon) arts[i].icon.style.translate = `${(mid * -70).toFixed(1)}px 0`;
+        if (arts[i].num) arts[i].num.style.translate = `${(mid * 46).toFixed(1)}px 0`;
+      }
     });
+    // Text only when it changes: each new text node is a style and layout change.
     const n = String(Math.min(cards.length, 1 + Math.round(p * (cards.length - 1)))).padStart(2, '0');
-    if (count.textContent !== n) count.textContent = n; // only on change: a text write forces layout
+    if (count.textContent !== n) count.textContent = n;
   });
+  // Phones scroll the rail natively; its offset is read before any writes.
+  onRead(() => { if (!dist) railX = -rail.scrollLeft; });
   onFrame(dt => {
     if (!railOn && Math.abs(signals.railV) < 1) return;
-    const tx = dist ? railX : -rail.scrollLeft;
-    const v = (tx - lastX) / Math.max(dt, 0.001);
-    lastX = tx;
+    const x = dist ? tx : railX;
+    const v = (x - lastX) / Math.max(dt, 0.001);
+    lastX = x;
     signals.railV += (v - signals.railV) * Math.min(1, dt * 8);
   });
   rail.addEventListener('scroll', () => {
@@ -290,12 +338,15 @@ function quests(root) {
   const cards = $$('.pv-quest', sec);
   const dots = $$('.pv-quest-dots i', sec);
   const n = cards.length;
+  // Media queries are evaluated on resize, not on every frame of the scroll.
+  let wideNow = wide(), flatNow = flat();
+  addEventListener('resize', () => { wideNow = wide(); flatNow = flat(); });
   const lay = p => {
     signals.questP = p;
-    const isWide = wide() && !reduced;
+    const isWide = wideNow && !reduced;
     // Phones and tablets: a deck. Scrolling deals the cards: the top one turns
     // face up, then is thrown off to the left and the next rises from the stack.
-    const isDeck = !isWide && !reduced && !flat();
+    const isDeck = !isWide && !reduced && !flatNow;
     sec.classList.toggle('is-fan', isWide);
     sec.classList.toggle('is-deck', isDeck);
     if (isDeck) {
@@ -408,12 +459,13 @@ function partners(root) {
   const tick = $('.pv-ticker-track', root);
   if (!tick || reduced) return;
   let tx = 0, v = 40, visible = false;
+  const tickW = widthOf(tick);
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(tick);
   onFrame(dt => {
     if (!visible) return;
     v += ((40 + Math.min(700, Math.abs(state.vy) * 0.6)) - v) * Math.min(1, dt * 4);
     tx -= v * dt;
-    const w = tick.scrollWidth / 4;
+    const w = tickW() / 4;
     if (w > 0 && -tx >= w) tx += w;
     tick.style.transform = `translate3d(${tx.toFixed(1)}px,0,0)`;
   });
@@ -426,12 +478,13 @@ function marquees(root) {
     const trackEl = $('.pv-marquee-track', row);
     const dir = +row.dataset.dir || -1;
     let x = dir > 0 ? -1 : 0, v = 34, visible = false, hover = false;
+    const rowW = widthOf(trackEl);
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(row);
     row.addEventListener('pointerenter', () => { hover = true; });
     row.addEventListener('pointerleave', () => { hover = false; });
     onFrame(dt => {
       if (!visible) return;
-      const w = trackEl.scrollWidth / 3;
+      const w = rowW() / 3;
       if (x === -1) x = -w;
       v += (((hover ? 8 : 34) + Math.min(520, Math.abs(state.vy) * 0.45)) - v) * Math.min(1, dt * 4);
       x += dir * v * dt;
@@ -454,7 +507,10 @@ function drift(root) {
   addEventListener('resize', cache);
   addEventListener('load', cache);
   setTimeout(cache, 1200);
+  let lastY = NaN, lastTops = null;
   onFrame(() => {
+    if (state.y === lastY && tops === lastTops) return;
+    lastY = state.y; lastTops = tops;
     for (let i = 0; i < heads.length; i++) {
       const [top, h] = tops[i] || [0, 0];
       const c = top - state.y + h / 2 - state.vh / 2;

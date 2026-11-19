@@ -1,7 +1,7 @@
 // Drifting embers and ash over the whole page: one small 2D canvas, about
 // 50 particles on desktop; on phones 16 particles at 1x pixels, redrawn at 30 fps.
 // Off when motion is reduced.
-import { onFrame, state, reduced } from './scroll.js';
+import { onFrame, onLite, state, reduced } from './scroll.js';
 
 export function initEmbers(root) {
   // Off on phones: a full-screen layer redrawn every frame, and the hero video carries its own embers.
@@ -13,7 +13,8 @@ export function initEmbers(root) {
   const ctx = canvas.getContext('2d');
   const small = Math.min(innerWidth, innerHeight) < 700;
   const N = small ? 16 : 50;
-  const dpr = small ? 1 : Math.min(devicePixelRatio || 1, 1.5);
+  // Soft dots need no high-DPI canvas; 1x clears and composites about half the pixels of 1.5x each frame.
+  const dpr = 1;
   let w = 0, h = 0;
   const size = () => {
     w = innerWidth; h = innerHeight;
@@ -36,7 +37,7 @@ export function initEmbers(root) {
     return p;
   }
   let lastY = 0, acc = 0;
-  onFrame(dt => {
+  const stop = onFrame(dt => {
     if (document.hidden) return;
     if (small) { acc += dt; if (acc < 1 / 31) return; dt = acc; acc = 0; }
     const scrollDy = state.y - lastY; lastY = state.y;
@@ -63,4 +64,6 @@ export function initEmbers(root) {
       }
     }
   });
+  // Lite mode (scroll.js): a full-screen layer redrawn every frame is the first thing to go.
+  onLite(() => { stop(); canvas.remove(); });
 }

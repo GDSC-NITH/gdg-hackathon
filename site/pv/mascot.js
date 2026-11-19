@@ -14,7 +14,7 @@
 // runner can pass behind the trophy and sink into the crater.
 import * as THREE from 'three';
 import { createAvatar } from '@engine/world/avatar.js';
-import { onFrame, onRead, state, reduced } from './scroll.js';
+import { onFrame, onRead, onLite, state, reduced } from './scroll.js';
 import { signals } from './sections.js';
 
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -23,6 +23,8 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const angle = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
+// Runs fn when the browser has a moment to spare (soon, without requestIdleCallback).
+const idle = fn => (window.requestIdleCallback || (f => setTimeout(f, 200)))(() => fn(), { timeout: 2500 });
 
 const FOV = 26, DIST = 16, AV_H = 1.8;
 const YAW = { front: 0, left: -0.95, right: 0.95, 'side-left': -Math.PI / 2, 'side-right': Math.PI / 2 };
@@ -52,6 +54,10 @@ export async function initMascot(root, { skin = '' } = {}) {
   renderer.setPixelRatio(small ? 1 : Math.min(devicePixelRatio || 1, 1.6));
   renderer.localClippingEnabled = true;
   renderer.setClearColor(0x000000, 0);
+  // Shader error checks read the compile log synchronously, which stalls the
+  // page each time a new shader is linked. All shaders are compiled up front
+  // (warm() below), so there is nothing to check once the page is running.
+  renderer.debug.checkShaderErrors = false;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
@@ -149,6 +155,8 @@ export async function initMascot(root, { skin = '' } = {}) {
         holder.scale.setScalar(1 / size.y);
         m.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); if ('emissive' in o.material) o.material.emissive = new THREE.Color(0x2a1204); } });
         trophy.add(holder);
+        // Link its shaders and upload its textures now, not on the frame it first comes on screen.
+        idle(warm);
       }, undefined, err => console.warn('Trophy did not load', err));
     });
   }
@@ -193,8 +201,15 @@ export async function initMascot(root, { skin = '' } = {}) {
     craterBody.add(pit);
   }
   // The crater floor plane in world space, for sinking the runner into it.
+  // The runner's materials always have this one plane; away from the crater
+  // it is moved far below everything, so it clips nothing. Switching the
+  // planes on and off instead would link a second set of shaders mid-scroll.
   const floorPlane = new THREE.Plane();
   const up = new THREE.Vector3();
+  const NO_CLIP = new THREE.Vector3(0, 1, 0);
+  const unclip = () => floorPlane.set(NO_CLIP, 1e6);
+  unclip();
+  for (const m of mats) m.clippingPlanes = [floorPlane];
 
   // Embers that burst out of the crater after the runner falls in.
   const NP = 90;
@@ -230,15 +245,19 @@ export async function initMascot(root, { skin = '' } = {}) {
 
   // ---------- Layout helpers ----------
   let vw = innerWidth, vh = innerHeight, ppu = 1;
+  // The canvas window: where it sits on screen (x, y) and its size (cw, ch), in CSS px.
+  const win = { x: 0, y: 0, cw: 0, ch: 0, shownX: NaN, shownY: NaN };
   function resize() {
     vw = innerWidth; vh = innerHeight;
-    renderer.setSize(vw, vh, false);
+    win.cw = 0; // reallocate the canvas on the next frame
     camera.aspect = vw / vh;
     camera.updateProjectionMatrix();
     ppu = vh / (2 * DIST * Math.tan(THREE.MathUtils.degToRad(FOV / 2)));
   }
   resize();
   addEventListener('resize', resize);
+  // Lite mode (scroll.js): the runner is drawn at 1x pixels.
+  onLite(() => { renderer.setPixelRatio(1); win.cw = 0; });
   const toWorld = (px, py, out = new THREE.Vector3()) => out.set((px - vw / 2) / ppu, (vh / 2 - py) / ppu, 0);
 
   const slots = $$('[data-slot]').map(el => ({
@@ -247,11 +266,12 @@ export async function initMascot(root, { skin = '' } = {}) {
     travel: el.dataset.travel || 'run', mode: el.dataset.move || '', expr: el.dataset.expr || 'neutral',
     sticky: 'sticky' in el.dataset, pin: el.closest('.pv-pin, .pv-tl'), rect: null, hold: [0, 0],
   }));
-  // Sizes come from CSS; read every frame (cheap: about a dozen rects).
+  // Sizes come from CSS; read at the start of every frame (onRead), before
+  // anything on the page is written, so the rects never force a layout.
   // Slots hidden at this screen size (display: none) are skipped.
   const act = [];
   function layout() {
-    const y = scrollY;
+    const y = state.y;
     act.length = 0;
     for (const s of slots) {
       const r = s.el.getBoundingClientRect();
@@ -272,6 +292,7 @@ export async function initMascot(root, { skin = '' } = {}) {
       }
     }
   }
+  onRead(layout);
   // Feet position and height (world units) for a slot.
   const tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3();
   function anchor(s, out) {
@@ -417,8 +438,7 @@ export async function initMascot(root, { skin = '' } = {}) {
       tgt.copy(crater.position).addScaledVector(up, -sink * h * 1.3);
       tgt.y -= 0.02;
       tz = tgt.z;
-      for (const m of mats) m.clippingPlanes = [floorPlane];
-    } else for (const m of mats) m.clippingPlanes = null;
+    } else unclip();
 
     // ----- Springs -----
     const tx = tgt.x * ppu + vw / 2, ty = (vh / 2 - tgt.y * ppu) + y, th = h * ppu;
@@ -549,6 +569,26 @@ export async function initMascot(root, { skin = '' } = {}) {
   }
   const dbg = { slot: '', travel: '', far: false, k: 0 };
 
+  // ---------- Shaders ----------
+  // Every shader the runner, trophy, crater, embers and dust use is linked,
+  // and every texture uploaded, by one render with all of them shown, so
+  // none of that work lands in the middle of a scroll. A real render is used
+  // because compileAsync builds the clipped materials without their clipping
+  // plane and the others with the last plane count, so the first real frame
+  // linked them all again. The canvas is cleared in the same task: the frame
+  // on screen never shows this render.
+  function warm() {
+    const hidden = [trophy, crater, sparks, puffs, runner, ...wings].filter(o => !o.visible);
+    for (const o of hidden) o.visible = true;
+    renderer.render(scene, camera);
+    for (const o of hidden) o.visible = false;
+    renderer.clear();
+  }
+  warm();
+  // The trophy is small; fetch it once the page is idle rather than when the
+  // prizes come near, which is the middle of a scroll.
+  idle(loadTrophy);
+
   // ---------- Frame ----------
   let lastVis = true, shaken = false;
   const pm = new THREE.Matrix4(), pq = new THREE.Quaternion(), ps = new THREE.Vector3(), pe = new THREE.Euler();
@@ -647,10 +687,57 @@ export async function initMascot(root, { skin = '' } = {}) {
     if (sh > 0.02) { canvas.style.translate = `${((Math.random() - 0.5) * 10 * sh).toFixed(1)}px ${((Math.random() - 0.5) * 8 * sh).toFixed(1)}px`; shaken = true; }
     else if (shaken) { canvas.style.translate = ''; shaken = false; }
     const draw = visible || trophy.visible || crater.visible || any;
-    if (draw || lastVis) renderer.render(scene, camera);
+    if (draw && fit()) renderer.render(scene, camera);
+    else if (lastVis) renderer.clear();
     lastVis = draw;
     return draw;
   });
+
+  // ---------- Window ----------
+  // The canvas covers only the box round what is drawn (the runner and its
+  // dust, the trophy, the crater and its embers), not the whole screen, and
+  // moves with it. camera.setViewOffset renders that part of the full-screen
+  // view, so everything appears exactly where a full-screen canvas would put
+  // it, while the GPU clears, draws, resolves and composites a fraction of
+  // the pixels. The canvas is reallocated only when the box outgrows it or
+  // shrinks to under half of it.
+  const box = { x0: 0, y0: 0, x1: 0, y1: 0 };
+  // Adds a box round a world point at depth z: half-width rx, from dy0 below to dy1 above (world units).
+  function cover(x, y, z, rx, dy0, dy1) {
+    const f = DIST / Math.max(0.5, DIST - z); // perspective scale relative to the z = 0 plane
+    const sx = vw / 2 + x * ppu * f, sy = vh / 2 - y * ppu * f;
+    box.x0 = Math.min(box.x0, sx - rx * ppu * f); box.x1 = Math.max(box.x1, sx + rx * ppu * f);
+    box.y0 = Math.min(box.y0, sy - dy1 * ppu * f); box.y1 = Math.max(box.y1, sy + dy0 * ppu * f);
+  }
+  const STEP = 64, PAD = 24;
+  function fit() {
+    box.x0 = box.y0 = Infinity; box.x1 = box.y1 = -Infinity;
+    // Runner: arms raised, wings and squash all stay inside these bounds.
+    if (runner.visible) cover(pos.x, pos.y, z, height * 0.8, height * 0.25, height * 1.65);
+    if (trophy.visible) { const th = trophy.scale.x; cover(trophy.position.x, trophy.position.y, 0, th * 0.65, th * 0.1, th * 1.1); }
+    if (crater.visible) { const sc = crater.scale.x; cover(crater.position.x, crater.position.y, crater.position.z, sc * 2.5, sc * 1.4, sc * (sparks.visible ? 5.8 : 1.4)); }
+    for (let i = 0; i < NPUFF; i++) { const s = puffState[i]; if (s.life > 0) cover(s.p.x, s.p.y, s.p.z, s.s * 1.3, s.s * 1.3, s.s * 1.3); }
+    // On screen only, with a margin.
+    const x0 = Math.max(0, box.x0 - PAD), y0 = Math.max(0, box.y0 - PAD);
+    const x1 = Math.min(vw, box.x1 + PAD), y1 = Math.min(vh, box.y1 + PAD);
+    if (!(x1 > x0 && y1 > y0)) return false;
+    const w = x1 - x0, h = y1 - y0;
+    if (w > win.cw || h > win.ch || w < win.cw * 0.5 || h < win.ch * 0.5) {
+      win.cw = Math.min(Math.ceil(vw / STEP) * STEP, Math.ceil((w + STEP) / STEP) * STEP);
+      win.ch = Math.min(Math.ceil(vh / STEP) * STEP, Math.ceil((h + STEP) / STEP) * STEP);
+      renderer.setSize(win.cw, win.ch, false);
+      canvas.style.width = `${win.cw}px`; canvas.style.height = `${win.ch}px`;
+    }
+    // Centre the window on the box, kept on screen; whole pixels so the image stays sharp.
+    win.x = Math.round(Math.min(Math.max((x0 + x1 - win.cw) / 2, Math.min(0, vw - win.cw)), Math.max(0, vw - win.cw)));
+    win.y = Math.round(Math.min(Math.max((y0 + y1 - win.ch) / 2, Math.min(0, vh - win.ch)), Math.max(0, vh - win.ch)));
+    if (win.x !== win.shownX || win.y !== win.shownY) {
+      win.shownX = win.x; win.shownY = win.y;
+      canvas.style.transform = `translate3d(${win.x}px, ${win.y}px, 0)`;
+    }
+    camera.setViewOffset(vw, vh, win.x, win.y, win.cw, win.ch);
+    return true;
+  }
 
   // Embers burst out of the crater as the runner disappears, then rise and fade.
   const em = new THREE.Matrix4(), eq = new THREE.Quaternion(), es = new THREE.Vector3(), ep = new THREE.Vector3(), eu = new THREE.Euler();

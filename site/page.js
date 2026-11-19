@@ -17,6 +17,8 @@ export function initPageView() {
   if (booting) document.documentElement.classList.add('pv-loading');
   const { root } = build({ mail: config.mailbox?.email || '' });
   document.body.classList.add('pv-on');
+  // pv.css styles <html> by this class; html:has(body.pv-on) made every DOM
+  // change (even a counter's text) re-check the root's style.
   document.documentElement.classList.add('pv-page');
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0b0807');
   split(root);

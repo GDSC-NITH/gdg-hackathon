@@ -3,6 +3,13 @@
 import { reduced } from './scroll.js';
 
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+// Sets an element's text by editing its text node in place. textContent
+// replaces the node, which is a tree change; counters do this every frame.
+export function setText(el, text) {
+  const t = el.firstChild;
+  if (t && t === el.lastChild && t.nodeType === 3) { if (t.data !== text) t.data = text; }
+  else el.textContent = text;
+}
 const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 // Headings: words, then characters, each in a span the CSS can stagger.
@@ -30,8 +37,8 @@ export function scramble(el, { duration = 900 } = {}) {
     const shown = Math.floor(final.length * t);
     let out = final.slice(0, shown);
     for (let i = shown; i < final.length; i++) out += final[i] === ' ' ? ' ' : GLYPHS[(Math.random() * GLYPHS.length) | 0];
-    el.textContent = out;
-    if (t < 1) requestAnimationFrame(step); else el.textContent = final;
+    setText(el, out);
+    if (t < 1) requestAnimationFrame(step); else setText(el, final);
   };
   requestAnimationFrame(step);
 }
@@ -50,7 +57,7 @@ export function countUp(el, { duration = 1400, onDone } = {}) {
   const step = now => {
     const t = Math.min(1, (now - start) / duration);
     const e = 1 - Math.pow(1 - t, 4);
-    el.textContent = pre + fmt(Math.round(target * e)) + post;
+    setText(el, pre + fmt(Math.round(target * e)) + post);
     if (t < 1) requestAnimationFrame(step); else onDone?.();
   };
   requestAnimationFrame(step);

@@ -211,16 +211,18 @@ body.pv-on [data-to] {
   pointer-events: none;
   width: 100vw;
   height: 100vh;
-  mix-blend-mode: screen;
 }
 
-.pv-mascot {
+/* Sized and moved by mascot.js to cover only what it draws. Its size is
+   rounded up and may run past the screen edge, so the page's
+   canvas { max-width: 100% } must not squeeze it. */
+#pv .pv-mascot {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: 0;
   z-index: 30;
+  max-width: none;
   pointer-events: none;
-  width: 100vw;
-  height: 100vh;
 }
 
 .pv-cursor {
@@ -636,13 +638,11 @@ body.pv-on [data-split].in .pv-ch {
   from {
     opacity: 0;
     transform: translate3d(0, .7em, 0) rotateX(-80deg) scale(.9);
-    filter: blur(4px);
   }
 
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
@@ -922,12 +922,12 @@ body.pv-on [data-split].in .pv-ch {
   opacity: 1;
 }
 
-.pv-hero-media::after {
-  content: "";
+/* hero.js fades this in as the page scrolls away. */
+.pv-hero-dim {
   position: absolute;
   inset: 0;
   background: #000;
-  opacity: var(--dim, 0);
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -1328,12 +1328,15 @@ body.pv-on [data-split].in .pv-ch {
   transform-origin: 50% 90px;
   transform: rotateX(74deg);
   will-change: transform;
+  /* Sharp lines, then a soft glow either side of them (painted once, not a filter:
+     a drop-shadow re-blurred the whole moving plane on every scroll frame). */
   background-image:
     linear-gradient(rgba(255, 106, 42, .55) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(255, 106, 42, .55) 2px, transparent 2px);
+    linear-gradient(90deg, rgba(255, 106, 42, .55) 2px, transparent 2px),
+    linear-gradient(rgba(255, 90, 31, .3), rgba(255, 90, 31, 0) 8px, rgba(255, 90, 31, 0) 82px, rgba(255, 90, 31, .3)),
+    linear-gradient(90deg, rgba(255, 90, 31, .3), rgba(255, 90, 31, 0) 8px, rgba(255, 90, 31, 0) 82px, rgba(255, 90, 31, .3));
   background-size: 90px 90px;
   background-position: center 0;
-  filter: drop-shadow(0 0 6px rgba(255, 90, 31, .7));
 }
 
 .pv-slot-timeline {
@@ -2393,8 +2396,8 @@ body.pv-on [data-split].in .pv-ch {
 .pv-event {
   width: clamp(280px, 30vw, 380px);
   flex: none;
-  transform: perspective(1100px) rotateY(calc(var(--d, 0) * -8deg)) rotateX(var(--rx, 0deg));
-  /* follows the rail every frame: no transform transition */
+  /* sections.js turns the card towards the middle as the rail moves; no transform transition, which would restart every frame */
+  transform: perspective(1100px) rotateX(var(--rx, 0deg));
   transition-property: border-color, box-shadow;
 }
 
@@ -3242,9 +3245,21 @@ body.pv-on [data-split].in .pv-ch {
   transform-origin: 50% 0;
   transform: rotateX(70deg);
   background:
-    linear-gradient(rgba(255, 106, 42, calc(.2 + var(--p, 0) * .6)) 2px, transparent 2px) 0 0 / 110px 110px,
-    linear-gradient(90deg, rgba(255, 106, 42, calc(.2 + var(--p, 0) * .6)) 2px, transparent 2px) 0 0 / 110px 110px,
+    linear-gradient(rgba(255, 106, 42, .2) 2px, transparent 2px) 0 0 / 110px 110px,
+    linear-gradient(90deg, rgba(255, 106, 42, .2) 2px, transparent 2px) 0 0 / 110px 110px,
     radial-gradient(60% 50% at 50% 30%, #2a1712, #0b0807);
+}
+
+/* The brighter lines fade in as the floor opens (--p): only this layer's opacity changes, so the floor is not repainted. */
+.pv-void-floor i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 106, 42, .75) 2px, transparent 2px) 0 0 / 110px 110px,
+    linear-gradient(90deg, rgba(255, 106, 42, .75) 2px, transparent 2px) 0 0 / 110px 110px;
+  opacity: var(--p, 0);
+  will-change: opacity;
 }
 
 .pv-rays {
@@ -3567,16 +3582,15 @@ body.pv-on [data-split].in .pv-ch {
   transition: opacity .9s var(--ease), transform 1.15s cubic-bezier(.2, .9, .25, 1.08), filter .8s var(--ease), border-color .5s, box-shadow .5s;
 }
 
-/* Depth: cards away from the runner's line dim through a dark layer (its opacity is cheap to change every frame). */
-.pv-tl-card::after {
-  content: "";
+/* Depth: cards away from the runner's line dim through a dark layer; sections.js sets its opacity per frame. */
+.pv-tl-dim {
   position: absolute;
   inset: 0;
   z-index: 5;
   border-radius: inherit;
   pointer-events: none;
   background: #0b0807;
-  opacity: calc(var(--far, 0) * .4);
+  opacity: 0;
 }
 
 .pv-tl-item[data-side="r"] .pv-tl-card {
@@ -3587,7 +3601,6 @@ body.pv-on [data-split].in .pv-ch {
   opacity: 1;
   transition-delay: .08s;
   filter: none;
-  scale: calc(1 - var(--far, 0) * .05);
   transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
 }
 
@@ -3790,7 +3803,7 @@ body.pv-on [data-split].in .pv-ch {
   position: absolute;
   inset: 0;
   transform-origin: left;
-  transform: scaleX(var(--prog, 0));
+  transform: scaleX(0);
   background: linear-gradient(90deg, var(--ember), var(--gold));
   box-shadow: 0 0 8px var(--ember);
 }
@@ -4731,7 +4744,7 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   /* On mobile the mascot sits behind timeline cards so it never overlaps text. */
-  .pv-mascot {
+  #pv .pv-mascot {
     z-index: 2;
   }
 
@@ -5072,14 +5085,13 @@ body.pv-on [data-split].in .pv-ch {
   }
 }
 
-/* Team: the strip curves like a drum (sections.js sets --ry/--tz per card). */
+/* Team: the strip curves like a drum (sections.js sets each card's transform). */
 .pv-player {
-  transform: perspective(1100px) translateZ(var(--tz, 0px)) rotateY(var(--ry, 0deg));
+  transform: perspective(1100px);
   transition: border-color .3s, box-shadow .3s, translate .45s var(--ease), scale .45s var(--ease);
 }
 
 .pv-player:hover {
-  transform: perspective(1100px) translateZ(var(--tz, 0px)) rotateY(var(--ry, 0deg));
   translate: 0 -10px;
   scale: 1.04;
 }
@@ -5186,13 +5198,7 @@ body.pv-on .counted {
 }
 
 /* Past events: the art inside each card moves against the rail (depth). */
-.pv-event-art i {
-  translate: calc(var(--d, 0) * -70px) 0;
-}
-
-.pv-event-art span {
-  translate: calc(var(--d, 0) * 46px) 0;
-}
+/* sections.js sets the translate of the art's icon and number per frame. */
 
 /* The void: a flash of light at the burst. */
 .pv-void-flash {
@@ -5316,4 +5322,54 @@ body.pv-on .counted {
   .pv-tl-item *::after {
     transition-property: opacity, transform, translate, scale !important;
   }
+}
+
+/* ---------- Lite mode ----------
+   scroll.js adds .pv-lite to <html> when this device cannot keep up with the
+   page. The costliest extras give way: background blurs behind glass panels
+   (re-blurred on every scroll frame), blurred reveals and the cursor glow. */
+html.pv-lite .pv-bar,
+html.pv-lite .pv-btn-ghost,
+html.pv-lite .pv-eyebrow {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.pv-lite .pv-bar {
+  background: rgba(14, 9, 8, .94);
+}
+
+html.pv-lite .pv-cursor {
+  display: none;
+}
+
+html.pv-lite .pv-tl-card,
+html.pv-lite .pv-void-copy,
+html.pv-lite .pv-quest-orb,
+html.pv-lite .pv-orbit::after {
+  filter: none;
+}
+
+@keyframes pv-up-lite {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html.pv-lite body.pv-on [data-r].in {
+  animation-name: pv-up-lite;
+}
+
+html.pv-lite body.pv-on [data-r="fade"].in {
+  animation-name: pv-fade;
+}
+
+html.pv-lite body.pv-on [data-r="scale"].in {
+  animation-name: pv-scale;
 }
