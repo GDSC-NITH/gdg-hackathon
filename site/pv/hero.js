@@ -194,6 +194,12 @@ function initParallax(hero) {
   const mark = hero.querySelector('.pv-wordmark canvas');
   const layers = [[hero.querySelector('.pv-eyebrow'), 10], [hero.querySelector('.pv-count'), 9], [hero.querySelector('.pv-hero-cta'), 6]];
   let px = 0, py = 0, tpx = 0, tpy = 0;
+  // Scrolling away dims the clip with a black layer's opacity. Changing the
+  // clip's own filter every frame re-filtered the full-screen video each time.
+  const dim = document.createElement('i');
+  dim.className = 'pv-hero-dim';
+  dim.setAttribute('aria-hidden', 'true');
+  media.append(dim);
   if (fine) hero.addEventListener('pointermove', e => { tpx = e.clientX / innerWidth - 0.5; tpy = e.clientY / innerHeight - 0.5; });
   hero.addEventListener('pointerleave', () => { tpx = tpy = 0; });
   let shown = -1, k = 0, spx = 9, spy = 9, heroH = hero.offsetHeight;
@@ -207,8 +213,8 @@ function initParallax(hero) {
     if (!moved || k > 1.01) return;
     shown = k; spx = px; spy = py;
     media.style.transform = `scale(${1.04 + k * 0.35}) translate3d(${(px * -16).toFixed(2)}px, ${(py * -10).toFixed(2)}px, 0)`;
-    // Dims as it flies away: a dark layer's opacity (a changing filter re-processed the whole video every frame).
-    media.style.setProperty('--dim', (k * 0.57).toFixed(3));
+    // brightness(1.06 - 0.6k) on top of the CSS filter, as a black overlay.
+    dim.style.opacity = (k * 0.6 / 1.06).toFixed(3);
     inner.style.transform = `translate3d(0, ${k * -18}vh, 0) scale(${1 - k * 0.08})`;
     inner.style.opacity = String(Math.max(0, 1 - k * 1.6));
     if (mark) mark.style.transform = `perspective(900px) rotateX(${(py * -9).toFixed(2)}deg) rotateY(${(px * 12).toFixed(2)}deg) translate3d(${(px * 14).toFixed(1)}px, ${(py * 8).toFixed(1)}px, 0)`;
