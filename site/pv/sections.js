@@ -20,15 +20,11 @@ function bar(root) {
   const el = $('#pvBar', root), nav = $('.pv-nav', el), ink = $('.pv-nav-ink', el);
   const progress = $('.pv-progress i', root);
   const menu = $('#pvMenu', root), burger = $('.pv-burger', el);
-  let hidden = false, top = true;
+  let top = true;
 
   onFrame(() => {
     const atTop = state.y < 40;
     if (atTop !== top) { top = atTop; el.classList.toggle('is-top', top); }
-    const hide = !menu.classList.contains('open') && state.y > state.vh * 0.6 && state.dir > 0 && Math.abs(state.vy) > 30;
-    const show = state.dir < 0 && Math.abs(state.vy) > 30;
-    if (hide && !hidden) { hidden = true; el.classList.add('is-hidden'); }
-    else if ((show || state.y < state.vh * 0.6) && hidden) { hidden = false; el.classList.remove('is-hidden'); }
     progress.style.transform = `scaleX(${clamp(state.y / state.docH)})`;
   });
 
