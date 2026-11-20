@@ -3,20 +3,20 @@
    the 3D view never has it. Motion is skipped for prefers-reduced-motion. */
 
 body.pv-on {
-  --bg: #0b0807;
-  --bg2: #120c0a;
-  --bg3: #1a110e;
+  --bg: #181b17;
+  --bg2: #20241e;
+  --bg3: #292d26;
   --card: rgba(30, 19, 15, .72);
   --card2: rgba(18, 12, 10, .86);
-  --line: rgba(255, 140, 80, .16);
-  --line2: rgba(255, 140, 80, .32);
-  --ember: #ff5a1f;
-  --lava: #ff8a3d;
-  --gold: #ffc861;
-  --soul: #4fd1c5;
+  --line: rgba(178, 184, 156, .23);
+  --line2: rgba(178, 184, 156, .42);
+  --ember: #a86b46;
+  --lava: #c79f73;
+  --gold: #d6bd86;
+  --soul: #adbf96;
   --void: #6b2fd1;
-  --text: #f4ece6;
-  --muted: #b9a89c;
+  --text: #eeeade;
+  --muted: #c0c1b0;
   --dim: #85746a;
   --f-pixel: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   --f-label: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
@@ -37,7 +37,7 @@ body.pv-on {
 }
 
 html.pv-page {
-  background: #0b0807;
+  background: #181b17;
   scroll-padding-top: 80px;
 }
 
@@ -46,7 +46,7 @@ html.pv-page {
    removed (body.pv-done), so the page appears fully rendered. */
 html.pv-boot,
 html.pv-boot body {
-  background: #0b0807;
+  background: #181b17;
 }
 
 html.pv-loading {
@@ -65,7 +65,7 @@ html.pv-boot body:not(.pv-done)::before {
   transition: opacity .32s ease;
   background:
     radial-gradient(ellipse 58% 46% at 50% 52%, rgba(8, 5, 4, .86), rgba(8, 5, 4, .5) 62%, rgba(8, 5, 4, .3) 82%),
-    linear-gradient(180deg, rgba(11, 8, 7, .75) 0, transparent 20%, transparent 62%, rgba(11, 8, 7, .7) 84%, #0b0807 100%),
+    linear-gradient(180deg, rgba(11, 8, 7, .75) 0, transparent 20%, transparent 62%, rgba(11, 8, 7, .7) 84%, #181b17 100%),
     #120806 url("../../assets/hero/bg-wide.webp") center 34% / cover no-repeat;
 }
 
@@ -80,8 +80,8 @@ html.pv-boot body:not(.pv-done)::after {
   height: 4px;
   margin-left: -100px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #ff5a1f, #ffc861) 0 0 / calc(var(--pct, 10) * 1%) 100% no-repeat, rgba(255, 220, 190, .12);
-  box-shadow: 0 0 18px rgba(255, 90, 31, .55);
+  background: linear-gradient(90deg, #a86b46, #d6bd86) 0 0 / calc(var(--pct, 10) * 1%) 100% no-repeat, rgba(255, 220, 190, .12);
+  box-shadow: 0 1px 0 #282b23;
   transition: opacity .25s ease, background-size .45s ease;
 }
 
@@ -110,7 +110,7 @@ html.pv-boot body:not(.pv-done) #appShift::after {
   z-index: 1001;
   text-align: center;
   font: 700 14px/1 "JetBrains Mono", ui-monospace, monospace;
-  color: #ffc861;
+  color: #d6bd86;
   transition: opacity .25s ease;
 }
 
@@ -124,7 +124,7 @@ body.pv-ready #appShift::after {
 
 @media (max-aspect-ratio: 4/5) {
   html.pv-boot body:not(.pv-done)::before {
-    background-image: radial-gradient(ellipse 58% 46% at 50% 52%, rgba(8, 5, 4, .86), rgba(8, 5, 4, .5) 62%, rgba(8, 5, 4, .3) 82%), linear-gradient(180deg, rgba(11, 8, 7, .75) 0, transparent 20%, transparent 62%, rgba(11, 8, 7, .7) 84%, #0b0807 100%), url("../../assets/hero/bg-tall.webp");
+    background-image: radial-gradient(ellipse 58% 46% at 50% 52%, rgba(8, 5, 4, .86), rgba(8, 5, 4, .5) 62%, rgba(8, 5, 4, .3) 82%), linear-gradient(180deg, rgba(11, 8, 7, .75) 0, transparent 20%, transparent 62%, rgba(11, 8, 7, .7) 84%, #181b17 100%), url("../../assets/hero/bg-tall.webp");
     background-position: center 40%;
   }
 }
@@ -198,8 +198,8 @@ body.pv-on [data-to] {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60% 40% at 15% 20%, rgba(255, 90, 31, .07), transparent 70%),
-    radial-gradient(50% 40% at 85% 75%, rgba(107, 47, 209, .06), transparent 70%),
+    radial-gradient(60% 40% at 15% 20%, rgba(118, 135, 96, .06), transparent 70%),
+    radial-gradient(50% 40% at 85% 75%, rgba(133, 112, 86, .05), transparent 70%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .8 0 0 0 0 .6 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
     var(--bg);
 }
@@ -363,11 +363,11 @@ body.pv-on [data-to] {
   margin: 0;
   font: 700 clamp(28px, 4.2vw, 52px)/1.08 var(--f-pixel);
   letter-spacing: -.025em;
-  background: linear-gradient(180deg, #fff3d6 0%, #ffc861 38%, #ff8a3d 68%, #e2401c 100%);
+  background: linear-gradient(#eeebdc 0 70%, #d8d6c6 70%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 24px rgba(255, 90, 31, .28)) drop-shadow(0 3px 0 rgba(60, 14, 4, .9));
+  filter: drop-shadow(0 2px 0 #292b25);
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
@@ -387,7 +387,7 @@ body.pv-on [data-to] {
 .pv-h .pv-ch {
   display: inline-block;
   color: transparent;
-  background: linear-gradient(180deg, #fff3d6 0%, #ffc861 38%, #ff8a3d 68%, #e2401c 100%);
+  background: linear-gradient(#eeebdc 0 70%, #d8d6c6 70%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -425,7 +425,7 @@ body.pv-on [data-to] {
   position: relative;
   border-radius: 16px;
   padding: 22px;
-  background: linear-gradient(160deg, rgba(44, 26, 20, .82), rgba(16, 11, 9, .9));
+  background: #30332c;
   border: 1px solid var(--line);
   box-shadow: inset 0 1px 0 rgba(255, 220, 190, .05), 0 24px 50px -30px rgba(0, 0, 0, .9);
   transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
@@ -459,7 +459,7 @@ body.pv-on [data-to] {
 .pv-card.is-hover,
 .pv-card:focus-within {
   border-color: var(--line2);
-  box-shadow: inset 0 1px 0 rgba(255, 220, 190, .06), 0 30px 60px -28px rgba(255, 90, 31, .35);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 190, .06), 0 4px 0 #171b16;
 }
 
 .pv-card.is-hover::before {
@@ -516,8 +516,8 @@ body.pv-on [data-to] {
 }
 
 .pv-btn-fire {
-  background: #a64221;
-  box-shadow: inset 2px 2px #df9360, inset -2px -3px #71311c, 0 2px #281a14;
+  background: #456d38;
+  box-shadow: inset 2px 2px #779764, inset -2px -3px #2c4526, 0 2px #1b251a;
   text-shadow: 0 1px 0 rgba(90, 20, 4, .55);
 }
 
@@ -526,12 +526,12 @@ body.pv-on [data-to] {
   position: absolute;
   inset: 0;
   transform: translateX(-120%) skewX(-20deg);
-  background: linear-gradient(90deg, transparent, rgba(255, 245, 225, .45), transparent);
+  background: linear-gradient(90deg, transparent, rgba(239, 238, 209, .15), transparent);
 }
 
 .pv-btn-fire:hover {
   filter: brightness(1.08);
-  box-shadow: inset 2px 2px #efab79, inset -2px -3px #71311c, 0 2px #281a14;
+  box-shadow: inset 2px 2px #99af86, inset -2px -3px #2c4526, 0 2px #1b251a;
 }
 
 .pv-btn-fire:hover::after {
@@ -659,7 +659,7 @@ body.pv-on [data-split].in .pv-ch {
   gap: 12px;
   padding: 0 10px 0 16px;
   transform: translate3d(-50%, 0, 0);
-  background: rgba(16, 10, 8, .74);
+  background: rgba(31, 35, 29, .96);
   border: 1px solid var(--line);
   border-radius: 18px;
   backdrop-filter: blur(16px) saturate(1.3);
@@ -677,7 +677,7 @@ body.pv-on [data-split].in .pv-ch {
 }
 
 .pv-bar.is-top {
-  background: rgba(16, 10, 8, .28);
+  background: rgba(31, 35, 29, .87);
   border-color: rgba(255, 255, 255, .06);
   box-shadow: none;
 }
@@ -939,6 +939,14 @@ body.pv-on [data-split].in .pv-ch {
     linear-gradient(180deg, rgba(11, 8, 7, .42) 0, transparent 14%);
 }
 
+/* A fixed tint softens highlights in both cuts of the original footage. */
+.pv-hero-shade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 33, 26, .27);
+}
+
 .pv-hero-inner {
   position: relative;
   width: min(1000px, 100%);
@@ -1023,7 +1031,7 @@ body.pv-on [data-split].in .pv-ch {
   z-index: -1;
   pointer-events: none;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 110, 40, .15), transparent);
+  background: radial-gradient(closest-side, rgba(168, 163, 130, .06), transparent);
   opacity: 0;
   animation: pv-breathe 5s ease-in-out 2s infinite;
 }
@@ -1047,7 +1055,7 @@ body.pv-on [data-split].in .pv-ch {
   border-radius: 3px;
   text-align: center;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(30, 14, 10, .85), rgba(10, 6, 5, .85));
+  background: #302c24;
   border: 1px solid rgba(255, 138, 61, .28);
   box-shadow: inset 1px 1px #544033, inset -2px -2px #1a100b;
 }
@@ -1057,7 +1065,7 @@ body.pv-on [data-split].in .pv-ch {
   height: 1.1em;
   font: 700 28px/1.1 var(--f-pixel);
   font-variant-numeric: tabular-nums;
-  color: #ffb26b;
+  color: #e1d4b4;
   text-shadow: 1px 2px #392318;
 }
 
@@ -1206,7 +1214,7 @@ body.pv-on [data-split].in .pv-ch {
   height: 16%;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 110, 40, .45), rgba(255, 90, 31, .12) 60%, transparent);
+  background: radial-gradient(closest-side, rgba(170, 156, 114, .20), rgba(110, 123, 84, .07) 60%, transparent);
   filter: blur(4px);
 }
 
@@ -1519,11 +1527,11 @@ body.pv-on [data-split].in .pv-ch {
   border-color: color-mix(in srgb, var(--t) 30%, transparent);
   background:
     radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--t) 16%, transparent), transparent 60%),
-    linear-gradient(160deg, rgba(40, 24, 18, .9), rgba(14, 9, 8, .94));
+    linear-gradient(160deg, rgba(40, 24, 18, .9), rgba(31, 35, 29, .96));
 }
 
 .pv-logo[data-tier="title"] {
-  --t: #ff8a3d;
+  --t: #c79f73;
   --t2: #e8461a;
 }
 
@@ -1533,7 +1541,7 @@ body.pv-on [data-split].in .pv-ch {
 }
 
 .pv-logo[data-tier="gold"] {
-  --t: #ffc861;
+  --t: #d6bd86;
   --t2: #d98b1c;
 }
 
@@ -2103,7 +2111,7 @@ body.pv-on [data-split].in .pv-ch {
   font: 700 clamp(26px, 3.6vw, 46px)/1.05 var(--f-pixel);
   letter-spacing: -.02em;
   color: var(--gold);
-  text-shadow: 0 0 26px rgba(255, 170, 60, .55), 0 3px 0 #5a1f06;
+  text-shadow: 0 2px 0 #463a28;
   font-variant-numeric: tabular-nums;
 }
 
@@ -2597,8 +2605,8 @@ body.pv-on [data-split].in .pv-ch {
   padding: 22px 22px 20px;
   isolation: isolate;
   border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
-  background: linear-gradient(180deg, #22130e, #0e0907);
-  box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--c) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, .06);
+  background: #2c3029;
+  box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--c) 24%, transparent), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 
 .pv-quest-orb {
@@ -2609,7 +2617,7 @@ body.pv-on [data-split].in .pv-ch {
   aspect-ratio: 1;
   border-radius: 50%;
   z-index: -1;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 70%, transparent), transparent 72%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 24%, transparent), transparent 72%);
   filter: blur(6px);
   animation: pv-orb 7s ease-in-out infinite alternate;
 }
@@ -2840,7 +2848,7 @@ body.pv-on [data-split].in .pv-ch {
   display: block;
   white-space: nowrap;
   font: 700 clamp(26px, 3.1vw, 46px)/1 var(--f-pixel);
-  background: linear-gradient(180deg, #fff1c9, #ffc861 45%, #ff8a3d);
+  background: linear-gradient(180deg, #fff1c9, #d6bd86 45%, #c79f73);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -2971,7 +2979,7 @@ body.pv-on [data-split].in .pv-ch {
 }
 
 #pv form.signup select option {
-  background: #1a110e;
+  background: #292d26;
   color: var(--text);
 }
 
@@ -3244,7 +3252,7 @@ body.pv-on [data-split].in .pv-ch {
   background:
     linear-gradient(rgba(255, 106, 42, .2) 2px, transparent 2px) 0 0 / 110px 110px,
     linear-gradient(90deg, rgba(255, 106, 42, .2) 2px, transparent 2px) 0 0 / 110px 110px,
-    radial-gradient(60% 50% at 50% 30%, #2a1712, #0b0807);
+    radial-gradient(60% 50% at 50% 30%, #2a1712, #181b17);
 }
 
 /* The brighter lines fade in as the floor opens (--p): only this layer's opacity changes, so the floor is not repainted. */
@@ -3571,7 +3579,7 @@ body.pv-on [data-split].in .pv-ch {
   padding: 22px 26px 28px 22px;
   overflow: hidden;
   isolation: isolate;
-  background: linear-gradient(150deg, rgba(50, 28, 20, .92), rgba(16, 10, 8, .95) 62%);
+  background: #30332c;
   opacity: 0;
   filter: blur(8px) brightness(1);
   transform-origin: calc(50% - var(--dir) * 50%) 50%;
@@ -3586,7 +3594,7 @@ body.pv-on [data-split].in .pv-ch {
   z-index: 5;
   border-radius: inherit;
   pointer-events: none;
-  background: #0b0807;
+  background: #181b17;
   opacity: 0;
 }
 
@@ -3603,7 +3611,7 @@ body.pv-on [data-split].in .pv-ch {
 
 .pv-tl-item.is-active .pv-tl-card {
   border-color: rgba(255, 138, 61, .42);
-  box-shadow: 0 34px 70px -30px rgba(255, 90, 31, .6), 0 0 0 1px rgba(255, 138, 61, .1);
+  box-shadow: inset 3px 0 #adbf96, 0 4px 0 #171b16;
 }
 
 /* Contents rise in after the card has opened. */
@@ -3957,7 +3965,7 @@ body.pv-on [data-split].in .pv-ch {
 .pv-tl-day-n b {
   font: 700 48px/1 var(--f-pixel);
   letter-spacing: -.03em;
-  background: linear-gradient(180deg, #fff3d6, #ffc861 45%, #ff5a1f);
+  background: linear-gradient(180deg, #fff3d6, #d6bd86 45%, #a86b46);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -4255,7 +4263,7 @@ body.pv-on [data-split].in .pv-ch {
   display: block;
   font: 700 clamp(30px, 3.4vw, 44px)/1 var(--f-pixel);
   letter-spacing: -.03em;
-  background: linear-gradient(180deg, #fff1c9, #ffc861 45%, #ff8a3d);
+  background: linear-gradient(180deg, #fff1c9, #d6bd86 45%, #c79f73);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -4398,7 +4406,7 @@ body.pv-on [data-split].in .pv-ch {
   white-space: nowrap;
   font: 600 15px/1 var(--f-body);
   color: var(--text);
-  background: linear-gradient(160deg, rgba(40, 24, 18, .9), rgba(14, 9, 8, .94));
+  background: linear-gradient(160deg, rgba(40, 24, 18, .9), rgba(31, 35, 29, .96));
   border: 1px solid var(--line);
   transition: border-color .3s, translate .4s var(--ease), box-shadow .3s;
 }
@@ -4520,7 +4528,7 @@ body.pv-on [data-split].in .pv-ch {
   }
 
   .pv-bar {
-    background: rgba(14, 9, 8, .94);
+    background: rgba(31, 35, 29, .96);
   }
 
   .pv-embers {
@@ -5055,7 +5063,7 @@ body.pv-on [data-split].in .pv-ch {
   height: 14px;
   margin-top: -7px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff3d6 0, #ffc861 35%, #ff5a1f 68%, transparent 72%);
+  background: radial-gradient(circle, #fff3d6 0, #d6bd86 35%, #a86b46 68%, transparent 72%);
   box-shadow: 0 0 18px 6px rgba(255, 90, 31, .55), 0 0 44px 14px rgba(255, 90, 31, .22);
   transform: translate3d(-50%, 0, 0);
   will-change: transform;
@@ -5333,7 +5341,7 @@ html.pv-lite .pv-eyebrow {
 }
 
 html.pv-lite .pv-bar {
-  background: rgba(14, 9, 8, .94);
+  background: rgba(31, 35, 29, .96);
 }
 
 html.pv-lite .pv-cursor {

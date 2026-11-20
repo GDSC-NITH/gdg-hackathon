@@ -38,7 +38,7 @@ function startVideo(hero) {
 }
 
 // ---------- Wordmark ----------
-// Pixel letters with a lava gradient face and a dark extrusion. On load the
+// Pixel letters with a pale stone face and a dark extrusion. On load the
 // pixels drop into place column by column; afterwards a heat shimmer passes
 // across every few seconds.
 function wordmark(canvas, text = 'LABYRINTH') {
@@ -54,13 +54,13 @@ function wordmark(canvas, text = 'LABYRINTH') {
   canvas.height = (h + DEPTH + 1) * S;
   const ctx = canvas.getContext('2d');
   const faceGrad = ctx.createLinearGradient(0, 0, 0, h * S);
-  faceGrad.addColorStop(0, '#fff1c9');
-  faceGrad.addColorStop(0.35, '#ffc861');
-  faceGrad.addColorStop(0.62, '#ff8a3d');
-  faceGrad.addColorStop(1, '#e2401c');
+  faceGrad.addColorStop(0, '#e5e1cf');
+  faceGrad.addColorStop(0.35, '#d3ceba');
+  faceGrad.addColorStop(0.62, '#bab7a6');
+  faceGrad.addColorStop(1, '#a29f90');
   const sideGrad = ctx.createLinearGradient(0, 0, 0, (h + DEPTH) * S);
-  sideGrad.addColorStop(0, '#5a1a0c');
-  sideGrad.addColorStop(1, '#1d0905');
+  sideGrad.addColorStop(0, '#635a47');
+  sideGrad.addColorStop(1, '#302d25');
 
   function draw(t, shimmer = -1) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -76,12 +76,12 @@ function wordmark(canvas, text = 'LABYRINTH') {
       for (let d = DEPTH; d >= 1; d--) ctx.fillRect(px + d * S * 0.5, py + d * S * 0.6, S, S);
       ctx.fillStyle = faceGrad;
       ctx.fillRect(px, py, S, S);
-      // Lava seam: a thin bright line along the top of each pixel row.
-      ctx.fillStyle = 'rgba(255,240,200,.55)';
+      // Stone edge: a thin bright line along the top of each pixel row.
+      ctx.fillStyle = 'rgba(242,239,222,.22)';
       ctx.fillRect(px, py, S, 1.5);
       if (shimmer >= 0) {
         const near = 1 - Math.min(1, Math.abs(c.x - shimmer) / 5);
-        if (near > 0) { ctx.fillStyle = `rgba(255,250,225,${near * 0.33})`; ctx.fillRect(px, py, S, S); }
+        if (near > 0) { ctx.fillStyle = `rgba(246,244,230,${near * 0.33})`; ctx.fillRect(px, py, S, S); }
       }
     }
     ctx.globalAlpha = 1;
