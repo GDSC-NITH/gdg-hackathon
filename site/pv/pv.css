@@ -62,7 +62,7 @@ html.pv-boot body:not(.pv-done)::before {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  transition: opacity .7s ease;
+  transition: opacity .32s ease;
   background:
     radial-gradient(ellipse 58% 46% at 50% 52%, rgba(8, 5, 4, .86), rgba(8, 5, 4, .5) 62%, rgba(8, 5, 4, .3) 82%),
     linear-gradient(180deg, rgba(11, 8, 7, .75) 0, transparent 20%, transparent 62%, rgba(11, 8, 7, .7) 84%, #0b0807 100%),
@@ -82,7 +82,7 @@ html.pv-boot body:not(.pv-done)::after {
   border-radius: 4px;
   background: linear-gradient(90deg, #ff5a1f, #ffc861) 0 0 / calc(var(--pct, 10) * 1%) 100% no-repeat, rgba(255, 220, 190, .12);
   box-shadow: 0 0 18px rgba(255, 90, 31, .55);
-  transition: opacity .5s ease, background-size .45s ease;
+  transition: opacity .25s ease, background-size .45s ease;
 }
 
 html.pv-boot body:not(.pv-done) #appShift::before {
@@ -97,7 +97,7 @@ html.pv-boot body:not(.pv-done) #appShift::before {
   letter-spacing: .22em;
   text-transform: uppercase;
   color: #ffdcbd;
-  transition: opacity .5s ease;
+  transition: opacity .25s ease;
 }
 
 html.pv-boot body:not(.pv-done) #appShift::after {
@@ -111,7 +111,7 @@ html.pv-boot body:not(.pv-done) #appShift::after {
   text-align: center;
   font: 700 14px/1 "JetBrains Mono", ui-monospace, monospace;
   color: #ffc861;
-  transition: opacity .5s ease;
+  transition: opacity .25s ease;
 }
 
 body.pv-ready::before,
@@ -488,7 +488,7 @@ body.pv-on [data-to] {
   gap: 10px;
   min-height: var(--h);
   padding: 0 24px;
-  border-radius: 12px;
+  border-radius: 3px;
   border: 0;
   overflow: hidden;
   font: 600 15px/1 var(--f-body);
@@ -512,12 +512,12 @@ body.pv-on [data-to] {
   --h: 40px;
   padding: 0 16px;
   font-size: 14px;
-  border-radius: 10px;
+  border-radius: 3px;
 }
 
 .pv-btn-fire {
-  background: linear-gradient(180deg, #ff9a4d, #ef4f1d 60%, #c93512);
-  box-shadow: inset 0 1px 0 rgba(255, 230, 200, .55), inset 0 -2px 0 rgba(90, 20, 4, .5), 0 10px 30px -10px rgba(255, 90, 31, .75);
+  background: #a64221;
+  box-shadow: inset 2px 2px #df9360, inset -2px -3px #71311c, 0 2px #281a14;
   text-shadow: 0 1px 0 rgba(90, 20, 4, .55);
 }
 
@@ -531,7 +531,7 @@ body.pv-on [data-to] {
 
 .pv-btn-fire:hover {
   filter: brightness(1.08);
-  box-shadow: inset 0 1px 0 rgba(255, 230, 200, .55), inset 0 -2px 0 rgba(90, 20, 4, .5), 0 16px 40px -10px rgba(255, 90, 31, .9);
+  box-shadow: inset 2px 2px #efab79, inset -2px -3px #71311c, 0 2px #281a14;
 }
 
 .pv-btn-fire:hover::after {
@@ -902,8 +902,6 @@ body.pv-on [data-split].in .pv-ch {
   z-index: 0;
   transform-origin: 50% 34%;
   will-change: transform;
-  /* A touch more colour and contrast than the raw clip; hero.js dims it on scroll. */
-  filter: saturate(1.22) contrast(1.08) brightness(1.06);
   background: #120806 url("../../assets/hero/bg-wide.webp") center 34% / cover no-repeat;
 }
 
@@ -1006,7 +1004,7 @@ body.pv-on [data-split].in .pv-ch {
   height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 0 30px rgba(255, 90, 31, .5)) drop-shadow(0 18px 30px rgba(0, 0, 0, .85));
+  filter: drop-shadow(0 4px 0 #25130c);
 }
 
 .pv-wordmark {
@@ -1025,7 +1023,7 @@ body.pv-on [data-split].in .pv-ch {
   z-index: -1;
   pointer-events: none;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 110, 40, .38), transparent);
+  background: radial-gradient(closest-side, rgba(255, 110, 40, .15), transparent);
   opacity: 0;
   animation: pv-breathe 5s ease-in-out 2s infinite;
 }
@@ -1046,12 +1044,12 @@ body.pv-on [data-split].in .pv-ch {
 .pv-unit {
   width: 86px;
   padding: 12px 0 9px;
-  border-radius: 14px;
+  border-radius: 3px;
   text-align: center;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(30, 14, 10, .85), rgba(10, 6, 5, .85));
   border: 1px solid rgba(255, 138, 61, .28);
-  box-shadow: inset 0 1px 0 rgba(255, 220, 190, .06), 0 10px 30px -12px rgba(255, 90, 31, .4);
+  box-shadow: inset 1px 1px #544033, inset -2px -2px #1a100b;
 }
 
 .pv-unit b {
@@ -1060,7 +1058,7 @@ body.pv-on [data-split].in .pv-ch {
   font: 700 28px/1.1 var(--f-pixel);
   font-variant-numeric: tabular-nums;
   color: #ffb26b;
-  text-shadow: 0 0 18px rgba(255, 110, 40, .55);
+  text-shadow: 1px 2px #392318;
 }
 
 .pv-unit b span {
@@ -1068,14 +1066,13 @@ body.pv-on [data-split].in .pv-ch {
 }
 
 .pv-unit b span.flip {
-  animation: pv-flip .5s var(--ease);
+  animation: pv-flip .25s var(--ease);
 }
 
 @keyframes pv-flip {
   from {
-    transform: translateY(-60%);
-    opacity: 0;
-    filter: blur(3px);
+    transform: translateY(-24%);
+    opacity: .68;
   }
 }
 
@@ -1163,7 +1160,7 @@ body.pv-on [data-split].in .pv-ch {
 }
 
 .pv-hero.is-ready .pv-intro {
-  animation: pv-up 1s var(--ease) both;
+  animation: pv-up .55s var(--ease) both;
 }
 
 .pv-hero.is-ready .pv-eyebrow {
@@ -1171,15 +1168,15 @@ body.pv-on [data-split].in .pv-ch {
 }
 
 .pv-hero.is-ready .pv-count {
-  animation-delay: .9s;
+  animation-delay: .15s;
 }
 
 .pv-hero.is-ready .pv-hero-cta {
-  animation-delay: 1.05s;
+  animation-delay: .24s;
 }
 
 .pv-hero.is-ready .pv-cue {
-  animation: pv-fade 1s 2s both;
+  animation: pv-fade .6s .65s both;
 }
 
 /* Portrait screens get the vertical loop (hero.js picks the same one by aspect ratio). */
@@ -4620,7 +4617,7 @@ body.pv-on [data-split].in .pv-ch {
     padding: 0 12px;
     gap: 6px;
     font-size: 14px;
-    border-radius: 12px;
+    border-radius: 3px;
     white-space: nowrap;
   }
 
@@ -5305,8 +5302,8 @@ body.pv-on .counted {
 
   @keyframes pv-flip {
     from {
-      transform: translateY(-60%);
-      opacity: 0;
+      transform: translateY(-24%);
+      opacity: .68;
     }
   }
 

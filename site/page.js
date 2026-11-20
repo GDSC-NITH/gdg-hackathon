@@ -7,7 +7,7 @@ import { split, reveal, tilt, magnetic, glow, ripple } from './pv/fx.js';
 import { initHero } from './pv/hero.js';
 import { initSections } from './pv/sections.js';
 import { initEmbers } from './pv/embers.js';
-import { measure, kick } from './pv/scroll.js';
+import { measure, kick, reduced } from './pv/scroll.js';
 
 export function initPageView() {
   if (document.getElementById('pv')) return;
@@ -27,7 +27,7 @@ export function initPageView() {
   magnetic(root);
   glow(root);
   ripple(root);
-  const hero = initHero(root, { now: booting });
+  initHero(root);
   initSections(root);
   initEmbers(root);
   measure(); kick();
@@ -39,43 +39,30 @@ export function initPageView() {
   new ResizeObserver(() => { measure(); kick(); }).observe(root);
   document.fonts?.ready.then(() => dispatchEvent(new Event('resize')));
 
+  // The loading screen fades over the painted hero. Fonts and video may arrive
+  // later, including when the browser requires a gesture before playing video.
+  if (booting) {
+    document.documentElement.style.setProperty('--pct', '100');
+    document.documentElement.classList.remove('pv-loading');
+    document.body.classList.add('pv-ready');
+    setTimeout(() => document.body.classList.add('pv-done'), 400);
+  }
+
+  if (reduced) return;
+  // On short hero layouts the first character is already on screen. Give the
+  // title and buttons their entrance before starting the runner's GPU work.
+  const introEnd = performance.now() + 800;
   const startRunner = () => import('./pv/mascot.js')
     .then(m => m.initMascot(root, { skin: config.skin }))
     .then(api => { window.__pv = { mascot: api }; })
     .catch(err => console.warn('Page view runner:', err));
-  const loaded = new Promise(r => { if (document.readyState === 'complete') r(); else addEventListener('load', r, { once: true }); });
 
-  if (!booting) {
-    // Fallback page: show it now; the runner loads last, as decoration.
-    hero.start();
-    loaded.then(() => setTimeout(startRunner, 300));
-    return;
-  }
-  // Loading screen: wait for what the first screen shows (the fonts and the hero
-  // video), at most 5 seconds, then reveal the page and play the hero intro. The
-  // runner first appears below the hero, so it loads alongside without holding
-  // the page. On a slow connection the video is not waited for either: the
-  // poster shows and the video fades in once it plays.
-  startRunner();
-  const conn = navigator.connection || {};
-  const slow = /(^|-)(2g|3g)$/.test(conn.effectiveType || '') || (conn.downlink && conn.downlink < 1.5);
-  revealWhen([document.fonts?.ready, slow ? null : hero.video], 5000).then(() => {
-    const html = document.documentElement;
-    html.style.setProperty('--pct', '100');
-    dispatchEvent(new Event('resize'));
-    document.body.classList.add('pv-ready');
-    html.classList.remove('pv-loading');
-    hero.start();
-    setTimeout(() => document.body.classList.add('pv-done'), 800);
-  });
-}
-
-// Progress (--pct on <html>, shown by the loading screen) moves as each step settles.
-function revealWhen(steps, cap) {
-  const html = document.documentElement;
-  let done = 0;
-  const show = () => html.style.setProperty('--pct', String(Math.round(10 + (done / steps.length) * 88)));
-  show();
-  const each = steps.map(s => Promise.resolve(s).catch(() => {}).then(() => { done++; show(); }));
-  return Promise.race([Promise.all(each), new Promise(r => setTimeout(r, cap))]);
+  // Observe every station, including the one at a restored scroll position.
+  const nearStage = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting)) return;
+    nearStage.disconnect();
+    const delay = scrollY === 0 ? Math.max(0, introEnd - performance.now()) : 0;
+    setTimeout(startRunner, delay);
+  }, { rootMargin: '64px 0px' });
+  root.querySelectorAll('[data-slot]').forEach(slot => nearStage.observe(slot));
 }

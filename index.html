@@ -31,7 +31,11 @@
     // 3D world opens with ?3d ("Explore our world"). Automated checks keep 3D.
     (function () {
       const params = new URLSearchParams(location.search);
-      // pv-boot shows the hero poster until site/page.js has built the page view.
+      if (!params.has('3d') && !params.has('plain') && !navigator.webdriver) {
+        params.set('plain', '');
+        const search = params.toString().replace(/=(?=&|$)/g, '');
+        history.replaceState(history.state, '', location.pathname + '?' + search + location.hash);
+      }
       if (params.has('plain')) {
         document.documentElement.classList.add('pv-boot');
         // The hero poster first; the page view's modules follow the import map below.
@@ -40,10 +44,6 @@
         document.head.append(poster);
         return;
       }
-      if (params.has('3d') || navigator.webdriver) return;
-      params.set('plain', '');
-      const search = params.toString().replace(/=(?=&|$)/g, '');
-      location.replace(location.pathname + (search ? '?' + search : '') + location.hash);
     })();
   </script>
   <link rel="stylesheet" href="engine/style.css">

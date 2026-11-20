@@ -32,7 +32,6 @@ const YAW = { front: 0, left: -0.95, right: 0.95, 'side-left': -Math.PI / 2, 'si
 export async function initMascot(root, { skin = '' } = {}) {
   if (reduced) return null;
   const weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
-  if (weak) return null;
 
   const small = Math.min(innerWidth, innerHeight) < 700;
   const canvas = document.createElement('canvas');
@@ -41,7 +40,7 @@ export async function initMascot(root, { skin = '' } = {}) {
   let renderer;
   try {
     // Ask for the context on this canvas first: without WebGL the page simply has no runner.
-    const attrs = { alpha: true, antialias: !small, powerPreference: 'low-power', premultipliedAlpha: true };
+    const attrs = { alpha: true, antialias: !small && !weak, powerPreference: 'low-power', premultipliedAlpha: true };
     const context = canvas.getContext('webgl2', attrs);
     if (!context) return null;
     renderer = new THREE.WebGLRenderer({ canvas, context, ...attrs });
@@ -51,7 +50,7 @@ export async function initMascot(root, { skin = '' } = {}) {
   }
   root.append(canvas);
   // Phones draw the full-screen runner layer at 1x pixels: the blocky model still reads cleanly.
-  renderer.setPixelRatio(small ? 1 : Math.min(devicePixelRatio || 1, 1.6));
+  renderer.setPixelRatio(small || weak ? 1 : Math.min(devicePixelRatio || 1, 1.6));
   renderer.localClippingEnabled = true;
   renderer.setClearColor(0x000000, 0);
   // Shader error checks read the compile log synchronously, which stalls the
@@ -585,14 +584,19 @@ export async function initMascot(root, { skin = '' } = {}) {
     renderer.clear();
   }
   warm();
-  // The trophy is small; fetch it once the page is idle rather than when the
-  // prizes come near, which is the middle of a scroll.
-  idle(loadTrophy);
 
   // ---------- Frame ----------
   let lastVis = true, shaken = false;
   const pm = new THREE.Matrix4(), pq = new THREE.Quaternion(), ps = new THREE.Vector3(), pe = new THREE.Euler();
+  let elapsed = 0;
   onFrame(dt => {
+    // Keep the same poses and travel speed on low-end devices at 30 updates/s.
+    if (weak) {
+      elapsed += dt;
+      if (elapsed < 1 / 32) return;
+      dt = Math.min(elapsed, 0.05);
+      elapsed = 0;
+    }
     t += dt;
     const { A, B, travel } = direct(dt);
 
@@ -634,7 +638,7 @@ export async function initMascot(root, { skin = '' } = {}) {
     if (visible) {
       runner.position.set(pos.x, pos.y, z);
       // Squash/stretch keeps the volume roughly constant; a slow breath when idle.
-      const s = height / AV_H, q = clamp(squash, -0.28, 0.28);
+      const s = height / AV_H, q = clamp(squash * 0.5, -0.12, 0.12);
       const breath = motion.speed < 0.1 && motion.fly < 0 ? Math.sin(t * 2.3) * 0.012 : 0;
       runner.scale.set(s * (1 - q * 0.5), s * (1 + q + breath), s * (1 - q * 0.5));
       runner.rotation.z = roll;
@@ -679,7 +683,7 @@ export async function initMascot(root, { skin = '' } = {}) {
         any = true;
       } else if (s.max) { s.max = 0; sc.setScalar(0); puffs.setMatrixAt(i, m.compose(s.p, q, sc)); any = true; }
     }
-    puffs.instanceMatrix.needsUpdate = true;
+    if (any) puffs.instanceMatrix.needsUpdate = true;
     puffs.visible = any;
 
     // Shake with the crater's burst (sections.js sets signals.shake).

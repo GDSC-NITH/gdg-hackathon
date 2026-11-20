@@ -28,7 +28,7 @@ export function split(root) {
 
 // Text that decodes from random glyphs into its real value.
 const GLYPHS = '▓▒░█<>/\\|=+*#%@$&ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-export function scramble(el, { duration = 900 } = {}) {
+export function scramble(el, { duration = 600 } = {}) {
   const final = el.dataset.final || (el.dataset.final = el.textContent);
   if (reduced) { el.textContent = final; return; }
   const start = performance.now();
@@ -36,9 +36,10 @@ export function scramble(el, { duration = 900 } = {}) {
     const t = Math.min(1, (now - start) / duration);
     const shown = Math.floor(final.length * t);
     let out = final.slice(0, shown);
-    for (let i = shown; i < final.length; i++) out += final[i] === ' ' ? ' ' : GLYPHS[(Math.random() * GLYPHS.length) | 0];
-    setText(el, out);
-    if (t < 1) requestAnimationFrame(step); else setText(el, final);
+    const edge = Math.min(shown + 3, final.length);
+    for (let i = shown; i < edge; i++) out += final[i] === ' ' ? ' ' : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    setText(el, out + final.slice(edge));
+    if (t < 1) setTimeout(() => requestAnimationFrame(step), 65); else setText(el, final);
   };
   requestAnimationFrame(step);
 }

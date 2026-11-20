@@ -5,64 +5,36 @@ import { onFrame, reduced, state } from './scroll.js';
 const TALL = '(max-aspect-ratio: 4/5)';
 
 // ---------- Background loop ----------
-// The poster (CSS) shows first. The video is skipped for reduced motion and
-// for visitors saving data or on 2G. Returns a promise that settles once the
-// video plays, or straight away when it is skipped or refused (the loading
-// screen waits on it). `now` starts it at once; otherwise after page load.
-function startVideo(hero, now) {
+// Fade from the matching poster into the loop after the first hero paint.
+// A deep link can land below the hero, so attach sources only while it is visible.
+function startVideo(hero) {
   const video = hero.querySelector('video');
   const media = hero.querySelector('.pv-hero-media');
-  let settle;
-  const ready = new Promise(r => { settle = r; });
-  if (!video) { settle(); return ready; }
   const conn = navigator.connection || {};
-  if (reduced || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) { settle(); return ready; }
+  if (!video || reduced || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) return;
 
   const tall = matchMedia(TALL);
-  let variant = '';
-  const load = () => {
+  let variant = '', visible = false;
+  function sync() {
+    if (!visible || document.hidden) { video.pause(); return; }
     const next = tall.matches ? 'tall' : 'wide';
-    if (next === variant) return;
-    variant = next;
-    video.innerHTML = `<source src="assets/hero/bg-${next}.webm" type="video/webm"><source src="assets/hero/bg-${next}.mp4" type="video/mp4">`;
-    video.load();
-    play();
-  };
-  // A refused play() (autoplay blocked until a gesture) settles too: the poster stays.
-  const play = () => { const p = video.play(); if (p) p.catch(() => settle()); };
-  video.addEventListener('playing', () => { media.classList.add('is-playing'); settle(); }, { once: true });
-  tall.addEventListener?.('change', load);
-
-  // Pause off-screen and in background tabs.
-  let visible = true;
-  new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
-    if (visible && !document.hidden) play(); else video.pause();
-  }).observe(hero);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); else if (visible) play(); });
-
-  // Keep the loop running. Phones can stop a muted loop: power saving pauses it,
-  // the jump back to the start stalls, or autoplay waits for a gesture. While the
-  // hero is on screen, check once a second and restart it if it has stopped.
-  let lastT = -1, still = 0;
-  video.addEventListener('ended', () => { video.currentTime = 0; play(); });
-  setInterval(() => {
-    if (!variant || !visible || document.hidden || video.readyState < 2) return;
-    if (video.paused) { play(); return; }
-    if (video.currentTime === lastT) {
-      if (++still >= 2) { still = 0; video.currentTime = (video.currentTime + 0.05) % (video.duration || 1); play(); }
-    } else still = 0;
-    lastT = video.currentTime;
-  }, 1000);
-  // Autoplay refused (iPhone Low Power Mode): the first touch or scroll starts it.
-  for (const type of ['touchstart', 'pointerdown', 'scroll']) addEventListener(type, () => { if (variant && visible && video.paused) play(); }, { passive: true, once: true });
-
-  if (now) load();
-  else {
-    const go = () => (window.requestIdleCallback || (f => setTimeout(f, 200)))(load, { timeout: 1500 });
-    if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
+    if (next !== variant) {
+      variant = next;
+      media.classList.remove('is-playing');
+      video.innerHTML = `<source src="assets/hero/bg-${next}.webm" type="video/webm"><source src="assets/hero/bg-${next}.mp4" type="video/mp4">`;
+      video.load();
+    }
+    if (video.paused) video.play().catch(() => {}); // Autoplay may need a gesture.
   }
-  return ready;
+  video.addEventListener('playing', () => media.classList.add('is-playing'));
+  tall.addEventListener('change', sync);
+  document.addEventListener('visibilitychange', sync);
+  document.addEventListener('pointerdown', sync, { passive: true });
+  video.addEventListener('ended', sync);
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    sync();
+  }).observe(hero);
 }
 
 // ---------- Wordmark ----------
@@ -76,7 +48,7 @@ function wordmark(canvas, text = 'LABYRINTH') {
   pixelText(off.ctx, text, 0, 0, 1, '#000');
   const data = off.ctx.getImageData(0, 0, w, h).data;
   const cells = [];
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (data[(y * w + x) * 4 + 3] > 0) cells.push({ x, y, d: x * 0.022 + Math.random() * 0.18 });
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (data[(y * w + x) * 4 + 3] > 0) cells.push({ x, y, d: x * 0.01 + Math.random() * 0.08 });
 
   canvas.width = (w + DEPTH) * S;
   canvas.height = (h + DEPTH + 1) * S;
@@ -93,7 +65,7 @@ function wordmark(canvas, text = 'LABYRINTH') {
   function draw(t, shimmer = -1) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const c of cells) {
-      const k = Math.min(1, Math.max(0, (t - c.d) / 0.45));
+      const k = Math.min(1, Math.max(0, (t - c.d) / 0.3));
       if (k <= 0) continue;
       const e = 1 - Math.pow(1 - k, 3);
       const dy = (1 - e) * -6 * S;
@@ -109,7 +81,7 @@ function wordmark(canvas, text = 'LABYRINTH') {
       ctx.fillRect(px, py, S, 1.5);
       if (shimmer >= 0) {
         const near = 1 - Math.min(1, Math.abs(c.x - shimmer) / 5);
-        if (near > 0) { ctx.fillStyle = `rgba(255,250,225,${near * 0.75})`; ctx.fillRect(px, py, S, S); }
+        if (near > 0) { ctx.fillStyle = `rgba(255,250,225,${near * 0.33})`; ctx.fillRect(px, py, S, S); }
       }
     }
     ctx.globalAlpha = 1;
@@ -120,8 +92,8 @@ function wordmark(canvas, text = 'LABYRINTH') {
   const intro = now => {
     const t = (now - start) / 1000;
     draw(t);
-    if (t < 1.4) requestAnimationFrame(intro);
-    else { draw(99); setTimeout(sweep, 2200); }
+    if (t < 0.95) requestAnimationFrame(intro);
+    else { draw(99); setTimeout(sweep, 4200); }
   };
   return () => { if (start) return; start = performance.now(); requestAnimationFrame(intro); };
 
@@ -131,7 +103,7 @@ function wordmark(canvas, text = 'LABYRINTH') {
     const run = now => {
       const k = (now - s0) / 1100;
       draw(99, -6 + k * (w + 12));
-      if (k < 1) requestAnimationFrame(run); else { draw(99); setTimeout(sweep, 4200); }
+      if (k < 1) requestAnimationFrame(run); else { draw(99); setTimeout(sweep, 6500); }
     };
     requestAnimationFrame(run);
   }
@@ -150,6 +122,7 @@ function countdown(el) {
   const units = [['days', 86400], ['hours', 3600], ['min', 60], ['sec', 1]];
   el.innerHTML = units.map(([l]) => `<div class="pv-unit"><b><span>00</span></b><small>${l}</small></div>`).join('');
   const spans = [...el.querySelectorAll('b span')];
+  el.addEventListener('animationend', e => { if (e.animationName === 'pv-flip') e.target.classList.remove('flip'); });
   const tick = () => {
     const now = Date.now();
     if (now >= starts) {
@@ -161,7 +134,7 @@ function countdown(el) {
       const v = String(i === 0 ? Math.floor(s / size) : Math.floor(s / size) % (i === 1 ? 24 : 60)).padStart(2, '0');
       if (spans[i].textContent !== v) {
         spans[i].textContent = v;
-        if (!reduced) { spans[i].classList.remove('flip'); void spans[i].offsetWidth; spans[i].classList.add('flip'); }
+        if (!reduced) spans[i].classList.add('flip');
       }
     });
     setTimeout(tick, 1000 - (now % 1000));
@@ -169,18 +142,17 @@ function countdown(el) {
   tick();
 }
 
-// Returns { video, start }: video settles when the background loop plays (or is
-// skipped); start() plays the hero's intro. With `now`, the video loads at once.
-export function initHero(root, { now = false } = {}) {
+export function initHero(root) {
   const hero = root.querySelector('.pv-hero');
-  if (!hero) return { video: Promise.resolve(), start() {} };
-  const video = startVideo(hero, now);
+  if (!hero) return;
   const mark = wordmark(hero.querySelector('.pv-wordmark canvas'));
-  const count = hero.querySelector('.pv-count');
-  if (count) countdown(count);
-  const start = () => { mark(); requestAnimationFrame(() => hero.classList.add('is-ready')); };
+  countdown(hero.querySelector('.pv-count'));
   initParallax(hero);
-  return { video, start };
+  mark();
+  requestAnimationFrame(() => {
+    hero.classList.add('is-ready');
+    requestAnimationFrame(() => startVideo(hero));
+  });
 }
 
 function initParallax(hero) {
@@ -212,10 +184,9 @@ function initParallax(hero) {
     const moved = Math.abs(k - shown) > 0.0005 || Math.abs(px - spx) + Math.abs(py - spy) > 0.0008;
     if (!moved || k > 1.01) return;
     shown = k; spx = px; spy = py;
-    media.style.transform = `scale(${1.04 + k * 0.35}) translate3d(${(px * -16).toFixed(2)}px, ${(py * -10).toFixed(2)}px, 0)`;
-    // brightness(1.06 - 0.6k) on top of the CSS filter, as a black overlay.
-    dim.style.opacity = (k * 0.6 / 1.06).toFixed(3);
-    inner.style.transform = `translate3d(0, ${k * -18}vh, 0) scale(${1 - k * 0.08})`;
+    media.style.transform = `scale(${1.02 + k * 0.16}) translate3d(${(px * -16).toFixed(2)}px, ${(py * -10).toFixed(2)}px, 0)`;
+    dim.style.opacity = (k * 0.48).toFixed(3);
+    inner.style.transform = `translate3d(0, ${k * -10}vh, 0) scale(${1 - k * 0.08})`;
     inner.style.opacity = String(Math.max(0, 1 - k * 1.6));
     if (mark) mark.style.transform = `perspective(900px) rotateX(${(py * -9).toFixed(2)}deg) rotateY(${(px * 12).toFixed(2)}deg) translate3d(${(px * 14).toFixed(1)}px, ${(py * 8).toFixed(1)}px, 0)`;
     for (const [el, d] of layers) if (el) el.style.translate = `${(px * d).toFixed(1)}px ${(py * d * 0.6).toFixed(1)}px`;

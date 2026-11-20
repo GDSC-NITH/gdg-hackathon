@@ -1,5 +1,5 @@
 // Drifting embers and ash over the whole page: one small 2D canvas, about
-// 50 particles on desktop; on phones 16 particles at 1x pixels, redrawn at 30 fps.
+// 28 particles on desktop, redrawn at about 30 fps.
 // Off when motion is reduced.
 import { onFrame, onLite, state, reduced } from './scroll.js';
 
@@ -12,7 +12,7 @@ export function initEmbers(root) {
   root.append(canvas);
   const ctx = canvas.getContext('2d');
   const small = Math.min(innerWidth, innerHeight) < 700;
-  const N = small ? 16 : 50;
+  const N = small ? 12 : 28;
   // Soft dots need no high-DPI canvas; 1x clears and composites about half the pixels of 1.5x each frame.
   const dpr = 1;
   let w = 0, h = 0;
@@ -39,7 +39,9 @@ export function initEmbers(root) {
   let lastY = 0, acc = 0;
   const stop = onFrame(dt => {
     if (document.hidden) return;
-    if (small) { acc += dt; if (acc < 1 / 31) return; dt = acc; acc = 0; }
+    acc += dt;
+    if (acc < 1 / 32) return;
+    dt = acc; acc = 0;
     const scrollDy = state.y - lastY; lastY = state.y;
     ctx.clearRect(0, 0, w, h);
     for (const p of P) {
@@ -58,9 +60,7 @@ export function initEmbers(root) {
         ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + Math.max(-60, Math.min(60, state.vy * 0.025 * p.r))); ctx.stroke();
       } else {
         ctx.fillStyle = `rgba(${p.c},${p.a * flick})`;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = `rgba(${p.c},${p.a * flick * 0.12})`;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), p.r * 1.5, p.r * 1.5);
       }
     }
   });

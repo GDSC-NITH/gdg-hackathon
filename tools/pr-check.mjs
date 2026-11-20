@@ -17,7 +17,7 @@ export function classify(paths) {
   const entries = paths.filter(p => /^directory\/(?!_)[^/]+\.json$/.test(p));
   if (entries.length && (entries.length !== 1 || paths.some(path => path !== entries[0] && ![LEDGER, CREDITS].includes(path)) ||
       paths.includes(LEDGER) !== paths.includes(CREDITS))) throw Error('A listing PR must change one directory JSON file, optionally with its contributor ledger and generated credits. Submit other changes separately.');
-  return { listing: entries[0] || null, browser: paths.some(p => /^(engine\/|plugin\/|world\/|examples\/|tools\/|\.github\/workflows\/|home\.config\.js$|index\.html$|package)/.test(p)) };
+  return { listing: entries[0] || null, browser: paths.some(p => /^(engine\/|site\/|plugin\/|world\/|examples\/|tools\/|\.github\/workflows\/|home\.config\.js$|index\.html$|package)/.test(p)) };
 }
 const run = (command, args) => execFileSync(command, args, { stdio: 'inherit' });
 async function main() {
@@ -47,6 +47,7 @@ async function main() {
       await new Promise(r => setTimeout(r, 200));
     }
     if (!ready) throw Error('Preview server did not start');
+    run('node', ['tools/check-plain.mjs', 'http://127.0.0.1:4173/']);
     run('node', ['tools/check.mjs', 'http://127.0.0.1:4173/']);
   } finally { server.kill(); }
 }
